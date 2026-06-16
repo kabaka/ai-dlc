@@ -11,8 +11,8 @@ ships, **every load-bearing claim is independently re-fetched and confirmed** to
 dated and confidence-tagged. Claims that cannot be confirmed are **labeled
 "unconfirmed" and never asserted**. The gate exists because fabricated and
 misattributed citations are a primary failure mode of LLM research, and a cited
-source that doesn't say what you claim is a correctness defect (`AGENTS.md` priority
-#1) — as serious as a broken build.
+source that doesn't say what you claim is a correctness defect (`AGENTS.md`
+priority 1) — as serious as a broken build.
 
 It is owned by `research-synthesizer` and runs on fan-in, after gathering
 (`research-method`) and before emit. The `researcher` may load it on demand to
@@ -53,7 +53,7 @@ a structured contract, not prose — keep it exact:
 
 Example rows:
 
-```
+```text
 claim:        "Claude Code skills load context in three progressive levels."
 source_url:   https://code.claude.com/docs/en/skills#progressive-disclosure
 fetched_date: 2026-06-16

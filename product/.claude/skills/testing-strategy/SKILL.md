@@ -78,7 +78,7 @@ adversarial inputs — and warrants `security` challenge.
 Coverage here means **every `acceptance_criterion` is verified by at least one
 grading test** — not a line-coverage percentage. Build a visible map:
 
-```
+```text
 acceptance_criterion → grading test(s) that assert it
 ```
 

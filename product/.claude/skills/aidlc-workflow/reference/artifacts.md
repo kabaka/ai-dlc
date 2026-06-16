@@ -19,7 +19,7 @@ handoff against the schema here — the next phase consumes a known shape, not p
 Each arrow is a structured artifact handed forward; the receiving stage needs the
 producing stage's whole output:
 
-```
+```text
 requirements → architecture → plan → diff+tests → review verdict → ops record
 ```
 

@@ -1,7 +1,8 @@
-<!-- ai-dlc:link-check-ignore-file -->
 ---
 inclusion: always
 ---
+
+<!-- ai-dlc:link-check-ignore-file -->
 
 # AI-DLC — orchestrator steering for Kiro
 

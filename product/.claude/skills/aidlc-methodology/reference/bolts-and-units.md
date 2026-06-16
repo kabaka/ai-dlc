@@ -52,4 +52,5 @@ depth and the decision points described in `ceremonies-and-arbiter.md`.
 | --- | --- | --- |
 | Sprint | **Bolt** | Weeks → hours/days |
 | Epic | **Unit of Work** | Sized for parallel, AI-driven development |
+
 </content>
