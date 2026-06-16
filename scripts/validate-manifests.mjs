@@ -17,7 +17,10 @@
 //   - required keys present with correct types
 //   - optional keys, when present, have correct types
 //   - component path fields start with `./`, contain no `..`, and resolve to a
-//     real dir/file on disk (relative to the manifest's own root)
+//     real dir/file on disk (relative to the manifest's own root). NOTE: the
+//     live `claude plugin validate` (v2.1.179) accepts `agents` ONLY as a list
+//     of agent FILE paths, while `skills`/`commands`/`outputStyles` are
+//     DIRECTORY paths — this validator enforces that split.
 //   - marketplace relative-path `source`s start with `./`, no `..`, and resolve
 //
 // Path resolution note: plugin component paths resolve from the plugin ROOT
@@ -165,9 +168,16 @@ function validatePlugin() {
   }
 
   // Component path fields — must start with `./`, no `..`, resolve on disk.
-  const dirPathFields = ["skills", "commands", "agents", "outputStyles"];
+  // Verified against `claude plugin validate` (v2.1.179, 2026-06-16): the live
+  // schema accepts `agents` ONLY as a list of agent FILE paths (a directory is
+  // rejected with "agents: Invalid input"), whereas `skills`/`commands`/
+  // `outputStyles` accept a DIRECTORY (string or array).
+  const dirPathFields = ["skills", "commands", "outputStyles"];
   for (const f of dirPathFields) {
     if (f in data) checkPathField(rel, `\`${f}\``, data[f], pluginRoot, "dir");
+  }
+  if ("agents" in data) {
+    checkPathField(rel, "`agents`", data.agents, pluginRoot, "file");
   }
   // hooks / mcpServers / lspServers may be a path STRING, an array of paths,
   // or an inline object. Only check string/array forms as paths.

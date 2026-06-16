@@ -1,0 +1,28 @@
+{
+  "name": "ai-dlc",
+  "version": "0.1.0",
+  "description": "Installer for the AI-DLC kit: scaffolds and updates the cross-platform orchestrator, agents, skills, methodology templates, and the arbiter-gate hook into your repository.",
+  "type": "module",
+  "bin": {
+    "ai-dlc": "bin/ai-dlc.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "payload/",
+    "README.md"
+  ],
+  "keywords": [
+    "ai-dlc",
+    "installer",
+    "scaffold",
+    "orchestrator",
+    "agents",
+    "skills"
+  ],
+  "license": "Apache-2.0",
+  "dependencies": {}
+}

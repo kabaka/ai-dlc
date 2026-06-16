@@ -83,11 +83,12 @@ fi
 # --- 6. shellcheck ---------------------------------------------------------
 section "shellcheck"
 if command -v shellcheck >/dev/null 2>&1; then
-  # Lint kit-builder scripts AND the product installer shell (when present).
-  # `product/installer/` may not exist yet -> the second path is simply absent
+  # Lint kit-builder scripts AND the product shell (installer + shipped hooks),
+  # when present. Either product path may not exist yet -> it is simply absent
   # from the find roots, which find tolerates.
   SH_ROOTS="scripts"
   [ -d product/installer ] && SH_ROOTS="$SH_ROOTS product/installer"
+  [ -d product/templates ] && SH_ROOTS="$SH_ROOTS product/templates"
   # Word-splitting of the roots list is intended here.
   # shellcheck disable=SC2086
   SH_FILES=$(find $SH_ROOTS -type f -name '*.sh' 2>/dev/null | sort)
