@@ -55,4 +55,3 @@ adaptation stretches: with one human, the collective is *agents*, not independen
 people. That still beats a single unchallenged take, but it is weaker than a true
 multi-human mob (agents can share blind spots). See `ceremonies-and-arbiter.md` for
 the honest framing — value 2 is real here, just dialed down from the multi-human ideal.
-</content>

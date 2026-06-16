@@ -63,4 +63,3 @@ approve requirements and units of work; Construction has an internal design gate
 ends at the merge approval; Operations begins when you authorize the deploy. Between
 those gates, AI works freely. See `ceremonies-and-arbiter.md` for the decision points
 and the Decision Record they produce.
-</content>

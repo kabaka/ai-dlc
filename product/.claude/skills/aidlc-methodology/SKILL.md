@@ -140,5 +140,3 @@ the solo adaptations as clearly-labeled extensions.
 For the **procedure** — how to actually run a phase end to end — see the
 **`aidlc-workflow`** skill. This skill tells you what the pieces *are*; that one
 tells you what to *do*.
-</content>
-</invoke>

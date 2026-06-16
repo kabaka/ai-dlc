@@ -127,4 +127,3 @@ Rules:
 - Triage **reduces ceremony, never the arbiter gate.** Even a trivial unit crosses a
   human decision point; triage changes *how much challenge*, not *whether you decide*.
   The human-as-arbiter principle holds at every tier.
-</content>
