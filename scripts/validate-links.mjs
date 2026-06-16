@@ -19,9 +19,14 @@
 //     <!-- ai-dlc:link-check-ignore-file -->
 //
 // This is a per-file opt-out, chosen over a path-based ignore list so the
-// exemption is visible at the point of use and cannot silently widen to cover
-// real skills/agents (which never carry the marker, so their links are always
-// checked). Marker files are reported as skipped, not validated.
+// exemption is visible at the point of use. To keep it from silently widening
+// to cover real skills/agents, the marker ONLY takes effect for files under
+// `product/templates/` (its stated purpose). A file outside that directory that
+// carries the marker is NOT skipped — its links are still validated, and a
+// notice records that the marker was ignored outside the allowed path. So a
+// contributor (or injected template-PR content) cannot hide broken links in a
+// real skill/agent by dropping the marker into it. Eligible marker files are
+// reported as skipped, not validated.
 
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { execFileSync } from "node:child_process";
@@ -81,8 +86,16 @@ function isPlaceholder(target) {
 
 // Marker that opts a whole file out of in-repo link resolution (see header).
 const IGNORE_FILE_MARKER = "ai-dlc:link-check-ignore-file";
+// The marker is honored ONLY for files under this path prefix (see header).
+const TEMPLATE_PREFIX = "product/templates/";
+
+/** True if a repo-relative path lives under product/templates/. */
+function isTemplateFile(fileRel) {
+  return fileRel === TEMPLATE_PREFIX || fileRel.startsWith(TEMPLATE_PREFIX);
+}
 
 const broken = [];
+const ignoredMarkers = [];
 let skippedCount = 0;
 
 function checkTarget(fileRel, lineNo, rawTarget) {
@@ -122,10 +135,16 @@ function scanFile(fileRel) {
   const abs = join(REPO_ROOT, fileRel);
   if (!existsSync(abs)) return;
   const content = readFileSync(abs, "utf8");
-  // Whole-file opt-out for template payloads (see header).
+  // Whole-file opt-out for template payloads — honored ONLY under
+  // product/templates/ (see header). Outside that path the marker is ignored:
+  // the file is still validated, and we record a notice so the misplaced marker
+  // is visible rather than silently suppressing real broken links.
   if (content.includes(IGNORE_FILE_MARKER)) {
-    skippedCount++;
-    return;
+    if (isTemplateFile(fileRel)) {
+      skippedCount++;
+      return;
+    }
+    ignoredMarkers.push(fileRel);
   }
   const lines = content.split(/\r?\n/);
   let inFence = false;
@@ -164,6 +183,15 @@ console.log(
   `  scanned ${files.length} Markdown file(s)` +
     (skippedCount > 0 ? `, ${skippedCount} template file(s) skipped` : "")
 );
+
+if (ignoredMarkers.length > 0) {
+  console.log(
+    `  NOTICE: ${ignoredMarkers.length} file(s) carry the ` +
+      `${IGNORE_FILE_MARKER} marker outside ${TEMPLATE_PREFIX}; ` +
+      "the marker was IGNORED and links were validated:"
+  );
+  for (const f of ignoredMarkers) console.log(`    ${f}`);
+}
 
 if (broken.length === 0) {
   console.log("PASS: all local links resolve");
