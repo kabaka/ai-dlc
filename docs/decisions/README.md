@@ -12,6 +12,10 @@ the [MADR 4.0](https://adr.github.io/madr/) format (see
 | ------------------------------------------------------------------- | ------------------------------------------------------ | -------- |
 | [0001](./0001-canonical-agents-md-with-claude-md-import.md)         | Canonical AGENTS.md with CLAUDE.md `@AGENTS.md` import | Accepted |
 | [0002](./0002-installer-primary-plugin-secondary-distribution.md)   | Installer-primary, plugin-secondary distribution       | Accepted |
+| [0003](./0003-deliverable-repository-layout-and-packaging.md)       | Deliverable repository layout and packaging            | Accepted |
+| [0004](./0004-consumer-agent-roster-and-security-documentation-hybrid.md) | Consumer agent roster and the security/documentation hybrid | Accepted |
+| [0005](./0005-baked-in-mechanisms-and-two-tier-eval-strategy.md)    | The five baked-in mechanisms and the two-tier eval strategy | Accepted |
+| [0006](./0006-installer-idempotent-merge-and-consumer-file-preservation.md) | Installer idempotent merge and consumer-file preservation | Accepted |
 
 ## Statuses
 
@@ -30,7 +34,7 @@ shape:
 
 1. Copy [`adr-template.md`](./adr-template.md) to a new file.
 2. Name it `NNNN-short-kebab-title.md`, where `NNNN` is the next zero-padded
-   sequential number (the next free number is **0003**). Numbers are never reused,
+   sequential number (the next free number is **0007**). Numbers are never reused,
    even if an ADR is later rejected or superseded.
 3. Fill in every section of the template. Keep the title line consistent:
    `# NNNN — Title`.

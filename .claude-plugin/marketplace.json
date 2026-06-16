@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "ai-dlc",
+  "owner": {
+    "name": "Kyle Johnson and AI-DLC contributors"
+  },
+  "description": "AI-DLC: the Claude-Code-first AI-Driven Development Lifecycle kit.",
+  "plugins": [
+    {
+      "name": "ai-dlc",
+      "source": "./product",
+      "description": "Orchestrator + specialist agent roster + on-demand skills for the AI-DLC lifecycle (Inception -> Construction -> Operations), human as sole arbiter.",
+      "category": "workflow",
+      "tags": ["ai-dlc", "orchestrator", "development-lifecycle", "agents", "skills"]
+    }
+  ]
+}

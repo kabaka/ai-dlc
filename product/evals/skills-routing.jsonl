@@ -1,0 +1,60 @@
+# AI-DLC trigger-critical SKILL evals (Tier-2 routing records; see ../README.md).
+# A `target` here is a skill whose value depends on loading at the right moment.
+# Triggering prompts must NOT name the skill — CI rejects skill-name-in-query.
+# Linted for QUALITY only; behavior is judged in the manual model-in-the-loop loop.
+
+# ---- architecture-design  (vs implementation-planning) ----
+{"id": "ad-pos-1", "target": "architecture-design", "kind": "positive", "prompt": "Before any code, propose a couple of logical architectures for this service with their trade-offs, the domain model, and the data contracts, then let me pick.", "expectation": "Loads architecture-design: structure/contracts before code, 2+ options for the arbiter."}
+{"id": "ad-near-1", "target": "architecture-design", "kind": "near-miss-negative", "prompt": "The structure is decided — turn this unit into an ordered set of build steps and surface what's blocked vs parallel.", "expectation": "Must NOT load architecture-design. Correct target: implementation-planning — ordering the build, not designing it."}
+
+# ---- implementation-planning  (vs architecture-design) ----
+{"id": "ip-pos-1", "target": "implementation-planning", "kind": "positive", "prompt": "Take this approved unit of work and sequence it into dependency-aware build steps; tell me what can go in parallel and produce the handoff for the build.", "expectation": "Loads implementation-planning: sequencing a unit into ordered build steps."}
+{"id": "ip-near-1", "target": "implementation-planning", "kind": "near-miss-negative", "prompt": "We still need to choose the module boundaries and define the interfaces between components — give me options with trade-offs.", "expectation": "Must NOT load implementation-planning. Correct target: architecture-design — structure/boundaries, not sequence."}
+
+# ---- code-review  (vs rca-investigation) ----
+{"id": "crv-pos-1", "target": "code-review", "kind": "positive", "prompt": "Look over this PR before we merge — does the change satisfy the unit's real intent, are there regressions, and what's your verdict?", "expectation": "Loads code-review: pre-merge review with an enumerated verdict."}
+{"id": "crv-near-1", "target": "code-review", "kind": "near-miss-negative", "prompt": "This feature was working last week and now it's broken in prod — reproduce it and find the true cause before we change anything.", "expectation": "Must NOT load code-review. Correct target: rca-investigation — an observed failure, not a pre-merge gate."}
+
+# ---- rca-investigation  (vs code-review) ----
+{"id": "rca-pos-1", "target": "rca-investigation", "kind": "positive", "prompt": "A nightly job started failing intermittently after a config change. Isolate it, diagnose the real cause, and tell me who should own the fix.", "expectation": "Loads rca-investigation: reproduce/isolate/diagnose an observed failure; investigate-only."}
+{"id": "rca-near-1", "target": "rca-investigation", "kind": "near-miss-negative", "prompt": "Here's a proposed diff. Gate it before merge — correctness and any regressions it might introduce.", "expectation": "Must NOT load rca-investigation. Correct target: code-review — nothing is broken; this is a pre-merge gate."}
+
+# ---- requirements-elaboration ----
+{"id": "re-pos-1", "target": "requirements-elaboration", "kind": "positive", "prompt": "This ask is fuzzy. Help me clarify it, write testable acceptance criteria and explicit non-goals, set the risk tier, and slice the units of work to open Construction.", "expectation": "Loads requirements-elaboration: Inception elaboration — criteria, non-goals, risk_tier, unit slicing."}
+{"id": "re-near-1", "target": "requirements-elaboration", "kind": "near-miss-negative", "prompt": "Requirements are locked. Now define the domain model and the component boundaries with a couple of options.", "expectation": "Must NOT load requirements-elaboration. Correct target: architecture-design — structural design after requirements."}
+
+# ---- testing-strategy ----
+{"id": "ts-pos-1", "target": "testing-strategy", "kind": "positive", "prompt": "Design the oracle for this unit — what levels to test at, cover every acceptance criterion, and write the assertions so passing means it's genuinely right, not gamed.", "expectation": "Loads testing-strategy: designing the oracle, levels, intent-checking, don't-edit-the-oracle rule."}
+{"id": "ts-near-1", "target": "testing-strategy", "kind": "near-miss-negative", "prompt": "The tests already exist and pass — now write the product code that makes them green.", "expectation": "Must NOT load testing-strategy. Correct target: the implementer's path — writing product code, not the oracle."}
+
+# ---- security-review  (lightweight lens vs escalation to the security agent) ----
+{"id": "srv-pos-1", "target": "security-review", "kind": "positive", "prompt": "Quick check on this change — is it safe, could any of it be exploited? It touches input parsing and a file upload.", "expectation": "Loads security-review: standing lightweight lens; covers injection/upload, and the escalation boundary."}
+{"id": "srv-near-1", "target": "security-review", "kind": "near-miss-negative", "prompt": "We're designing a brand-new authentication scheme with token exchange and need a full, prioritized deep threat model of it before we build.", "expectation": "Loads security-review only as the lens that STOPS and escalates; the deep work goes to the dedicated security agent. Pass criterion: it recognizes the high-risk trigger and escalates rather than handling it as a routine lens pass."}
+
+# ---- citation-verification ----
+{"id": "cv-pos-1", "target": "citation-verification", "kind": "positive", "prompt": "Before this literature review ships, confirm every reference is real, that each quote and statistic traces to its source, and flag anything you can't confirm.", "expectation": "Loads citation-verification: the blocking gate — re-fetch, confirm support, date/confidence-tag via the ledger."}
+{"id": "cv-near-1", "target": "citation-verification", "kind": "near-miss-negative", "prompt": "Go out and gather fresh sources on this topic for one slice of the question and return cited findings.", "expectation": "Must NOT load citation-verification. Correct target: research-method/researcher — gathering sources, not verifying an existing draft's citations."}
+
+# ---- research-method ----
+{"id": "rm-pos-1", "target": "research-method", "kind": "positive", "prompt": "I want a thorough multi-source landscape review comparing options with citations — how should we fan out the searching across workers and then synthesize?", "expectation": "Loads research-method: fan-out/fan-in workflow, worker scaling, source-quality heuristics."}
+{"id": "rm-near-1", "target": "research-method", "kind": "near-miss-negative", "prompt": "Sequence this approved unit of work into ordered, dependency-aware build steps.", "expectation": "Must NOT load research-method. Correct target: implementation-planning — build sequencing, not research."}
+
+# ---- writing-docs  (inline self-serve vs the documentation agent for doc sets) ----
+{"id": "wd-pos-1", "target": "writing-docs", "kind": "positive", "prompt": "Add a short README section and a docstring for the helper I just wrote, with a runnable example.", "expectation": "Loads writing-docs inline: single co-located doc, self-served (not escalated to the documentation agent)."}
+{"id": "wd-near-1", "target": "writing-docs", "kind": "near-miss-negative", "prompt": "We need an entire multi-page user guide and contributor handbook with a navigation structure — plan the IA and write it all.", "expectation": "Must NOT self-serve via writing-docs. Correct target: the documentation agent — multi-file docs-as-deliverable."}
+
+# ---- aidlc-workflow  (the loop) vs aidlc-methodology (the concepts) ----
+{"id": "aw-pos-1", "target": "aidlc-workflow", "kind": "positive", "prompt": "We're starting this project's lifecycle. Walk me through running Inception then Construction, the arbiter sign-off gates, and how much ceremony a trivial change needs.", "expectation": "Loads aidlc-workflow: the step-by-step lifecycle loop, gates, triage."}
+{"id": "aw-near-1", "target": "aidlc-workflow", "kind": "near-miss-negative", "prompt": "I just need to understand the vocabulary — what IS a bolt, a unit of work, and what does 'the human as arbiter' actually mean?", "expectation": "Must NOT load aidlc-workflow. Correct target: aidlc-methodology — concept/definition grounding, not the procedure."}
+
+# ---- aidlc-methodology ----
+{"id": "am-pos-1", "target": "aidlc-methodology", "kind": "positive", "prompt": "Explain the four values of this methodology and the difference between AI-driven, AI-managed, and AI-assisted, plus why agents stand in for a 'mob'.", "expectation": "Loads aidlc-methodology: concepts/values/definitions reference knowledge."}
+{"id": "am-near-1", "target": "aidlc-methodology", "kind": "near-miss-negative", "prompt": "Actually run the next phase for me — take us through the Construction loop and its arbiter gate step by step.", "expectation": "Must NOT load aidlc-methodology. Correct target: aidlc-workflow — running the loop, not defining terms."}
+
+# ---- delivery-operations ----
+{"id": "do-pos-1", "target": "delivery-operations", "kind": "positive", "prompt": "We're ready to ship. Build the CI/CD pipeline and IaC, set up monitoring and a rollback plan, and run the pre-deploy checklist — who authorizes the deploy?", "expectation": "Loads delivery-operations: Operations playbook — deploy/release/IaC/monitoring/rollback under the deploy gate."}
+{"id": "do-near-1", "target": "delivery-operations", "kind": "near-miss-negative", "prompt": "The production service is erroring right now — find out why it broke.", "expectation": "Must NOT load delivery-operations. Correct target: rca-investigation — diagnosing an observed failure, not shipping."}
+
+# ---- conventional-commits ----
+{"id": "cc-pos-1", "target": "conventional-commits", "kind": "positive", "prompt": "How should I word this commit message for the breaking change I'm about to land, and what type/scope applies?", "expectation": "Loads conventional-commits: type/scope/description format and breaking-change markers."}
+{"id": "cc-near-1", "target": "conventional-commits", "kind": "near-miss-negative", "prompt": "Review this diff before I merge and tell me if it's correct.", "expectation": "Must NOT load conventional-commits. Correct target: code-review — a pre-merge review, not commit-message formatting."}
