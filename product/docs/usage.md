@@ -1,5 +1,3 @@
-<!-- ai-dlc:link-check-ignore-file -->
-
 # Usage guide
 
 This is the working manual for running the AI-DLC lifecycle on your own code or

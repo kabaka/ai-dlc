@@ -112,8 +112,17 @@ proceed: **(1)** Inception → Construction, **(2)** the design fork within
 Construction, **(3)** Construction → integration/merge, and **(4)** → Operations
 (deploy/release). Between gates, agents propose and contest freely; **at** a gate,
 work is **blocked** until the human records a decision (chosen option, rationale,
-approver, date, risk tier). Enforcement is a **real installed hook**, not an
-honor-system prompt — see `CLAUDE.md` and `aidlc-workflow`.
+approver, date, risk tier).
+
+**Gates 3 and 4 are mechanically enforced** by a **real installed hook** (not an
+honor-system prompt): it intercepts the command-level transitions — merge/integration
+(`git merge`, `gh pr merge`, `git push` to a protected branch) and deploy/release
+(`git tag` create, `npm publish`, `deploy`/`release`) — and blocks them unless a
+Decision Record under `.ai-dlc/records/` matches by exact value (`transition` == the
+gate, `chosen_option` == `approve`, `target` == the branch/tag/release acted on). The
+hook **requires `jq` and fails closed** if it is absent. **Gates 1 and 2 are
+conceptual** — there is no command to intercept, so they rely on the recorded
+Decision Record and discipline, not the hook. See `CLAUDE.md` and `aidlc-workflow`.
 
 ### Complexity triage (right-size the ceremony, never the gate)
 
@@ -185,16 +194,21 @@ and contest — they never decide a gate.
 | `planner`       | read-only | Build **sequence** (dispatched ×2 for Solo Mob)                   |
 | `implementer`   | authoring | Builds the unit; **may not edit the grading tests**               |
 | `test-engineer` | authoring | Owns the test **oracle** (independent verifier)                   |
-| `code-reviewer` | read-only | Pre-merge **gate** with a security lens; emits an enumerated verdict |
-| `debugger`      | read-only | Post-failure **diagnosis** (RCA)                                  |
+| `code-reviewer` | non-authoring | Pre-merge **gate** with a security lens; emits an enumerated verdict |
+| `debugger`      | non-authoring | Post-failure **diagnosis** (RCA)                                  |
 
 ### Operations & cross-cutting
 
 | Agent           | Mutates?  | Role                                                          |
 | --------------- | --------- | ------------------------------------------------------------ |
 | `devops`        | authoring | Operations — deploy, release, run                            |
-| `security`      | read-only | Security escalation target (review only)                     |
+| `security`      | non-authoring | Security escalation target (review only)                     |
 | `documentation` | authoring | Documentation escalation target                              |
+
+**Mutates? column.** *authoring* = may Write/Edit files. *non-authoring* = no
+Write/Edit, but carries `Bash` and may run commands (which can have side effects) —
+`code-reviewer`, `debugger`, `security`. *read-only* = strictly non-mutating, no
+Bash either — `planner`, `researcher`.
 
 **Routing boundaries** (keep delegation unambiguous): `architect` owns **structure**,
 `planner` owns **sequence**. `code-reviewer` is the **pre-merge gate**; `debugger` is
@@ -241,8 +255,10 @@ documentation; see the `cross-platform-config` material. Single source of truth 
 ## Quality Gates
 
 - **The arbiter gate is blocking.** No phase transition completes without a
-  recorded Decision Record; the installed hook enforces it. Triage may make the
-  record terse, never absent.
+  recorded Decision Record. The installed hook **mechanically enforces Gates 3 and
+  4** (the command-level merge and deploy/release transitions; it requires `jq` and
+  fails closed without it); **Gates 1 and 2** have no command to intercept and rely
+  on the record and discipline. Triage may make the record terse, never absent.
 - **`code-reviewer` can block.** No unit merges until it approves.
 - **Real validation / tests must pass.** The project's build, tests, and checks run
   for real; the `test-engineer`'s oracle is independent and unedited by the

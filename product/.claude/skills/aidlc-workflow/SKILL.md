@@ -32,12 +32,16 @@ The **four arbiter decision points** (the only blocking gates):
 
 **Blocking-gate semantics.** A gate is **open only when** a Decision Record for
 that transition exists with `chosen_option = approve`. **Absence of a record =
-closed gate = AI must not proceed.** Enforcement is a real **Claude Code hook** the
-installer wires (it checks the record is present and valid before a transition
-action); where a hook cannot reach, the product falls back to honest "strongly
-instructed" prose — never prose alone for the gate itself. Either way, **the human
-is the sole arbiter** — the hook checks for the human's recorded decision; it never
-makes one. Do not describe the hook's implementation here; only this meaning.
+closed gate = AI must not proceed.** For a record to be **valid** the hook requires
+three exact matches: `transition` == the gate class, `chosen_option` == `approve`,
+and `target` == the branch/tag/release being acted on (a stale or wrong-transition
+or non-approve record does not open the gate). **Mechanical enforcement covers only
+Gates 3 and 4** — the command-level transitions (merge/integration and
+deploy/release) the installed hook can intercept; it requires `jq` and **fails
+closed** if `jq` is absent. **Gates 1 and 2 are conceptual** (no command to
+intercept) and rely on the recorded Decision Record and discipline, not the hook.
+Either way, **the human is the sole arbiter** — the hook checks for the human's
+recorded decision; it never makes one. Full contract: `reference/arbiter-gate.md`.
 
 **The Decision Record artifact** (what the arbiter produces at each gate):
 

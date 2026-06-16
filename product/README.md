@@ -1,5 +1,3 @@
-<!-- ai-dlc:link-check-ignore-file -->
-
 # AI-DLC
 
 **AI-DLC** is an installable, **Claude-Code-first** development-lifecycle kit for
@@ -44,14 +42,14 @@ Re-running is safe. The installer is **idempotent and version-stamped**: with no
 kit change it writes nothing, and `update` never clobbers a kit-owned file you
 edited — it writes the new version as `<file>.new` and flags it for you to merge.
 A pre-existing `AGENTS.md` or `CLAUDE.md` is **preserved**, never overwritten.
-Full behavior is in the [installer README](../installer/README.md).
+Full behavior is in the [installer README](installer/README.md).
 
 ### Install channels
 
 - **Installer (primary).** `npx ai-dlc init` / `update`. It is the only channel
   that can place the cross-platform top-level files (`AGENTS.md`, `CLAUDE.md`,
   `.github/`, `.cursor/`, `.kiro/`) and wire the arbiter-gate hook. See
-  [ADR 0002](../../docs/decisions/0002-installer-primary-plugin-secondary-distribution.md).
+  [ADR 0002](../docs/decisions/0002-installer-primary-plugin-secondary-distribution.md).
 - **Claude Code plugin / marketplace (secondary).** A `/plugin`-discoverable
   surface for the Claude-native slice (agents and skills). It cannot manage the
   top-level files, so it complements the installer rather than replacing it.
@@ -99,9 +97,9 @@ vocabulary in `aidlc-methodology`.
   the artifact templates.
 - **[Cross-platform support](docs/cross-platform.md)** — the honest, per-tool
   degradation contract: exactly what each platform consumes and what it does not.
-- **[Installer reference](../installer/README.md)** — install/update semantics,
+- **[Installer reference](installer/README.md)** — install/update semantics,
   drift detection, and the arbiter-gate hook.
 
 ## License
 
-[MIT](../../LICENSE).
+[MIT](../LICENSE).

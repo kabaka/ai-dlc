@@ -144,8 +144,10 @@ enforcement, that is an extension, labeled as such — not part of the methodolo
 
 ## 4. Arbiter decision points & blocking-gate semantics
 
-Methodology meaning only; **enforcement is a hook owned by tooling.** We define
-*which* transitions require a recorded human decision and *what the record carries*.
+Methodology meaning, plus the enforcement boundary. We define *which* transitions
+require a recorded human decision and *what the record carries*; mechanical
+enforcement (an installed hook) reaches only the two command-level gates (3–4) —
+see "What tooling enforces" below.
 
 **Transitions that require a recorded human decision artifact (a "Decision Record"):**
 
@@ -174,10 +176,23 @@ freely; **at** these points work is **blocked** until the human records a decisi
 
 **Blocking-gate semantics (methodology, not mechanism):** a gate is *open* only
 when a Decision Record for that transition exists with `chosen_option` = approve.
-Absence of a record = closed gate = AI must not proceed. The hook (tooling's job)
-checks for the record's presence; **this spec defines what "present and valid"
-means, tooling enforces it.** Authors must not describe the hook's implementation,
-only this meaning.
+Absence of a record = closed gate = AI must not proceed. **"Present and valid"** is
+concrete: a record under `.ai-dlc/records/` whose `transition` == the gate class,
+`chosen_option` == `approve`, and `target` == the branch/tag/release being acted on
+(all three exact; a stale, wrong-transition, or non-approve record does not open the
+gate).
+
+**What tooling enforces.** The installed hook gives **mechanical enforcement for
+Gates 3 and 4 only** — the two command-level transitions: Gate 3
+(merge/integration: `git merge`, `gh pr merge`, or `git push` to a protected
+branch) and Gate 4 (deploy/release: `git tag` create, `npm publish`, or
+`deploy`/`release` as a command word). The hook **requires `jq` and fails closed**
+if it is absent. **Gates 1 and 2 are conceptual** — there is no command marking the
+Inception → Construction transition or the design fork, so the hook cannot reach
+them; they rely on the recorded Decision Record and discipline. Authors must not
+claim the hook enforces all four gates, but **may** describe what it does enforce
+(the gate classes, matched commands, record fields, and the jq requirement) — that
+contract is the user's safety guarantee.
 
 ---
 

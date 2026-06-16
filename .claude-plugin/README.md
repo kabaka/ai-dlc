@@ -1,5 +1,3 @@
-<!-- ai-dlc:link-check-ignore-file -->
-
 # AI-DLC marketplace catalog
 
 `marketplace.json` here is the Claude Code marketplace catalog (per

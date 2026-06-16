@@ -1,5 +1,3 @@
-<!-- ai-dlc:link-check-ignore-file -->
-
 # ai-dlc installer
 
 Scaffolds and updates the AI-DLC kit in your repository. This is the **primary**
