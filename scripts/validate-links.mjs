@@ -9,6 +9,19 @@
 // it strips any `#anchor` and verifies the file exists relative to the linking
 // file. Reports broken links as `file:line -> target`; exits non-zero if any
 // link is broken.
+//
+// TEMPLATE files (under `product/templates/`) are installer/cross-platform
+// payloads copied into a CONSUMER repo. They legitimately reference paths that
+// only resolve in the consumer's tree (e.g. `AGENTS.md`, `.kiro/steering/...`),
+// not in THIS repo. Such a file opts out of in-repo link resolution with an
+// explicit, greppable marker anywhere in its body:
+//
+//     <!-- ai-dlc:link-check-ignore-file -->
+//
+// This is a per-file opt-out, chosen over a path-based ignore list so the
+// exemption is visible at the point of use and cannot silently widen to cover
+// real skills/agents (which never carry the marker, so their links are always
+// checked). Marker files are reported as skipped, not validated.
 
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { execFileSync } from "node:child_process";
@@ -66,7 +79,11 @@ function isPlaceholder(target) {
   );
 }
 
+// Marker that opts a whole file out of in-repo link resolution (see header).
+const IGNORE_FILE_MARKER = "ai-dlc:link-check-ignore-file";
+
 const broken = [];
+let skippedCount = 0;
 
 function checkTarget(fileRel, lineNo, rawTarget) {
   let target = rawTarget.trim();
@@ -104,7 +121,13 @@ function checkTarget(fileRel, lineNo, rawTarget) {
 function scanFile(fileRel) {
   const abs = join(REPO_ROOT, fileRel);
   if (!existsSync(abs)) return;
-  const lines = readFileSync(abs, "utf8").split(/\r?\n/);
+  const content = readFileSync(abs, "utf8");
+  // Whole-file opt-out for template payloads (see header).
+  if (content.includes(IGNORE_FILE_MARKER)) {
+    skippedCount++;
+    return;
+  }
+  const lines = content.split(/\r?\n/);
   let inFence = false;
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
@@ -137,7 +160,10 @@ const files = listMarkdownFiles();
 for (const f of files) scanFile(f);
 
 console.log("Link validation");
-console.log(`  scanned ${files.length} Markdown file(s)`);
+console.log(
+  `  scanned ${files.length} Markdown file(s)` +
+    (skippedCount > 0 ? `, ${skippedCount} template file(s) skipped` : "")
+);
 
 if (broken.length === 0) {
   console.log("PASS: all local links resolve");

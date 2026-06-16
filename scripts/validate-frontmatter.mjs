@@ -1,44 +1,76 @@
 #!/usr/bin/env node
-// Validate YAML frontmatter for AI-DLC skills and agents (internal kit-builder
-// layer). Zero-dependency: Node built-ins only.
+// Validate YAML frontmatter for AI-DLC skills and agents. Zero-dependency:
+// Node built-ins only.
 //
-// Checks:
-//   .claude/skills/<dir>/SKILL.md
+// TWO surfaces are validated, each with its OWN read-only-agent set:
+//   1. The internal kit-builder layer (layer 1): `.claude/{skills,agents}`.
+//   2. The deliverable product (layer 2):       `product/.claude/{skills,agents}`.
+// The product surface is the installer payload SOURCE — nothing loads it in
+// place — but its frontmatter must still be correct so the installer/plugin
+// ships valid components. Each surface declares its own read-only set because
+// the product roster differs from the kit-builder roster.
+//
+// Checks (applied identically to BOTH surfaces, against that surface's root):
+//   <root>/skills/<dir>/SKILL.md
 //     - frontmatter present; non-empty `name` and `description`
 //     - `name` is kebab-case (lowercase / digits / hyphens), <=64 chars,
 //       contains neither "claude" nor "anthropic"
 //     - `name` EQUALS the skill's directory name
 //     - `description` <= 1024 chars
-//   .claude/agents/<name>.md
+//   <root>/agents/<name>.md
 //     - frontmatter present; non-empty `name` and `description`
-//     - `name` matches /^[a-z0-9-]+$/ and EQUALS filename without `.md`
-//     - if `tools` present AND agent is a known read-only agent, `tools` must
-//       not include Write or Edit
+//     - `name` matches /^[a-z0-9-]+$/ and EQUALS filename without `.md`,
+//       contains neither "claude" nor "anthropic"
+//     - if the agent is in THIS surface's read-only set, `tools` MUST be
+//       declared as an explicit allowlist and must not include Write or Edit
+//       (an omitted `tools` field inherits ALL tools — itself a failure)
 //     - if `skills:` list present, every entry must be an existing directory
-//       under .claude/skills/
+//       under THIS surface's skills/
 //
 // Designed to tolerate a half-authored repo: missing directories, empty skill
 // directories, and partially-present files are handled without crashing. Only
-// files that exist are validated.
+// files that exist are validated. A surface whose root does not exist yet is
+// skipped cleanly.
 
 import { readdirSync, readFileSync, existsSync, statSync } from "node:fs";
 import { join, dirname, basename, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const SKILLS_DIR = join(REPO_ROOT, ".claude", "skills");
-const AGENTS_DIR = join(REPO_ROOT, ".claude", "agents");
 
-// Agents that must never be able to mutate files (per AGENTS.md roster).
-const READ_ONLY_AGENTS = new Set([
-  "brainstorm",
-  "planner",
-  "adversarial-reviewer",
-  "qa",
-  "security",
-  "rca-analyst",
-  "researcher",
-]);
+// Per-surface configuration: the surface's root (the dir that contains
+// `skills/` and `agents/`), a label used in reported paths, and the set of
+// agents that must declare a Write/Edit-free `tools` allowlist for THAT
+// surface. Keeping these as explicit records (rather than module globals)
+// lets each surface carry its own read-only roster.
+const SURFACES = [
+  {
+    label: ".claude",
+    root: join(REPO_ROOT, ".claude"),
+    // Layer-1 kit-builder roster (per AGENTS.md).
+    readOnlyAgents: new Set([
+      "brainstorm",
+      "planner",
+      "adversarial-reviewer",
+      "qa",
+      "security",
+      "rca-analyst",
+      "researcher",
+    ]),
+  },
+  {
+    label: "product/.claude",
+    root: join(REPO_ROOT, "product", ".claude"),
+    // Layer-2 deliverable-product roster (distinct from layer 1).
+    readOnlyAgents: new Set([
+      "planner",
+      "code-reviewer",
+      "debugger",
+      "researcher",
+      "security",
+    ]),
+  },
+];
 
 const failures = [];
 const fail = (file, reason) => failures.push({ file, reason });
@@ -181,24 +213,25 @@ function listDirs(dir) {
     .map((d) => d.name);
 }
 
-function isSkillDir(name) {
-  return existsSync(join(SKILLS_DIR, name)) &&
-    statSync(join(SKILLS_DIR, name)).isDirectory();
+function isSkillDir(skillsDir, name) {
+  return existsSync(join(skillsDir, name)) &&
+    statSync(join(skillsDir, name)).isDirectory();
 }
 
 // ---- Validate skills ------------------------------------------------------
 
-function validateSkills() {
-  const dirs = listDirs(SKILLS_DIR);
+function validateSkills(surface) {
+  const skillsDir = join(surface.root, "skills");
+  const dirs = listDirs(skillsDir);
   let checked = 0;
   for (const dir of dirs) {
-    const skillFile = join(SKILLS_DIR, dir, "SKILL.md");
+    const skillFile = join(skillsDir, dir, "SKILL.md");
     if (!existsSync(skillFile)) {
       // Directory exists but SKILL.md not authored yet -> skip gracefully.
       continue;
     }
     checked++;
-    const rel = `.claude/skills/${dir}/SKILL.md`;
+    const rel = `${surface.label}/skills/${dir}/SKILL.md`;
     const fm = extractFrontmatter(readFileSync(skillFile, "utf8"));
     if (fm === null) {
       fail(rel, "missing or unterminated YAML frontmatter block");
@@ -236,15 +269,17 @@ function validateSkills() {
 
 // ---- Validate agents ------------------------------------------------------
 
-function validateAgents() {
-  if (!existsSync(AGENTS_DIR)) return 0;
-  const files = readdirSync(AGENTS_DIR).filter((f) => f.endsWith(".md"));
+function validateAgents(surface) {
+  const agentsDir = join(surface.root, "agents");
+  const skillsDir = join(surface.root, "skills");
+  if (!existsSync(agentsDir)) return 0;
+  const files = readdirSync(agentsDir).filter((f) => f.endsWith(".md"));
   let checked = 0;
   for (const f of files) {
     checked++;
-    const rel = `.claude/agents/${f}`;
+    const rel = `${surface.label}/agents/${f}`;
     const expectedName = basename(f, ".md");
-    const fm = extractFrontmatter(readFileSync(join(AGENTS_DIR, f), "utf8"));
+    const fm = extractFrontmatter(readFileSync(join(agentsDir, f), "utf8"));
     if (fm === null) {
       fail(rel, "missing or unterminated YAML frontmatter block");
       continue;
@@ -261,6 +296,10 @@ function validateAgents() {
       if (!/^[a-z0-9-]+$/.test(name)) {
         fail(rel, `\`name\` "${name}" must match /^[a-z0-9-]+$/`);
       }
+      if (/claude/i.test(name)) fail(rel, `\`name\` must not contain "claude"`);
+      if (/anthropic/i.test(name)) {
+        fail(rel, `\`name\` must not contain "anthropic"`);
+      }
       if (name !== expectedName) {
         fail(rel, `\`name\` "${name}" must equal filename "${expectedName}"`);
       }
@@ -269,7 +308,7 @@ function validateAgents() {
     // tools: read-only agents must not be able to mutate. An omitted `tools`
     // field inherits ALL tools (including Write/Edit), so a read-only agent
     // MUST declare an explicit allowlist — absence is itself a failure.
-    if (READ_ONLY_AGENTS.has(expectedName)) {
+    if (surface.readOnlyAgents.has(expectedName)) {
       if (!("tools" in data)) {
         fail(
           rel,
@@ -302,8 +341,11 @@ function validateAgents() {
         ? [String(data.skills)]
         : [];
       for (const s of skills) {
-        if (!isSkillDir(s)) {
-          fail(rel, `\`skills\` entry "${s}" is not a directory under .claude/skills/`);
+        if (!isSkillDir(skillsDir, s)) {
+          fail(
+            rel,
+            `\`skills\` entry "${s}" is not a directory under ${surface.label}/skills/`
+          );
         }
       }
     }
@@ -313,8 +355,13 @@ function validateAgents() {
 
 // ---- Run ------------------------------------------------------------------
 
-const skillsChecked = validateSkills();
-const agentsChecked = validateAgents();
+let skillsChecked = 0;
+let agentsChecked = 0;
+for (const surface of SURFACES) {
+  if (!existsSync(surface.root)) continue; // surface not present yet -> skip.
+  skillsChecked += validateSkills(surface);
+  agentsChecked += validateAgents(surface);
+}
 
 console.log("Frontmatter validation");
 console.log(

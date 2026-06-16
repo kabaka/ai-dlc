@@ -3,9 +3,11 @@
 #
 # Runs, in order:
 #   1. markdownlint-cli2 over all Markdown (skipped gracefully if unavailable)
-#   2. node scripts/validate-frontmatter.mjs
+#   2. node scripts/validate-frontmatter.mjs (layer-1 + product surfaces)
 #   3. node scripts/validate-links.mjs
-#   4. shellcheck on scripts/*.sh (skipped gracefully if shellcheck absent)
+#   4. node scripts/validate-manifests.mjs (plugin/marketplace; skips if absent)
+#   5. node scripts/validate-evals.mjs (eval-record lint; skips if absent)
+#   6. shellcheck on scripts/*.sh + product/installer/**/*.sh (skipped if absent)
 #
 # Aggregates results and exits non-zero if any check FAILED. A check that is
 # SKIPPED (tool not installed) does not fail the run, but is reported clearly.
@@ -62,10 +64,33 @@ else
   mark_fail links
 fi
 
-# --- 4. shellcheck ---------------------------------------------------------
+# --- 4. Manifest validation ------------------------------------------------
+section "manifest validation"
+if node scripts/validate-manifests.mjs; then
+  mark_pass manifests
+else
+  mark_fail manifests
+fi
+
+# --- 5. Eval-record lint ---------------------------------------------------
+section "eval-record lint"
+if node scripts/validate-evals.mjs; then
+  mark_pass evals
+else
+  mark_fail evals
+fi
+
+# --- 6. shellcheck ---------------------------------------------------------
 section "shellcheck"
 if command -v shellcheck >/dev/null 2>&1; then
-  SH_FILES=$(find scripts -type f -name '*.sh' 2>/dev/null | sort)
+  # Lint kit-builder scripts AND the product installer shell (when present).
+  # `product/installer/` may not exist yet -> the second path is simply absent
+  # from the find roots, which find tolerates.
+  SH_ROOTS="scripts"
+  [ -d product/installer ] && SH_ROOTS="$SH_ROOTS product/installer"
+  # Word-splitting of the roots list is intended here.
+  # shellcheck disable=SC2086
+  SH_FILES=$(find $SH_ROOTS -type f -name '*.sh' 2>/dev/null | sort)
   if [ -z "$SH_FILES" ]; then
     echo "shellcheck: no scripts/*.sh found"
     mark_pass shellcheck

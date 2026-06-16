@@ -27,4 +27,8 @@ jobs:
           sudo apt-get install -y shellcheck
 
       - name: Run pre-flight
+        # Drives markdownlint, frontmatter validation (layer-1 + product
+        # surfaces), link integrity, plugin/marketplace manifest validation,
+        # eval-record lint, and shellcheck (scripts/ + product/installer/).
+        # Manifest and eval checks skip cleanly until those artifacts exist.
         run: bash scripts/preflight.sh
