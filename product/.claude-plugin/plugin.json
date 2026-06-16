@@ -5,12 +5,12 @@
   "version": "0.1.0",
   "description": "Claude-Code-first AI-Driven Development Lifecycle kit: an Orchestrator plus a specialist agent roster and on-demand skills for Inception -> Construction -> Operations, with the human as sole arbiter.",
   "author": {
-    "name": "AI-DLC Team",
+    "name": "Kyle Johnson and AI-DLC contributors",
     "url": "https://github.com/kabaka/ai-dlc"
   },
   "homepage": "https://github.com/kabaka/ai-dlc",
   "repository": "https://github.com/kabaka/ai-dlc",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "keywords": [
     "ai-dlc",
     "orchestrator",
