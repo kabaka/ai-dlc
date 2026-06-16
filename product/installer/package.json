@@ -23,6 +23,6 @@
     "agents",
     "skills"
   ],
-  "license": "Apache-2.0",
+  "license": "MIT",
   "dependencies": {}
 }
