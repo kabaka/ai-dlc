@@ -1,6 +1,6 @@
 ---
 name: security-review
-description: A standing lightweight security lens for your own product's code and config, plus the boundary for when to escalate to deep threat-modeling. Use when reviewing a change for security, asking "is this safe / could this be exploited", checking for vulnerabilities, threat-modeling a feature, or touching auth, login, crypto, secrets/tokens, input parsing, file uploads, URLs/SSRF, deserialization, dependencies/supply-chain, or an agent that ingests untrusted content (web pages, files, issue text, tool output). Any lifecycle agent loads this for the in-line lens; it STOPS and escalates to the dedicated `security` agent on the enumerated high-risk triggers, an explicit threat-model request, or any High+ finding. Covers injection, broken authz, secrets, SSRF, deserialization, supply-chain, and prompt-injection. The `security` agent's deep-review playbook; the on-demand lens for everyone else.
+description: The lightweight / in-line / quick-pass security lens any lifecycle agent loads to self-serve a fast safety check — NOT the full threat model. It STOPS and escalates to the dedicated `security` agent on the enumerated high-risk triggers, an explicit threat-model request, or any High+ finding. Use for a quick "is this safe / could this be exploited" pass, a standing in-line security check while reviewing a change, or spotting common vulnerabilities — then escalate the moment a change touches auth/login, crypto, secrets/tokens, input parsing, file uploads, URLs/SSRF, deserialization, dependencies/supply-chain, or an agent that ingests untrusted content (web pages, files, issue text, tool output). Covers injection, broken authz, secrets, SSRF, deserialization, supply-chain, and prompt-injection. The on-demand lens for everyone; the `security` agent loads it too, but deep/full threat modeling is the agent's job, not the lens's.
 ---
 
 # Security Review (the democratized security lens)
@@ -9,8 +9,9 @@ This skill is the **hybrid security model** in practice. Security spans
 trivial-to-critical, so AI-DLC covers it two ways at once:
 
 - **A standing lightweight lens** that **any lifecycle agent** loads on demand —
-  `code-reviewer`, `implementer`, `architect`, `devops` — to catch the common,
-  obvious problems in-line, without spinning up a heavyweight review.
+  `code-reviewer`, `implementer`, `architect`, `devops` — for a **quick in-line
+  safety check** of the common, obvious problems, **not a full threat model** and
+  without spinning up a heavyweight review.
 - **A dedicated `security` agent** for deep threat-modeling and critical work,
   reached by **escalation** across a fixed boundary (below).
 
