@@ -22,15 +22,37 @@ import {
   readFileSync,
   writeFileSync,
 } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve, sep } from "node:path";
 import { hash, hashFile } from "./manifest.mjs";
+
+/**
+ * Assert that a destination path resolves to inside `repoRoot` and return the
+ * resolved absolute path. Mirrors the containment check in
+ * scripts/validate-manifests.mjs: refuse anything that escapes the repo (via
+ * `..`, an absolute dest, or a symlink-style traversal in the relative path).
+ * This runs on a consumer's machine, so a payload dest must never write outside
+ * the repo it is installing into.
+ */
+function assertInsideRepo(repoRoot, destRel) {
+  const rootAbs = resolve(repoRoot);
+  const destAbs = resolve(rootAbs, destRel);
+  if (destAbs !== rootAbs && !destAbs.startsWith(rootAbs + sep)) {
+    throw new Error(
+      `refusing to write outside the repo: "${destRel}" resolves to "${destAbs}", ` +
+        `which is not inside "${rootAbs}".`
+    );
+  }
+  return destAbs;
+}
 
 const MARK_BEGIN = "<!-- ai-dlc:begin -->";
 const MARK_END = "<!-- ai-dlc:end -->";
 
 /** Decide the action for one payload entry given current disk + stamp state. */
 export function decideAction(entry, repoRoot, manifest) {
-  const destAbs = join(repoRoot, entry.dest);
+  // Containment (M2): the resolved dest MUST stay inside repoRoot. Refuse
+  // otherwise — never write outside the repo we are installing into.
+  const destAbs = assertInsideRepo(repoRoot, entry.dest);
   const payload = readFileSync(entry.src);
   const payloadHash = hash(payload);
   const stamped = manifest.files[entry.dest]; // { hash } | undefined
@@ -53,19 +75,27 @@ export function decideAction(entry, repoRoot, manifest) {
   if (entry.tier === "co-owned") {
     const content = payload.toString("utf8");
     const onDisk = readFileSync(destAbs, "utf8");
-    if (onDisk.includes(MARK_BEGIN) && onDisk.includes(MARK_END)) {
-      // Opt-in managed region present: update only inside the markers.
+    // M3: markers are AUTHORITATIVE only when WE stamped this file (we wrote the
+    // markers, per the manifest). For a first-touch / never-stamped consumer
+    // file, a crafted <!-- ai-dlc:begin/end --> string must NOT cause an in-place
+    // edit — fall back to the `.new` sidecar regardless of marker presence.
+    const installerStamped = Boolean(stamped);
+    if (
+      installerStamped &&
+      onDisk.includes(MARK_BEGIN) &&
+      onDisk.includes(MARK_END)
+    ) {
+      // Opt-in managed region present in a file WE own: update inside markers.
       return { ...base, kind: "marker-update" };
     }
-    // Marker-less, pre-existing, content differs from payload: NEVER edit in
-    // place. Whether stamped or not, the safe move is the sidecar — but if it is
-    // stamped and undrifted we could overwrite. Co-owned policy is conservative:
-    // only auto-overwrite when on-disk == stamp (we wrote it, consumer didn't
-    // touch it). Otherwise sidecar.
+    // Stamped, undrifted, marker-less: we wrote it and the consumer hasn't
+    // touched it -> safe clean overwrite.
     if (stamped && onDiskHash === stamped.hash) {
       return { ...base, kind: "update" };
     }
-    return { ...base, kind: "coowned-sidecar", content };
+    // First-touch pre-existing file (not stamped), OR a stamped file the
+    // consumer edited: NEVER edit in place -> sidecar.
+    return decideSidecar(base, repoRoot, manifest, "coowned-sidecar", content);
   }
 
   // kit-owned / executable tiers.
@@ -75,7 +105,23 @@ export function decideAction(entry, repoRoot, manifest) {
   }
   // Consumer edited a kit-owned file (or it pre-existed un-stamped) AND payload
   // differs -> drift. Do not clobber; write a sidecar.
-  return { ...base, kind: "drift-sidecar" };
+  return decideSidecar(base, repoRoot, manifest, "drift-sidecar");
+}
+
+/**
+ * Decide a sidecar action, collapsing to a no-op when the `<dest>.new` sidecar
+ * already exists with exactly the payload content. This makes re-running with no
+ * kit change a true no-op for co-owned / drifted files: we neither rewrite the
+ * sidecar nor re-emit the "ACTION NEEDED" warning.
+ */
+function decideSidecar(base, repoRoot, manifest, kind, content) {
+  const sidecarRel = base.entry.dest + ".new";
+  const sidecarAbs = assertInsideRepo(repoRoot, sidecarRel);
+  if (hashFile(sidecarAbs) === base.payloadHash) {
+    // Sidecar already carries this exact payload -> nothing to do this run.
+    return { ...base, kind: "noop", note: "sidecar already current" };
+  }
+  return { ...base, kind, content };
 }
 
 /** Build the full action plan across all payload entries. */

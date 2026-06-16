@@ -97,7 +97,11 @@ function main() {
   }
 
   // --- Hook wiring into .claude/settings.json -------------------------------
+  // The arbiter gate is the whole point of the kit's enforcement. If we cannot
+  // wire it, that is a HARD failure (M1): never a quiet `!` line above a green
+  // summary. We record it and exit non-zero after reporting.
   let settingsChanged = false;
+  let gateError = null;
   try {
     const plan = planSettingsMerge(repoRoot);
     if (plan.changed) {
@@ -111,7 +115,21 @@ function main() {
       }
     }
   } catch (e) {
-    console.error(`  ! could not wire hook: ${e.message}`);
+    gateError = e;
+  }
+
+  // --- Ensure the records directory the hook scans exists -------------------
+  // The arbiter-gate hook reads .ai-dlc/records/; the quickstart documents that
+  // layout. Create it (with a .gitkeep so it survives commit) so the path is
+  // real even before the first Decision Record is written.
+  const RECORDS_REL = ".ai-dlc/records";
+  if (!dryRun) {
+    const recordsAbs = join(repoRoot, RECORDS_REL);
+    mkdirSync(recordsAbs, { recursive: true });
+    const keep = join(recordsAbs, ".gitkeep");
+    if (!existsSync(keep)) writeFileSync(keep, "");
+  } else {
+    console.log(`  would ensure ${RECORDS_REL}/ exists`);
   }
 
   // --- Stamp manifest -------------------------------------------------------
@@ -150,6 +168,19 @@ function main() {
   }
 
   if (dryRun) console.log("\n[dry-run] nothing was written.");
+
+  // --- M1: gate-wiring failure is a HARD, unmissable failure ----------------
+  if (gateError) {
+    console.error(
+      "\n========================================================\n" +
+        "  GATE NOT ACTIVE — the arbiter-gate hook was NOT wired.\n" +
+        "========================================================\n" +
+        `  Reason: ${gateError.message}\n` +
+        `  Phase-transition gating is INACTIVE until ${SETTINGS_REL} registers\n` +
+        "  the hook. Fix the cause above and re-run `npx ai-dlc init`."
+    );
+    process.exit(1);
+  }
 }
 
 main();
