@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "ai-dlc",
+  "displayName": "AI-DLC",
+  "version": "0.1.0",
+  "description": "Claude-Code-first AI-Driven Development Lifecycle kit: an Orchestrator plus a specialist agent roster and on-demand skills for Inception -> Construction -> Operations, with the human as sole arbiter.",
+  "author": {
+    "name": "Kyle Johnson and AI-DLC contributors",
+    "url": "https://github.com/kabaka/ai-dlc"
+  },
+  "homepage": "https://github.com/kabaka/ai-dlc",
+  "repository": "https://github.com/kabaka/ai-dlc",
+  "license": "MIT",
+  "keywords": [
+    "ai-dlc",
+    "orchestrator",
+    "development-lifecycle",
+    "agents",
+    "skills",
+    "aws-ai-dlc"
+  ],
+  "agents": [
+    "./.claude/agents/architect.md",
+    "./.claude/agents/code-reviewer.md",
+    "./.claude/agents/debugger.md",
+    "./.claude/agents/devops.md",
+    "./.claude/agents/documentation.md",
+    "./.claude/agents/implementer.md",
+    "./.claude/agents/planner.md",
+    "./.claude/agents/requirements-analyst.md",
+    "./.claude/agents/research-synthesizer.md",
+    "./.claude/agents/researcher.md",
+    "./.claude/agents/security.md",
+    "./.claude/agents/test-engineer.md"
+  ],
+  "skills": ["./.claude/skills/"]
+}
