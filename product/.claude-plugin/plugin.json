@@ -26,6 +26,8 @@
     "./.claude/agents/devops.md",
     "./.claude/agents/documentation.md",
     "./.claude/agents/implementer.md",
+    "./.claude/agents/kit-extender.md",
+    "./.claude/agents/observability.md",
     "./.claude/agents/planner.md",
     "./.claude/agents/requirements-analyst.md",
     "./.claude/agents/research-synthesizer.md",
