@@ -49,3 +49,29 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Pre-flight validators extended to cover the layer-2 product surface, plus the
   two-tier eval suite (a deterministic CI-runnable eval-record linter and manual
   model-in-the-loop triggering/behavior evals).
+- **Two consumer lifecycle agents**: `observability` (Operations-phase SRE for
+  measurement — what to measure, SLIs/SLOs/error budgets, OpenTelemetry
+  instrumentation, instrumented from Construction) and `kit-extender` (on-demand
+  authoring capability the arbiter invokes to assess the repo and propose
+  repo-tailored skills/agents to the kit's standards behind a propose-for-approval
+  gate). The consumer roster grows to 14 agents.
+- **New consumer skills**: `observability-practice` (instrument-as-you-build,
+  SLO/error-budget, OpenTelemetry); `extending-the-kit` (the `kit-extender`
+  playbook — default-to-skills, staging, validation, propose-for-approval);
+  `dependency-compliance` (license compatibility and SBOM/SPDX checks as a
+  recommended, non-blocking item in the deploy checklist and supply-chain lens —
+  not legal advice); and `ux-design` (interaction, IA, usability, and WCAG
+  accessibility, bounded to UI-bearing work). All framed as recommended guidance,
+  never new arbiter gates — the four gates are unchanged.
+- **`testing-strategy` extended** with methodology selection — TDD by default
+  (red-green-refactor) with ATDD/spec-by-example, exploratory spikes, and
+  property-based testing chosen by the unit's requirement clarity, risk, and
+  output shape.
+- **Consumer-side kit-artifact validator** (`validate-kit-artifact.mjs`, shipped
+  with the `extending-the-kit` skill): a deterministic frontmatter / tool-hygiene /
+  `skills:` cross-reference / eval-record check the generator runs on every draft.
+  It verifies an artifact is well-formed; triggering behavior is verified manually
+  in a fresh session (no eval-runner harness ships).
+- Architecture Decision Records 0007 (consumer kit self-extension via a
+  propose-for-approval generator) and 0008 (the `observability` agent and
+  practice/domain guidance skills).
