@@ -109,9 +109,10 @@ lifecycle phase, ceremony, or gate.
   rules and confirms the artifact is **well-formed**. It does **not** verify that a
   skill actually *triggers*; that behavior is checked **by hand in a fresh
   session**. There is no eval-runner harness.
-- **Reload rules.** A promoted **skill** hot-reloads (its `SKILL.md` is picked up
-  mid-session); a promoted **agent** needs a session restart (or `/agents`) before
-  you can delegate to it.
+- **Reload rules.** A promoted **skill**'s edited text hot-reloads mid-session, but
+  a brand-new skill **directory** (the usual case for a generated skill) is only
+  discovered on a session restart; a promoted **agent** likewise needs a session
+  restart (or `/agents`) before you can delegate to it.
 
 The on-demand workflow and the guidance skills below are covered in the
 [usage guide](docs/usage.md).

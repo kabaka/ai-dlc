@@ -63,7 +63,7 @@ ceremony. This placement is faithful and authors must use it.
 
 **CRITICAL fidelity guardrail.** Authors must **not** invent an Operations ceremony
 to host observability. The source names none. `methodology-spec.md` §1 (lines
-63-68) is explicit:
+63-68), drawing on `reference/phases.md`, is explicit:
 
 > "No distinct mob ceremony is named for Operations" … "Operations is governed by
 > **standing human oversight**, not a ceremony. State this absence positively:

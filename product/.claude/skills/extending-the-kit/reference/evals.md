@@ -23,7 +23,9 @@ Write the evals **before** the artifact body. This forces you to define success
 concretely and prevents writing to a vague target. The loop:
 
 ```text
-1. Write the evals: realistic prompts + expected behavior (≥1 positive, ≥1 near-miss).
+1. Write the evals: realistic prompts + expected behavior. The validator's enforced
+   floor is ≥1 positive and ≥1 near-miss per target; aim for several (~3+) — more
+   varied scenarios catch more triggering gaps.
 2. Baseline WITHOUT the artifact — see what the model does unaided.
 3. Write the MINIMAL instructions that close the gap.
 4. Run the evals; compare to baseline and expected.

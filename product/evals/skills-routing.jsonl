@@ -60,7 +60,7 @@
 {"id": "cc-near-1", "target": "conventional-commits", "kind": "near-miss-negative", "prompt": "Review this diff before I merge and tell me if it's correct.", "expectation": "Must NOT load conventional-commits. Correct target: code-review — a pre-merge review, not commit-message formatting."}
 
 # ---- extending-the-kit  (vs aidlc-workflow for product features) ----
-{"id": "etk-pos-1", "target": "extending-the-kit", "kind": "positive", "prompt": "Our installed agent roster has no coverage for our Go microservice stack. Add new components so future work in this repo follows our Go conventions, to the kit's own authoring standards.", "expectation": "Loads extending-the-kit: authoring/adding .claude/ kit components for a new stack/conventions (propose-for-approval), not building a product feature."}
+{"id": "etk-pos-1", "target": "extending-the-kit", "kind": "positive", "prompt": "Our installed agent roster has no coverage for our Go microservice stack. Add new components so future work in this repo automatically follows our Go conventions.", "expectation": "Loads extending-the-kit: authoring/adding .claude/ kit components for a new stack/conventions (propose-for-approval), not building a product feature."}
 {"id": "etk-near-1", "target": "extending-the-kit", "kind": "near-miss-negative", "prompt": "Build the 'export to CSV' feature for our app — run it through requirements, design, and implementation.", "expectation": "Must NOT load extending-the-kit. Correct target: aidlc-workflow — running the lifecycle to build a product feature, not extending the kit."}
 
 # ---- observability-practice  (vs delivery-operations) ----
