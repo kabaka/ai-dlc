@@ -73,6 +73,55 @@ acceptance-criteria coverage across the appropriate levels; a **high-risk** unit
 gets the deepest oracle — boundaries, failure modes, security-relevant cases, and
 adversarial inputs — and warrants `security` challenge.
 
+## Choosing a methodology — TDD by default, not by dogma
+
+How you *arrive at* the oracle is a real choice. **TDD (red-green-refactor) is the
+default** for production, AI-implemented units — but it is not mandatory. Pick the
+methodology that fits the unit's requirement clarity, whether it's
+explore-vs-production, its risk, and its output shape/invariants. Detail per
+methodology — what each is, where it shines, where it's a poor fit, with a worked
+example — is in [reference/methodologies.md](reference/methodologies.md); read it
+when the choice isn't obvious.
+
+| Methodology | Fits when | Output / signal |
+| --- | --- | --- |
+| **TDD** (red-green-refactor) | Requirements clear enough; production code you'll maintain; branchy logic, edge cases; medium–high risk; **any AI-implemented unit**. | Test-first cycles; the oracle exists before the code. **Default.** |
+| **BDD** (behavior-driven) | Behavior carries real domain/stakeholder semantics; criteria phrased as scenarios. | `Given/When/Then` scenarios that double as living docs. |
+| **ATDD / spec-by-example** | Clear, enumerable rules with many input→output cases (pricing, tax, validation matrices). | An agreed example table that *is* the spec. |
+| **Property-based** | Output has clear invariants; large input space; parsers, serializers, data structures. | Invariants over generated inputs (round-trip, idempotence). |
+| **Approval / snapshot** | Large structured output; characterizing legacy code before a refactor. | A human-approved golden file; future diffs fail. |
+| **Spike / test-after** | *Spike:* throwaway exploration/prototyping, unknown feasibility. *Test-after:* trivial low-risk glue only. | *Spike:* learning, code discarded, **no unit tests**. *Test-after:* weakest oracle. |
+
+Choose by axis: **requirement clarity** (clear → TDD/ATDD; fuzzy/unknown → spike
+first), **explore vs production** (explore → spike, no tests; production → test
+first), **risk** (higher risk → stronger, intent-asserting oracle, never
+test-after), and **output shape** (enumerable cases → ATDD; invariants →
+property-based; large blobs → approval; behavior narratives → BDD). These compose —
+e.g. a TDD unit whose oracle uses property-based assertions for a parser.
+
+### Why TDD is the strongest pattern for AI-implemented work
+
+When an AI writes the code, TDD is the best guard against "tests pass but the code
+is wrong," because it **fixes the oracle before the code exists**:
+
+1. **Write the tests first** from the acceptance criteria.
+2. **Run them and confirm they fail** for the right reason — a test green before
+   any code is a false oracle.
+3. **Commit the failing tests** as the fixed, independent target.
+4. **Implement until they pass — without modifying the tests.**
+
+Step 4 *is* the **don't-edit-the-oracle** rule above, now motivated: an
+implementer (human or AI) that can edit its own grading tests has no independent
+verifier, so freezing the tests first is what makes a green run mean something.
+This reinforces — never relaxes — that rule.
+
+**The carve-out: spikes.** A throwaway XP spike — a deliberately discarded
+experiment to answer a feasibility question — needs **no unit tests** at all. Don't
+force TDD onto exploration; instead, promote what the spike taught you into a real
+unit built test-first, and discard the spike code. Test-after is a fallback for
+trivial, low-risk glue only, and even then tests must assert intent (it gives the
+weakest guarantee against a wrong-but-passing implementation).
+
 ## Coverage: every acceptance criterion, accounted for
 
 Coverage here means **every `acceptance_criterion` is verified by at least one

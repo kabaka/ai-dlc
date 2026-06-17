@@ -16,12 +16,13 @@ gates each transition on **your** recorded decision. You are the product owner a
 | ----- | -------- | ----------- | -------------- |
 | **Inception** | WHAT / WHY | `requirements-analyst`, `researcher`, `research-synthesizer` | `requirements-elaboration`, `research-method`, `citation-verification` |
 | **Construction** | HOW | `architect`, `planner` (×2), `implementer`, `test-engineer`, `code-reviewer`, `debugger` | `architecture-design`, `implementation-planning`, `testing-strategy`, `code-review`, `rca-investigation` |
-| **Operations** | run it | `devops`, `security` | `delivery-operations`, `security-review` |
+| **Operations** | run it | `devops`, `observability`, `security` | `delivery-operations`, `observability-practice`, `security-review` |
 
 Routing boundaries keep delegation unambiguous: `architect` owns **structure**,
 `planner` owns **sequence**; `code-reviewer` is the **pre-merge gate** and
 `debugger` is **post-failure diagnosis**; `researcher` **gathers** and
-`research-synthesizer` **synthesizes**. The full mechanics — Solo Mob rounds,
+`research-synthesizer` **synthesizes**; `observability` designs **what to
+measure** while `devops` owns the **deploy/release/rollback mechanics**. The full mechanics — Solo Mob rounds,
 agent scaling, tool-call budgets — are in the `aidlc-workflow` skill; the concepts
 and vocabulary (bolts, units of work, the arbiter) are in `aidlc-methodology`.
 
@@ -101,6 +102,87 @@ mean the code is right, not that the test was bent. `code-reviewer` checks
 intent-versus-letter at the pre-merge gate and emits one enumerated verdict
 (`APPROVE`, `REQUEST_CHANGES`, `ESCALATE_SECURITY`, `BLOCK`); even `APPROVE` does
 not open Gate 3 — your Decision Record does.
+
+## Observability in Operations
+
+Observability is an **Operations-phase** concern that **begins in Construction —
+instrument as you build.** Add metrics, structured logs, and traces while the unit
+is being built so they are in place when the change reaches Operations. The
+`observability` agent designs *what to measure*; `devops` owns the
+deploy/release/rollback mechanics. Operations has **no mob ceremony** in AI-DLC;
+human oversight is the constant.
+
+- **What to measure.** The three correlated signals (metrics, logs, traces) tied
+  together by a shared `trace_id`; the SLIs that reflect user-facing health; and
+  the SLOs and **error budgets** that turn them into a policy. **OpenTelemetry** is
+  the instrumentation default.
+- **SLO targets are surfaced, not set.** The agent proposes SLOs and error-budget
+  policy for **you** to approve. You remain the sole arbiter.
+- **A pre-release operability check is recommended, not a gate.** It is a
+  **non-blocking** readiness item inside the existing `delivery-operations`
+  pre-deploy checklist — it informs the arbiter at an **existing** gate; it does
+  **not** add a fifth gate. The four arbiter gates are unchanged.
+
+The full playbook is in the `observability-practice` skill.
+
+## Assess & extend the kit (on demand)
+
+Separately from the lifecycle loop, you can ask the Orchestrator at any time to
+**assess this repo and propose tailored skills or agents** through the
+`kit-extender` agent. This is an **on-demand capability** — analogous to summoning
+`documentation` or `security` for a focused task. It is **not a lifecycle phase,
+not a ceremony, and not an arbiter gate**, and it is not mandatory. It runs
+alongside the lifecycle, not inside it; anything it proposes is adopted only
+through the normal phases and the four existing gates.
+
+How it runs (full procedure in the `extending-the-kit` skill):
+
+1. **Assess.** `kit-extender` inventories the repo's languages, frameworks, infra,
+   and domain, and what the installed `.claude/` already covers, then lists the
+   bounded set of gaps worth filling.
+2. **Default to skills.** New capability is a **skill** unless a genuinely new
+   *role* is needed. **Per-language / per-framework expertise is always a skill
+   plus a `reference/` file — never a fixed shipped-in language agent.** The kit
+   ships no language experts; they are generated per repo, on request.
+3. **Draft to staging.** Drafts land in a repo-root `ai-dlc-proposed/` directory,
+   outside live `.claude/`. (Add it to `.gitignore`.) Staging is **author
+   discipline plus your review** — not an enforced sandbox.
+4. **Validate mechanically — honestly.** `kit-extender` runs the shipped
+   `validate-kit-artifact.mjs` validator, which checks frontmatter and eval-record
+   rules and confirms each draft is **well-formed**. A PASS means "worth testing,"
+   **not** "verified": the validator **cannot** confirm a skill actually triggers.
+   That triggering behavior is checked **by hand in a fresh session** — there is no
+   eval-runner harness.
+5. **You approve.** `kit-extender` proposes; **you** decide. Nothing is promoted
+   into live `.claude/` until you authorize it.
+
+After promotion: a new **skill** hot-reloads (its `SKILL.md` is picked up
+mid-session, though a brand-new top-level skill directory is discovered on a
+restart), while a new **agent** needs a session restart (or `/agents`) before you
+can delegate to it. `kit-extender` complements Claude Code's `/agents` "Generate
+with Claude" flow — it adds the staging, validation, eval-record, and
+approval discipline.
+
+## Recommended practice skills (guidance, not gates)
+
+Beyond the lifecycle agents, the kit ships practice skills that any agent loads on
+demand. Each is **recommended guidance that informs your decisions — never a new
+arbiter gate.** The four gates are unchanged.
+
+- **`testing-strategy`** also owns how you *arrive at* the oracle: **TDD by default**
+  (red-green-refactor, the strongest pattern for AI-implemented work), with ATDD /
+  spec-by-example, exploratory spikes, and property-based testing selected by the
+  unit's requirement clarity, risk, and output shape.
+- **`dependency-compliance`** covers license compatibility (permissive vs
+  copyleft tiers, SPDX identifiers), SBOM generation/reading over direct and
+  transitive dependencies, and provenance hygiene before you add a package — a
+  recommended item inside the `delivery-operations` pre-deploy checklist and the
+  `security-review` supply-chain lens. **Mechanics only; not legal advice.**
+- **`ux-design`** covers interaction design, information architecture, usability,
+  and a WCAG accessibility baseline — **for UI-bearing work only**, not backend,
+  CLI, library, or data work with no human-facing interface.
+
+Read the skills for the full guidance rather than relying on this summary.
 
 ## The artifact templates
 

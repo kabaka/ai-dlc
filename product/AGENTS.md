@@ -172,6 +172,18 @@ raw dumps), and converge rather than loop. The full budgeting guidance is in
   Record why in the Decision Record when agents conflict at a gate.
 - **`code-reviewer` can block.** No unit merges until it approves.
 
+### Optional entry point — assess & extend the kit (on demand)
+
+Separately from the lifecycle loop, the human arbiter may at any time ask the
+Orchestrator to **assess this repo and propose tailored agents or skills** via
+`kit-extender`. This is an **on-demand capability**, invoked by the human arbiter
+when they want to assess or extend the kit — analogous to how `documentation` and
+`security` are summoned for a focused task. It is **not a lifecycle phase, not a
+ceremony, and not an arbiter gate.** It runs alongside the lifecycle, not inside it.
+Any change it proposes is adopted only through the normal phases and the four
+existing gates; `kit-extender` itself blocks nothing and decides nothing. AI
+proposes; the human approves before anything lands. It is **not mandatory**.
+
 ## Specialist Agents
 
 Delegate via the agent mechanism. Definitions live in
@@ -202,8 +214,10 @@ and contest — they never decide a gate.
 | Agent           | Mutates?  | Role                                                          |
 | --------------- | --------- | ------------------------------------------------------------ |
 | `devops`        | authoring | Operations — deploy, release, run                            |
+| `observability` | authoring | Operations measurement — what to measure, SLOs, instrumentation (begins in Construction) |
 | `security`      | non-authoring | Security escalation target (review only)                     |
 | `documentation` | authoring | Documentation escalation target                              |
+| `kit-extender`  | authoring | On-demand authoring capability the arbiter invokes to assess/extend the kit. Outside the three-phase model; not a phase, ceremony, or gate; proposes only |
 
 **Mutates? column.** *authoring* = may Write/Edit files. *non-authoring* = no
 Write/Edit, but carries `Bash` and may run commands (which can have side effects) —
@@ -214,7 +228,15 @@ Bash either — `planner`, `researcher`.
 `planner` owns **sequence**. `code-reviewer` is the **pre-merge gate**; `debugger` is
 **post-failure diagnosis**; `security` is the **escalation** for deep/critical
 security work. `researcher` **gathers**; `research-synthesizer` **synthesizes**. The
-`implementer` may not touch the oracle the `test-engineer` owns.
+`implementer` may not touch the oracle the `test-engineer` owns. `observability`
+designs **what to measure** — SLOs and instrumentation — while `devops` owns the
+**deploy/release/CI-CD/rollback mechanics**. `kit-extender` **authors `.claude/` kit
+components for this repo** (propose-for-approval), distinct from the lifecycle agents
+that **build the product**. Dependency-compliance (licensing/SBOM, a `security-review`
+supply-chain lens) covers **what you may ship**, distinct from `security`'s
+**exploitability**. `ux-design` covers **interface and interaction** for UI-bearing
+work only — distinct from `architecture-design` (system structure) and
+`requirements-elaboration` (what to build).
 
 **Security & documentation are hybrid.** Each has a **dedicated agent** for
 heavy/critical work **plus an on-demand skill** (`security-review`, `writing-docs`)
@@ -233,8 +255,14 @@ Several agents preload their matching skill via the `skills:` frontmatter field.
 - **Inception**: `requirements-elaboration`, `research-method`, `citation-verification`
 - **Construction**: `architecture-design`, `implementation-planning`,
   `testing-strategy`, `code-review`, `rca-investigation`
-- **Operations**: `delivery-operations`
-- **Cross-cutting**: `security-review`, `writing-docs`, `conventional-commits`
+- **Operations**: `delivery-operations`, `observability-practice`
+- **Cross-cutting**: `security-review`, `dependency-compliance`, `ux-design`,
+  `writing-docs`, `conventional-commits`
+- **Kit extension**: `extending-the-kit`
+
+When `kit-extender` generates new kit components, a newly authored **skill**
+hot-reloads (its `SKILL.md` is picked up on demand), but a newly generated **agent**
+needs a session restart (or `/agents`) before it can be delegated to.
 
 ## Cross-platform note (honest, not parity)
 

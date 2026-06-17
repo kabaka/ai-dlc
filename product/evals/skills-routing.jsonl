@@ -58,3 +58,19 @@
 # ---- conventional-commits ----
 {"id": "cc-pos-1", "target": "conventional-commits", "kind": "positive", "prompt": "How should I word this commit message for the breaking change I'm about to land, and what type/scope applies?", "expectation": "Loads conventional-commits: type/scope/description format and breaking-change markers."}
 {"id": "cc-near-1", "target": "conventional-commits", "kind": "near-miss-negative", "prompt": "Review this diff before I merge and tell me if it's correct.", "expectation": "Must NOT load conventional-commits. Correct target: code-review — a pre-merge review, not commit-message formatting."}
+
+# ---- extending-the-kit  (vs aidlc-workflow for product features) ----
+{"id": "etk-pos-1", "target": "extending-the-kit", "kind": "positive", "prompt": "Our installed agent roster has no coverage for our Go microservice stack. Add new components so future work in this repo automatically follows our Go conventions.", "expectation": "Loads extending-the-kit: authoring/adding .claude/ kit components for a new stack/conventions (propose-for-approval), not building a product feature."}
+{"id": "etk-near-1", "target": "extending-the-kit", "kind": "near-miss-negative", "prompt": "Build the 'export to CSV' feature for our app — run it through requirements, design, and implementation.", "expectation": "Must NOT load extending-the-kit. Correct target: aidlc-workflow — running the lifecycle to build a product feature, not extending the kit."}
+
+# ---- observability-practice  (vs delivery-operations) ----
+{"id": "obp-pos-1", "target": "observability-practice", "kind": "positive", "prompt": "Decide what we should measure for the checkout service — the SLIs, the service-level objectives, and an error budget — and how to instrument it so a slow request is traceable.", "expectation": "Loads observability-practice: designing WHAT to measure — SLIs/SLOs/error budgets/instrumentation."}
+{"id": "obp-near-1", "target": "observability-practice", "kind": "near-miss-negative", "prompt": "Stand up the release pipeline and deploy this build, with a rollback if the smoke checks fail.", "expectation": "Must NOT load observability-practice. Correct target: delivery-operations — deploy/release/rollback mechanics, not measurement design."}
+
+# ---- dependency-compliance  (vs security-review) ----
+{"id": "dc-pos-1", "target": "dependency-compliance", "kind": "positive", "prompt": "We're about to vendor a GPL-licensed library into our MIT product. Check whether the licenses are compatible and whether we can legally ship it, and produce a software bill of materials.", "expectation": "Loads dependency-compliance: license compatibility / SBOM / what you may legally ship — the supply-chain compliance lens."}
+{"id": "dc-near-1", "target": "dependency-compliance", "kind": "near-miss-negative", "prompt": "Is this third-party package vulnerable — could a known CVE in it be exploited against us?", "expectation": "Must NOT load dependency-compliance. Correct target: security-review — exploitability of a dependency, not its licensing/compliance."}
+
+# ---- ux-design  (vs architecture-design) ----
+{"id": "ux-pos-1", "target": "ux-design", "kind": "positive", "prompt": "Design the screen flow and the interaction for our new onboarding wizard, and make sure it's accessible to keyboard and screen-reader users.", "expectation": "Loads ux-design: interface/interaction/screen-flow and accessibility for UI-bearing work."}
+{"id": "ux-near-1", "target": "ux-design", "kind": "near-miss-negative", "prompt": "Decide the system's components, module boundaries, and the contracts between them before we build.", "expectation": "Must NOT load ux-design. Correct target: architecture-design — system structure/boundaries/contracts, not interface design."}

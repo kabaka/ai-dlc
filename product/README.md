@@ -2,7 +2,7 @@
 
 **AI-DLC** is an installable, **Claude-Code-first** development-lifecycle kit for
 your own software and research work. It configures your main AI session as an
-**Orchestrator** that coordinates a team of **12 specialist agents** through the
+**Orchestrator** that coordinates a team of **14 specialist agents** through the
 **AI-Driven Development Lifecycle** AWS introduced — Inception → Construction →
 Operations — with **you as the product owner and sole arbiter** of every decision
 that matters.
@@ -31,7 +31,7 @@ npx ai-dlc init --dry-run   # print the plan, write nothing
 | Path | What it is |
 | ---- | ---------- |
 | `AGENTS.md`, `CLAUDE.md` | The canonical Orchestrator definition (`CLAUDE.md` imports `AGENTS.md`). **Co-owned** — a pre-existing copy is never edited in place. |
-| `.claude/agents/` | The 12 specialist lifecycle agents. |
+| `.claude/agents/` | The 14 specialist lifecycle agents. |
 | `.claude/skills/` | The on-demand procedural playbooks. |
 | `.ai-dlc/templates/artifacts/` | Methodology artifact templates to copy and fill. |
 | `.ai-dlc/hooks/arbiter-gate.sh` | The arbiter-gate hook (Claude Code). |
@@ -66,8 +66,10 @@ recorded at each transition.
 - **Construction (HOW).** `architect` owns structure, `planner` owns sequence,
   `implementer` builds, and `test-engineer` owns the independent test oracle —
   which the implementer may not edit. Challenged via **Solo Mob Construction**.
-- **Operations (run it).** `devops` deploys and operates; `security` reviews;
-  `debugger` does incident RCA.
+- **Operations (run it).** `devops` deploys and operates; `observability`
+  designs what to measure — SLOs, error budgets, and OpenTelemetry
+  instrumentation you add **as you build**; `security` reviews; `debugger` does
+  incident RCA.
 
 A few principles make this honest rather than theatrical:
 
@@ -87,6 +89,49 @@ A few principles make this honest rather than theatrical:
 
 The full playbook lives in the installed `aidlc-workflow` skill; the concepts and
 vocabulary in `aidlc-methodology`.
+
+### Extend the kit to your repo
+
+The shipped roster is general-purpose. When you want it to know **your** stack —
+your language, framework, infra, or domain — ask the Orchestrator to assess this
+repo and extend the kit. The `kit-extender` agent inventories the repo, finds
+where the kit is silent, and **proposes** tailored skills (and, rarely, agents)
+authored to the kit's own standards. This is an **on-demand capability**, not a
+lifecycle phase, ceremony, or gate.
+
+- **Skills by default; per-language expertise is a skill plus a `reference/`
+  file** — never a shipped-in, fixed per-language agent. The kit does not ship
+  language or framework experts; `kit-extender` generates them per repo, on request.
+- **You approve before anything lands.** Drafts go to a `ai-dlc-proposed/` staging
+  directory; nothing is promoted into live `.claude/` until you authorize it.
+- **Honest verification.** The kit ships a **mechanical validator** that
+  `kit-extender` runs on every draft — it checks frontmatter and eval-record
+  rules and confirms the artifact is **well-formed**. It does **not** verify that a
+  skill actually *triggers*; that behavior is checked **by hand in a fresh
+  session**. There is no eval-runner harness.
+- **Reload rules.** A promoted **skill**'s edited text hot-reloads mid-session, but
+  a brand-new skill **directory** (the usual case for a generated skill) is only
+  discovered on a session restart; a promoted **agent** likewise needs a session
+  restart (or `/agents`) before you can delegate to it.
+
+The on-demand workflow and the guidance skills below are covered in the
+[usage guide](docs/usage.md).
+
+### Recommended guidance (not gates)
+
+Beyond the lifecycle agents, the kit ships practice skills any agent loads on
+demand. These inform your decisions; they are **recommended guidance, never new
+arbiter gates** — the four gates are unchanged.
+
+- **`observability-practice`** — instrument-as-you-build, SLIs/SLOs/error budgets,
+  OpenTelemetry; a recommended, non-blocking pre-release operability check inside
+  the existing deploy checklist.
+- **`testing-strategy`** — choosing how to arrive at the test oracle: TDD by
+  default, with ATDD, spikes, and property-based testing selected by the work.
+- **`dependency-compliance`** — license compatibility and SBOM/SPDX checks before
+  you add a dependency. Recommended supply-chain hygiene; **not legal advice**.
+- **`ux-design`** — interaction, IA, usability, and WCAG accessibility, for
+  UI-bearing work only.
 
 ## Documentation
 
