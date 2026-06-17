@@ -2,11 +2,18 @@
 
 ## Status
 
-Accepted
+Accepted — amended by [ADR-0007](0007-consumer-kit-self-extension-via-propose-for-approval-generator.md)
 
 - Date: 2026-06-16
 - Deciders: Product owner (decision authority); Orchestrator + `agent-author`,
   `prompt-engineer`, `aidlc-methodologist`
+
+> **Amendment ([ADR-0007](0007-consumer-kit-self-extension-via-propose-for-approval-generator.md)).**
+> This ADR's stance that "consumers need lifecycle agents, not kit-authoring agents"
+> stands for the **layer-1 kit-builder roster**. ADR-0007 adds **one deliberate,
+> scoped exception**: a `kit-extender` agent that lets a consumer extend **their own**
+> installed kit for **their own** repo, on a bounded, propose-for-approval basis. It
+> is not a reversal of the core rejection here — see ADR-0007 for the argument.
 
 ## Context and Problem Statement
 
