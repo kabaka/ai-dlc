@@ -42,7 +42,10 @@ thrash:
 5. **Runs on another machine** — installers, deploy scripts, anything that executes
    on a consumer's or a remote host.
 6. **MCP configuration** — adding or changing an MCP server the agent trusts.
-7. **Supply chain** — adding or bumping a dependency, or changing a pinned source.
+7. **Supply chain** — adding or bumping a dependency, or changing a pinned source
+   (the *exploitability* angle: malicious/compromised packages, install scripts,
+   attack surface). For license/SBOM/copyleft **compliance** — not exploitability —
+   see `dependency-compliance`.
 8. **An explicit threat-model request** — the user asks to threat-model a feature.
 9. **Any High or Critical (High+) severity finding** from the lightweight pass.
 

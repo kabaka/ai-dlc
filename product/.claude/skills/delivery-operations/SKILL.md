@@ -1,6 +1,6 @@
 ---
 name: delivery-operations
-description: The Operations-phase playbook for shipping your software — deploy, release, infrastructure-as-code (IaC), CI/CD pipelines, monitoring, and rollback — all under the human arbiter's deploy authorization. Use when deploying or releasing a change, building or fixing a CI/CD pipeline, writing or reviewing infrastructure/IaC (Terraform, containers, manifests), setting up monitoring/observability or alerting, planning a rollback, running a pre-deploy checklist, or asking "is this safe to ship / who approves the deploy / how do I roll this back?". Operations has NO mob ceremony — it is standing human oversight plus a per-change deploy Decision Record. The devops agent's playbook. For the full lifecycle and the four arbiter gates, see `aidlc-workflow`.
+description: The Operations-phase playbook for shipping your software — deploy, release, infrastructure-as-code (IaC), CI/CD pipelines, and rollback — all under the human arbiter's deploy authorization. Use when deploying or releasing a change, building or fixing a CI/CD pipeline, writing or reviewing infrastructure/IaC (Terraform, containers, manifests), wiring deploy-time alerts and watching a rollout, planning a rollback, running a pre-deploy checklist, or asking "is this safe to ship / who approves the deploy / how do I roll this back?". For instrumentation, SLI/SLO/error-budget, and OpenTelemetry DESIGN, see `observability-practice`. Operations has NO mob ceremony — it is standing human oversight plus a per-change deploy Decision Record. The devops agent's playbook. For the full lifecycle and the four arbiter gates, see `aidlc-workflow`.
 ---
 
 # Delivery & Operations (the Operations phase)
@@ -58,6 +58,7 @@ Run this before requesting the Gate 4 Decision Record. Stop and fix on any No.
     would actually fire on this failure mode.
 [ ] Blast radius understood: who/what breaks if this is wrong; is it behind a flag
     or a progressive rollout?
+[ ] (recommended, non-blocking) license/SBOM compliance reviewed — see `dependency-compliance`.
 [ ] Deploy Decision Record drafted (risk_tier set) and ready for the human arbiter.
 ```
 
@@ -112,23 +113,24 @@ review) and its deploy crosses Gate 4. Do not treat infra edits as out-of-band.
   steps fail visibly and stop the pipeline rather than swallowing an error and
   shipping a broken artifact.
 
-## Observability basics
+## Consuming observability at deploy time
 
-You cannot operate what you cannot see. Ship the change *with* the means to tell if
-it's working — observability is part of the unit, not a follow-up.
+This skill **consumes** signals at release time; it does not design them. For
+instrumentation, the three signals and their correlation, SLI/SLO/error-budget
+design, and OpenTelemetry, see `observability-practice`. At deploy time:
 
-- **The three signals.** Emit **logs** (structured, correlatable), **metrics**
-  (rate, errors, latency — the RED signals for a request path), and **traces**
-  where a request crosses services. Health/readiness endpoints for anything
-  long-running.
-- **Alert on symptoms users feel**, not on every twitch — error-rate and latency
-  SLO breaches over noisy host metrics. An alert that never fires or always fires
-  is dead weight; tie each to a runbook action.
 - **Watch the rollout.** During and just after deploy, watch the signals that would
   reveal *this* change failing; that watch window is what makes the rollback
-  decision real rather than reactive.
-- **Never log secrets or PII.** Credentials, tokens, and personal data stay out of
-  logs and traces (see `security-review`).
+  decision real rather than reactive. Tie the rollback trigger to a concrete SLO
+  breach (defined in `observability-practice`), not a gut feel.
+- **Wire alerts into the pipeline.** Alert on symptoms users feel — error-rate and
+  latency SLO breaches over noisy host metrics — and connect those alerts to the
+  deploy/rollback path so a breach during the watch window is actionable. An alert
+  that never fires or always fires is dead weight; tie each to a runbook action.
+- **Never log secrets or PII (deploy check).** Confirm the change does not emit
+  credentials, tokens, or personal data into logs or traces before you ship; this is
+  a pre-deploy verification, not an instrumentation-design task (see
+  `security-review`).
 
 ## Where Operations hands off
 
