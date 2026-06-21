@@ -34,7 +34,7 @@ Follow the `implementation-planning` skill. At minimum:
   Name the specific behaviors to assert, not just "run the linter."
 - **Risks & mitigations** — especially correctness/faithfulness, reliable
   triggering, and cross-platform integrity.
-- **Done criteria** — how we know every requirement is met, with no deferrals.
+- **Done criteria** — how we know every requirement is met, with no deferrals; the standing done-contract is owned by `definition-of-done`, so seed its acceptance checklist as a plan output.
 
 ## Principles
 

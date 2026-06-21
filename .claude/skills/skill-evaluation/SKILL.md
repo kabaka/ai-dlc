@@ -68,25 +68,16 @@ the evals while the authoring agent stays out of the grading.
 
 ## Eval record shape
 
-Capture each eval as a structured record so the suite is repeatable:
+Capture each eval as a structured record so the suite is repeatable. The
+**canonical record schema** — the `{id, target, prompt, expectation, kind}`
+fields, the `kind` enum (`positive` / `near-miss-negative` / `behavior`), and the
+`scripts/validate-evals.mjs` linter that enforces it — lives in the
+`kit-validation` skill (its "Eval record shape" section). Author records to that
+schema; don't duplicate it here, so there is one source of truth.
 
-```json
-{
-  "skills": ["writing-skills"],
-  "query": "I'm adding a new skill to the repo, what goes in the frontmatter?",
-  "files": ["/path/to/relevant/fixture"],
-  "expected_behavior": "Activates writing-skills; explains name + description are the only required fields; references reference/frontmatter.md for optional fields."
-}
-```
-
-- `skills` — which skill(s)/agent(s) the eval is about (and which should fire).
-- `query` — the realistic prompt to run. Vary wording across the suite.
-- `files` — any fixtures the run needs in context.
-- `expected_behavior` — the observable success criteria: did it trigger, and did
-  the output match.
-
-A run grades each record on both axes (triggered? behaved?) and you iterate until
-the suite passes across the varied prompts.
+Each record names the realistic `prompt` to run and the `expectation` the run is
+graded against. A run grades each record on both axes (triggered? behaved?) and
+you iterate until the suite passes across the varied prompts.
 
 ## Probabilistic by design — when you need a guarantee
 

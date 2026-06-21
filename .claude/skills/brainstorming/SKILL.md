@@ -41,7 +41,8 @@ overlap with an existing skill/agent, progressive disclosure) the user expects b
 default. Mark anything genuinely ambiguous as an open question.
 
 > Assume **all** requirements must be fully met. Never propose deferring or faking
-> scope. If something looks infeasible, name it explicitly.
+> scope. If something looks infeasible, name it explicitly. (The no-deferral rule
+> is owned by `definition-of-done`.)
 
 ### 3. Diverge — generate options
 

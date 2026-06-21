@@ -15,8 +15,12 @@ Orchestrator; do not edit. This is the `qa` agent's playbook, and `qa` can block
 
 ### Delivery rules (blocking)
 
-- [ ] Every requirement from the original request is met — no deferrals, no
-      "good enough for now"
+- [ ] Every requirement is checked against the acceptance checklist
+      (`definition-of-done`) — no deferrals, no "good enough for now"
+- [ ] **Completeness scan** (blocking): no descope language ("phase 2," "later,"
+      "for now"); no orphan capability (a capability with no named user-reachable
+      path); no stale companion (doc/test/eval/changelog not updated) — each
+      checked against the `definition-of-done` checklist
 - [ ] No fakes: no placeholder skills/agents, stub descriptions, `TODO` content,
       invented frontmatter fields, fabricated schema keys, or example commands
       that were never run

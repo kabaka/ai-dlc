@@ -56,20 +56,30 @@ proven to do so. Treat triggering as a correctness property and verify it the wa
 
 ### Eval record shape
 
-Each eval is a small record the harness can execute and score:
+Each eval is a small record the harness can execute and score. Records are
+JSONL (one JSON object per line) under the evals roots (`product/evals/**` for
+the deliverable product, `evals/**` for the kit-builder):
 
 ```json
 {
-  "skills": ["kit-review"],
-  "query": "can you check this PR before I merge it?",
-  "files": ["path/to/changed/skill/SKILL.md"],
-  "expected_behavior": "kit-review fires; applies the severity rubric; flags the missing CHANGELOG entry as Major"
+  "id": "kit-review-pos-pr-gate",
+  "target": "kit-review",
+  "prompt": "can you check this before I merge it?",
+  "expectation": "kit-review fires; applies the severity rubric; flags the missing CHANGELOG entry as Major",
+  "kind": "positive"
 }
 ```
 
-`skills` lists the skill(s)/agent(s) the eval targets; `query` is the realistic
-prompt; `files` is any context to seed; `expected_behavior` is the pass criterion
-the evaluator judges against.
+All five fields are required strings. `id` is unique across all records;
+`target` is the single skill/agent the eval exercises; `prompt` is the realistic
+request; `expectation` is the pass criterion the evaluator judges against; `kind`
+is one of `positive` (should trigger `target`), `near-miss-negative` (plausible
+but must NOT trigger), or `behavior` (once triggered, does it behave). For the
+triggering kinds (`positive`, `near-miss-negative`) the `prompt` must NOT name
+`target` — a prompt that names the skill trivially "passes" triggering and proves
+nothing. The `scripts/validate-evals.mjs` linter enforces this shape, id
+uniqueness, the `kind` enum, the anti-fake rule, and per-target coverage (every
+triggering target needs at least one `positive` and one `near-miss-negative`).
 
 ## Running the harness
 

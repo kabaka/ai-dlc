@@ -22,12 +22,14 @@ Copy this checklist into your working notes for non-trivial requests and track i
 ```text
 Request progress:
 - [ ] 1. Plan (brainstorm if complex)
+- [ ] 1a. Acceptance checklist enumerated + arbiter-confirmed (`definition-of-done`)
 - [ ] 2. Dual planning (two planners)        ← skip only if trivially simple
 - [ ] 3. Adversarial plan review (two reviewers)
 - [ ] 4. Validate feedback → revise → re-review, or proceed
 - [ ] 5. Author + validate (specialists)
 - [ ] 6. Review the deliverables (qa + adversarial + security/...)
 - [ ] 7. Validate feedback → fix → re-review, or proceed
+- [ ] 7a. Spec-conformance gate: every checklist item evidenced (`definition-of-done`)
 - [ ] 8. Deliver & report (push/PR/merge only if asked)
 ```
 
@@ -42,6 +44,14 @@ read-only specialist over reading large files yourself).
   and risks before planning.
 - If a requirement is genuinely unclear or contradictory, ask the user now —
   don't guess and don't silently narrow scope.
+- **Enumerate the acceptance checklist and confirm it with the arbiter (the user)
+  BEFORE substantial authoring.** Turn the requirements — plus the implicit ones
+  (end-to-end reachability, companion docs/tests/changelog) — into an explicit,
+  checkable list per `definition-of-done`, and get the arbiter's sign-off on it.
+  This is the contract step 7a verifies against. **Proportional:** a trivially
+  simple request gets a one-line checklist; the *depth* of the checklist scales to
+  the change, but skipping the confirmation entirely is an **arbiter decision**,
+  not an author self-declaration.
 
 ### Step 2 — Dual planning
 
@@ -117,6 +127,19 @@ Judge the findings as in step 4. If there is actionable, correct feedback, route
 specific fixes back to the authoring specialist and **return to step 5**, then
 re-review. Otherwise continue. **`qa` must approve before you proceed.**
 
+### Step 7a — Spec-conformance gate
+
+Before delivering, re-check the deliverable against the acceptance checklist from
+step 1a, per `definition-of-done`. Verify **every** item with concrete evidence (a
+named user-reachable path for each capability, the companion docs/tests/changelog
+updated, the validation that ran). Any unchecked item, orphan capability, or
+descope that the **arbiter** did not authorize **blocks** delivery — route it back
+to step 5. **Proportional:** for a trivial change this is a quick pass over a short
+list; a skip is an arbiter decision, not author self-declaration. This gate is
+strongly-instructed prose enforced by the blocking `qa` gate — it is **not** a
+deterministic hook, so judge it honestly rather than assuming mechanical
+enforcement.
+
 ### Step 8 — Deliver & report
 
 - Verify the delivery rules hold: every requirement met, no fakes, frontmatter
@@ -146,6 +169,5 @@ re-review. Otherwise continue. **`qa` must approve before you proceed.**
   can.
 - **Dogfood.** When we author a skill or agent, we use our own authoring skills to
   do it. The kit is built by the methodology it teaches.
-- **Never let scope quietly shrink.** If meeting a requirement is hard, add
-  specialists and iterate — don't accept a deferral, scaffold, or fake from any
-  agent.
+- **Never let scope quietly shrink.** The acceptance checklist is the contract;
+  `definition-of-done` owns the no-deferral rule and steps 1a/7a enforce it.

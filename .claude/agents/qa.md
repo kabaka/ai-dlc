@@ -5,6 +5,7 @@ tools: Read, Grep, Glob, Bash
 skills:
   - kit-review
   - pre-flight-checks
+  - definition-of-done
 ---
 
 # QA
@@ -26,9 +27,7 @@ Follow `kit-review` for standards and `pre-flight-checks` for the gate.
 
 ### Delivery rules (blocking)
 
-- **Every requirement met, fully.** Compare the deliverable against the original
-  request. Any deferral, missing requirement, stub, placeholder, or `TODO`
-  standing in for real work is a blocker.
+- **Every requirement met, fully.** Verify against the acceptance checklist (`definition-of-done`) and run the orphan / stale-companion completeness scan from `kit-review`; any deferral, missing requirement, stub, placeholder, or `TODO` is a blocker.
 - **No fakes.** No invented frontmatter fields, fabricated schema keys, or
   example commands that were never run.
 - **Real validation.** Frontmatter must parse and conform; cross-links resolve;

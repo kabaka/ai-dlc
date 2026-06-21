@@ -18,6 +18,7 @@ the [MADR 4.0](https://adr.github.io/madr/) format (see
 | [0006](./0006-installer-idempotent-merge-and-consumer-file-preservation.md) | Installer idempotent merge and consumer-file preservation | Accepted |
 | [0007](./0007-consumer-kit-self-extension-via-propose-for-approval-generator.md) | Consumer kit self-extension via a propose-for-approval generator | Accepted |
 | [0008](./0008-observability-agent-and-practice-domain-guidance-skills.md) | Observability agent and practice/domain guidance skills | Accepted |
+| [0009](./0009-definition-of-done-spec-completeness.md) | Operationalizing spec-completeness with a Definition of Done | Accepted |
 
 ## Statuses
 
@@ -36,7 +37,7 @@ shape:
 
 1. Copy [`adr-template.md`](./adr-template.md) to a new file.
 2. Name it `NNNN-short-kebab-title.md`, where `NNNN` is the next zero-padded
-   sequential number (the next free number is **0009**). Numbers are never reused,
+   sequential number (the next free number is **0010**). Numbers are never reused,
    even if an ADR is later rejected or superseded.
 3. Fill in every section of the template. Keep the title line consistent:
    `# NNNN — Title`.
