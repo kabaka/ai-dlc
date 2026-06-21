@@ -28,10 +28,10 @@ the bare AWS terms for the agent loop.
 - **Ceremony:** Solo Mob Elaboration.
 - **Lead:** `requirements-analyst`; `researcher` + `research-synthesizer` for
   open questions (fan-out — see `scaling.md`).
-- **Challenge:** a second `requirements-analyst` pass and/or `adversarial-reviewer`
-  contesting the requirements and the units of work.
+- **Challenge:** a second `requirements-analyst` pass contesting the requirements
+  and the units of work (an independent challenge pass, not a separate agent).
 - **Output:** the **Unit-of-Work** contract per unit (`artifacts.md`), carrying
-  `bolt_time_box` and `risk_tier`.
+  `bolt_time_box`, `risk_tier`, and `ui_bearing`.
 - **Gate:** **Gate 1 — Inception → Construction** (requirements + units approved).
 
 ## Construction
@@ -40,9 +40,13 @@ the bare AWS terms for the agent loop.
 - **Ceremony:** Solo Mob Construction.
 - **Design fork:**
   - **Lead:** `architect` (**structure** — how the system is shaped); `planner` ×2
-    (**sequence** — in what order, dispatched twice for the Solo Mob round).
-  - **Challenge:** `adversarial-reviewer`, `security` (depth per `risk_tier`).
-  - **Output:** architecture handoff, then plan handoff (`artifacts.md`).
+    (**sequence** — in what order, dispatched twice for the Solo Mob round). For
+    **`ui_bearing` units** the `design-system` lens engages (alongside `ux-design`),
+    producing the **design contract** — tokens + UI-element inventory + state
+    matrices — as Gate-2 evidence inside the architecture handoff.
+  - **Challenge:** `code-reviewer`, `security` (depth per `risk_tier`).
+  - **Output:** architecture handoff (the design contract rides inside it for
+    `ui_bearing` units), then plan handoff (`artifacts.md`).
   - **Gate:** **Gate 2 — design fork** (architecture/plan approved before code).
 - **Implementation + review:**
   - **Lead:** `implementer` builds the unit against the plan; `test-engineer` owns

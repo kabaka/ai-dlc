@@ -234,9 +234,20 @@ designs **what to measure** — SLOs and instrumentation — while `devops` owns
 components for this repo** (propose-for-approval), distinct from the lifecycle agents
 that **build the product**. Dependency-compliance (licensing/SBOM, a `security-review`
 supply-chain lens) covers **what you may ship**, distinct from `security`'s
-**exploitability**. `ux-design` covers **interface and interaction** for UI-bearing
-work only — distinct from `architecture-design` (system structure) and
-`requirements-elaboration` (what to build).
+**exploitability**. For **UI-bearing work** the design lens splits three ways:
+`design-system` = **design tokens / UI-element inventory / state matrices / visual
+contract** (how it *looks*); `ux-design` = **information architecture / interaction /
+usability / WCAG** (how it *works*); `architecture-design` = **system structure** (the
+machine). A **UI element** (button, form, card) is a UI control in `design-system`,
+distinct from a system **component** (a module/service boundary) in
+`architecture-design`. All three are distinct from `requirements-elaboration` (what to
+build). For a `ui_bearing` unit the `design-system` and `ux-design` contracts ride
+**inside** the existing architecture handoff that Gate 2 approves — not a new gate or
+artifact-type.
+
+> The `ui_bearing` determination and the UI-lens proportionality are our faithful
+> application of AWS AI-DLC's proportionality guidance — not an AWS-named scheme; AWS
+> names no `ui_bearing` field.
 
 **Security & documentation are hybrid.** Each has a **dedicated agent** for
 heavy/critical work **plus an on-demand skill** (`security-review`, `writing-docs`)
@@ -257,7 +268,7 @@ Several agents preload their matching skill via the `skills:` frontmatter field.
   `testing-strategy`, `code-review`, `rca-investigation`
 - **Operations**: `delivery-operations`, `observability-practice`
 - **Cross-cutting**: `security-review`, `dependency-compliance`, `ux-design`,
-  `writing-docs`, `conventional-commits`
+  `design-system`, `writing-docs`, `conventional-commits`
 - **Kit extension**: `extending-the-kit`
 
 When `kit-extender` generates new kit components, a newly authored **skill**

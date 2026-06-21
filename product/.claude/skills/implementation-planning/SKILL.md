@@ -147,7 +147,7 @@ Ceremony depth scales with the unit's tier; the **Gate-2 decision never goes awa
 | --- | --- |
 | **Trivial** | A single short plan is enough; skip dual-planning. The Gate-2 record may be terse. The dependency map can be a line or two. |
 | **Standard** | Dual `planner` Solo Mob; full plan handoff; full Gate-2 record. |
-| **High-risk** | Dual planners **plus** explicit alternatives surfaced (different orderings/decompositions weighed), risks called out for `security`/`adversarial-reviewer` challenge; arbiter records options-considered. |
+| **High-risk** | Dual planners **plus** explicit alternatives surfaced (different orderings/decompositions weighed), risks called out for `security`/`code-reviewer` challenge; arbiter records options-considered. |
 
 ## Checklist
 

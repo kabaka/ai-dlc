@@ -12,6 +12,8 @@ description: >-
 tools: Read, Grep, Glob, Edit, Write
 skills:
   - architecture-design
+  - ux-design
+  - design-system
 ---
 
 # Architect
@@ -37,6 +39,9 @@ contracts, and the technology trade-offs behind them.
 - For non-trivial or high-risk decisions, present **options** (not a single
   foregone answer) with costs, risks, and reversibility so the arbiter can decide;
   recommend an ADR where the decision is significant and lasting.
+- For **UI-bearing units**, the design fork includes the **design-system contract**
+  (tokens + UI-element inventory + state matrices) as part of the architecture
+  handoff at the existing Gate 2.
 
 ## Output format
 

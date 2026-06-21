@@ -42,6 +42,7 @@ parallelizable chunk of value sized to fit a bolt. Ship it as a real artifact (t
 | `dependencies` | yes (may be empty) | Other units this one needs; supports parallelization decisions. |
 | `bolt_time_box` | yes | The intended bolt window (hours–days) for this unit. Documentation/intent field — **not** an enforced timer. |
 | `risk_tier` | yes | `trivial` / `standard` / `high-risk` — sets ceremony depth (see `triage.md`). |
+| `ui_bearing` | yes | Whether this unit renders something a person sees and operates (UI surface) — engages the design-system / UX lens; non-UI units skip it. Proposed by the analyst, arbiter-confirmed at Gate 1. |
 | `arbiter_signoff` | yes | Reference to the Inception Decision Record (Gate 1) approving this unit. |
 
 `bolt_time_box` records intent only — there is no timer, burndown, or cutoff in
@@ -53,6 +54,12 @@ The `architect`'s output at the design fork — the system **structure** (how it
 shaped). Suggested shape: the chosen design, the components/domain model and their
 boundaries, key interfaces/contracts, the alternatives considered and why rejected,
 and the risks/assumptions. This artifact is what Gate 2 (design fork) approves.
+
+For **`ui_bearing` units**, the **design contract** — design tokens + UI-element
+inventory + state matrices, produced via the `design-system` skill — is a real
+interface/data contract that travels **inside** this architecture handoff. It is
+**not** a new gate or artifact-type; it is a sub-part of the existing handoff that
+the existing Gate 2 approves. Non-UI units omit it.
 
 ## Plan handoff
 

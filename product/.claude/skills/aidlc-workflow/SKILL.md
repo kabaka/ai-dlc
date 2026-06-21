@@ -108,7 +108,7 @@ keeps the arbiter principle intact at every tier. Depth rules in detail:
 1. `requirements-analyst` (lead) turns intent into requirements and **units of
    work**. For open questions, fan out `researcher` ×N → `research-synthesizer`
    (see "Research fan-out" below).
-2. Challenge: a second `requirements-analyst` pass and/or `adversarial-reviewer`
+2. Challenge: a second, independent `requirements-analyst` pass
    contests the requirements and the units of work.
 3. Each unit gets the **Unit-of-Work contract** (incl. `bolt_time_box`,
    `risk_tier`) — the Inception → Construction handoff. Schema in
@@ -119,7 +119,7 @@ keeps the arbiter principle intact at every tier. Depth rules in detail:
 ### Construction (HOW) — ceremony: Solo Mob Construction
 
 1. `architect` (lead, **structure**) proposes the design; `planner` ×2 (read-only,
-   **sequence**) plan; `adversarial-reviewer` / `security` contest. Output: the
+   **sequence**) plan; `code-reviewer` / `security` contest. Output: the
    **architecture** then **plan** handoff artifacts.
 2. **Gate 2 (design fork):** human approves architecture/plan *before* any code.
 3. `implementer` (lead) builds the unit against the plan. `test-engineer` owns the

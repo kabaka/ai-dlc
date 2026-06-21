@@ -77,8 +77,8 @@ that supply the solo-mob diverse-challenge function.
 
 | Phase | Question | Ceremony (solo-adapted) | Lead agents | Challenge agents (solo-mob stand-ins) | Arbiter decision point |
 | --- | --- | --- | --- | --- | --- |
-| **Inception** | WHAT / WHY | **Solo Mob Elaboration** | `requirements-analyst`, `researcher` + `research-synthesizer` | a second `requirements-analyst` pass and/or `adversarial-reviewer` contesting the requirements/units of work | **Requirements & units-of-work sign-off** (gate into Construction) |
-| **Construction** | HOW | **Solo Mob Construction** | `architect`, `planner`, `implementer`, `test-engineer` | dual `planner`, `adversarial-reviewer`, `security`, `code-reviewer` contesting design/code | **Architecture/plan approval** (before implementation) and **merge approval** (before integration) |
+| **Inception** | WHAT / WHY | **Solo Mob Elaboration** | `requirements-analyst`, `researcher` + `research-synthesizer` | a second, independent `requirements-analyst` pass contesting the requirements/units of work | **Requirements & units-of-work sign-off** (gate into Construction) |
+| **Construction** | HOW | **Solo Mob Construction** | `architect`, `planner`, `implementer`, `test-engineer` | dual `planner`, `code-reviewer`, `security` contesting design/code | **Architecture/plan approval** (before implementation) and **merge approval** (before integration) |
 | **Operations** | run it | none (standing oversight) | `devops` | `security` (review), `debugger` (incident RCA) | **Deploy/release authorization** (per change) |
 
 Skill mapping (consumer skills the authors will create map per phase):
@@ -207,7 +207,7 @@ only their **depth** scales.
 | --- | --- | --- | --- |
 | **Trivial** | Low-risk, reversible, narrow scope (e.g. copy fix, isolated config). | Lightweight: single proposer, no full mob round; arbiter may approve inline. | Still required for the gate it crosses, but may be terse (one-line rationale). |
 | **Standard** | Typical feature unit of work. | Full Solo Mob ceremony: lead proposes, ≥1 challenge agent contests, arbiter decides. | Full Decision Record at each transition. |
-| **High-risk** | Irreversible, security-sensitive, broad blast radius, or high ambiguity. | Deepest: multiple challenge agents incl. `security`/`adversarial-reviewer`, explicit options surfaced, arbiter must record options-considered. | Full Decision Record **plus** recorded alternatives and explicit risk note; consider an ADR. |
+| **High-risk** | Irreversible, security-sensitive, broad blast radius, or high ambiguity. | Deepest: multiple challenge agents incl. `security`/`code-reviewer`, explicit options surfaced, arbiter must record options-considered. | Full Decision Record **plus** recorded alternatives and explicit risk note; consider an ADR. |
 
 **Rules for authors:**
 

@@ -181,6 +181,20 @@ arbiter gate.** The four gates are unchanged.
 - **`ux-design`** covers interaction design, information architecture, usability,
   and a WCAG accessibility baseline — **for UI-bearing work only**, not backend,
   CLI, library, or data work with no human-facing interface.
+- **`design-system`** is the **visual** lens for the same UI-bearing work: DTCG
+  design tokens, a UI-element inventory with state matrices, app-wide
+  empty/loading/error patterns, and a committed aesthetic — producing a visual
+  contract for **you** to judge. It never self-certifies that the UI looks good.
+
+For a unit of work whose `ui_bearing` field is set (agent-proposed,
+arbiter-confirmed at **Gate 1**), `requirements-analyst` and `architect` carry the
+`ux-design` and `design-system` lenses. The resulting design contract — tokens
+plus the UI-element inventory and state matrices — rides inside the architecture
+handoff and is approved at the **existing Gate 2** (the design fork); no new gate
+is added. **You judge the aesthetics**; the lenses surface the contract, they do
+not decide it. The `off-token-lint.mjs` script (see
+[the scripts reference](../scripts/README.md)) gives a deterministic, non-blocking
+check that the built UI stays on-token.
 
 Read the skills for the full guidance rather than relying on this summary.
 

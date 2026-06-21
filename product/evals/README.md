@@ -24,7 +24,7 @@ there are **two tiers**, and they verify different things:
 ## The record files
 
 - `agents-routing.jsonl` — one or more `positive` + `near-miss-negative` per
-  consumer-facing **agent** (12 agents).
+  consumer-facing **agent** (14 agents).
 - `skills-routing.jsonl` — the same for each **trigger-critical skill** (the
   cross-fire-prone ones: design vs planning, review vs RCA, the security lens vs
   the security agent, gather vs synthesize, inline docs vs doc sets, workflow vs
