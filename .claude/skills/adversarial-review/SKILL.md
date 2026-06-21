@@ -26,7 +26,8 @@ severity — every finding must be real and evidenced, never a manufactured nitp
 ### Requirements & honesty (blocking)
 
 - [ ] Is **every** stated requirement actually satisfied? Map each to evidence.
-- [ ] Any deferral, scaffold, stub, placeholder, `TODO`, or "phase 2"? → blocker.
+- [ ] Any deferral, scaffold, stub, placeholder, `TODO`, or "phase 2", checked
+      against the change's `definition-of-done` checklist? → blocker.
 - [ ] Any invented frontmatter field, fabricated schema key, or example command
       that was never run? → blocker.
 - [ ] Any validation/triggering eval that passes trivially instead of genuinely

@@ -45,14 +45,16 @@ cross-platform breakage, roster/skill overlap, packaging/versioning gotchas.
 
 ## Done criteria
 How we will know every requirement is met (no deferrals, no fakes, validation
-genuinely passes).
+genuinely passes). **Seed the acceptance checklist as a plan output** for the
+arbiter to confirm — the standing done-contract is owned by `definition-of-done`.
 ```
 
 ## Principles
 
 - **Cover every requirement, fully.** Each stated requirement maps to concrete
   steps and real validation. No "phase 2," no stub descriptions or placeholder
-  content standing in for the real thing.
+  content standing in for the real thing. The standing done-contract is owned by
+  `definition-of-done`.
 - **Respect the architecture.** Canonical orchestrator guidance lives in
   `AGENTS.md`; `CLAUDE.md` imports it. Skills follow progressive disclosure
   (tight `SKILL.md`, depth in `reference/`); agents follow least-privilege tools

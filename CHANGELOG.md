@@ -75,3 +75,31 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Architecture Decision Records 0007 (consumer kit self-extension via a
   propose-for-approval generator) and 0008 (the `observability` agent and
   practice/domain guidance skills).
+- **Spec-completeness mechanism (layer 1)** that makes "every requirement met"
+  falsifiable:
+  - New `definition-of-done` skill — the canonical home for an enumerated,
+    arbiter-confirmed acceptance checklist covering requirement coverage,
+    end-to-end reachability (every capability has a named user-reachable path),
+    and companion docs/tests/changelog freshness, scaled to the change.
+  - Layer-1 eval coverage: `scripts/validate-evals.mjs` now also scans a new
+    top-level `evals/` directory, seeded with `evals/definition-of-done.jsonl`.
+  - Architecture Decision Record 0009 (definition-of-done spec completeness).
+
+### Changed
+
+- The `orchestration-workflow` gains two beats — enumerate and arbiter-confirm
+  the acceptance checklist up front, and a spec-conformance gate before deliver —
+  and `delegation-patterns` adds a no-unilateral-descope plus seam-ownership rule
+  (see ADR 0009).
+- `kit-review` and the `qa` agent now run a completeness scan against the
+  acceptance checklist, with `definition-of-done` preloaded on `qa`.
+- Established `definition-of-done` as the canonical home for the no-deferral rule
+  and cross-linked the existing role-specific reinforcements to it (the
+  declarations are kept in place by design, not removed).
+
+### Fixed
+
+- Corrected the eval-record schema documentation in `kit-validation` to match the
+  records the validator actually checks.
+- Corrected the stale eval-record schema documentation in `skill-evaluation` to
+  match the validator schema (companion to the `kit-validation` fix above).

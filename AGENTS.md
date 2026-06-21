@@ -66,7 +66,11 @@ These bind every agent on every task. They govern **how** work is done.
 
 - **Meet every requirement, fully.** When the user states requirements, ALL of
   them are satisfied in the same effort. No deferring to a "later phase," no
-  "good enough for now."
+  "good enough for now." Operationalized by the `definition-of-done` skill.
+- **End-to-end reachability.** Every capability has a named user-reachable path
+  (a skill, command, agent, or caller) — no orphan features wired to nothing.
+- **Companion freshness.** Docs, tests/evals, and `CHANGELOG` are updated in the
+  same effort as the change they describe — no stale companions left behind.
 - **No fakes.** No placeholder skills/agents, stub descriptions, `TODO` content,
   invented frontmatter fields, fabricated schema keys, or example commands that
   were never run. Ship real, working guidance.
@@ -187,8 +191,8 @@ Several subagents preload their matching skill via the `skills:` frontmatter fie
 - **Cross-platform & methodology**: `cross-platform-config`, `aidlc-methodology`
 - **Distribution**: `plugin-packaging`, `marketplace-publishing`, `installer-design`
 - **SDLC hygiene & quality**: `conventional-commits`, `pre-flight-checks`,
-  `kit-review`, `kit-validation`, `security-review`, `rca-investigation`,
-  `adr-authoring`, `documentation-style`, `ecosystem-research`
+  `kit-review`, `kit-validation`, `definition-of-done`, `security-review`,
+  `rca-investigation`, `adr-authoring`, `documentation-style`, `ecosystem-research`
 
 ## Authoring & Repository Standards
 

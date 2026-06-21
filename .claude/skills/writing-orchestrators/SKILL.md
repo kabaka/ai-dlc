@@ -46,10 +46,11 @@ triggering → cross-platform integrity → reusability → ergonomics.
 ### 4. Non-negotiable delivery rules
 
 The rules that bind **every agent on every task** — they govern *how* work is
-done, independent of the task. Typical members: meet every requirement fully; no
-fakes/stubs/TODOs; real validation; faithful to current behavior; decompose rather
-than cut scope; report honestly. These are absolute, not weighted — distinct from
-the priority-ordered principles above.
+done, independent of the task. Typical members: meet every requirement fully
+(operationalized by `definition-of-done`); no fakes/stubs/TODOs; real validation;
+faithful to current behavior; decompose rather than cut scope; report honestly.
+These are absolute, not weighted — distinct from the priority-ordered principles
+above.
 
 ### 5. The canonical workflow loop
 

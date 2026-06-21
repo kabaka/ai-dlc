@@ -10,8 +10,8 @@
 // the `skill-evaluation` / `kit-validation` skills. This gate only proves the
 // eval SUITE is honest and complete enough to be worth running.
 //
-// RECORD FORMAT (JSONL — one JSON object per line under `product/evals/`):
-//   - Files: product/evals/**/*.jsonl
+// RECORD FORMAT (JSONL — one JSON object per line under the evals roots):
+//   - Files: product/evals/**/*.jsonl (layer 2) and evals/**/*.jsonl (layer 1)
 //   - Blank lines and lines whose first non-space char is `#` are ignored
 //     (lets authors annotate suites).
 //   - Each remaining line is one record object with these fields:
@@ -44,7 +44,10 @@ import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const EVALS_DIR = join(REPO_ROOT, "product", "evals");
+// Two evals roots: layer-2 (the deliverable product) under product/evals, and
+// layer-1 (the kit-builder itself) under evals. Each is scanned if present and
+// skipped cleanly when absent.
+const EVALS_DIRS = [join(REPO_ROOT, "product", "evals"), join(REPO_ROOT, "evals")];
 
 const TRIGGERING_KINDS = new Set(["positive", "near-miss-negative"]);
 const ALL_KINDS = new Set(["positive", "near-miss-negative", "behavior"]);
@@ -75,7 +78,7 @@ function mentionsTarget(prompt, name) {
   return re.test(prompt);
 }
 
-const files = listJsonl(EVALS_DIR);
+const files = EVALS_DIRS.flatMap((dir) => listJsonl(dir));
 
 // target -> Set of kinds seen (for coverage). Only built from valid records.
 const targetKinds = new Map();
@@ -165,7 +168,9 @@ for (const [target, kinds] of targetKinds) {
 
 console.log("Eval-record lint");
 if (files.length === 0) {
-  console.log("  no eval records found (product/evals/**/*.jsonl) — skipping");
+  console.log(
+    "  no eval records found (product/evals/**/*.jsonl, evals/**/*.jsonl) — skipping"
+  );
   console.log("PASS: nothing to lint");
   process.exit(0);
 }

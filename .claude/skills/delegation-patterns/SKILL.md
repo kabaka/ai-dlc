@@ -26,8 +26,21 @@ Give every dispatched agent:
    format and where to write it.
 5. **Constraints & done criteria** — the delivery rules (all requirements, no
    fakes, real validation) and how the agent should know it's finished.
+6. **Checklist slice** — the relevant slice of the acceptance checklist (see
+   `definition-of-done`) that *this* agent owns, so it knows exactly which items
+   it is on the hook for.
+7. **Seam / integration point** — the named user-reachable path or companion this
+   agent is responsible for wiring (the `/command`, the caller, the doc/eval/
+   changelog entry), so its output is reachable and its companions stay fresh —
+   not an orphan feature or a stale doc.
 
 Vague briefs produce vague work. Be concrete.
+
+**No unilateral descope.** A subagent may **not** drop, defer, or narrow a
+checklist item on its own. If it believes an item is infeasible or contradictory,
+it **escalates to the Orchestrator** (who takes it to the arbiter) — it never
+silently shrinks the brief. This is the fix for the context-loss that produces
+orphan features and stale companions. See `definition-of-done`.
 
 ## Parallel vs sequential
 
@@ -81,7 +94,7 @@ You are the integration point. When agent B needs agent A's result:
 When an agent reports back, check that it actually addressed the brief and met the
 delivery rules before moving on. Confirm frontmatter parses, claims are accurate,
 descriptions are trigger-ready, cross-platform assumptions hold, and validation
-genuinely ran. If it deferred scope, faked something, invented a frontmatter
-field or schema key, or missed a requirement, send it back with specifics — don't
-paper over it yourself. **`qa` can block; no deliverable is final until it
-approves.**
+genuinely ran. If it deferred a checklist item (see `definition-of-done`), faked
+something, invented a frontmatter field or schema key, or missed a requirement,
+send it back with specifics — don't paper over it yourself. **`qa` can block; no
+deliverable is final until it approves.**

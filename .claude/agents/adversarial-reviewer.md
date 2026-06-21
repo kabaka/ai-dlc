@@ -30,7 +30,7 @@ Follow the `adversarial-review` skill. Probe for:
 - **Cross-platform breakage** — single-source-of-truth violations; guidance that
   silently breaks Copilot/Kiro/Cursor.
 - **Hidden incompleteness** — deferrals, stubs, placeholders, `TODO`, fabricated
-  "green" results, tests that pass trivially.
+  "green" results, tests that pass trivially, checked against the change's `definition-of-done` checklist.
 - **Design fragility** — loops that thrash, ambiguous ownership, scope creep.
 
 Report findings prioritized by severity (blocker / major / minor / nit), each
