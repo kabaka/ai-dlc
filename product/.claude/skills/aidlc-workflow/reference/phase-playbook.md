@@ -43,10 +43,21 @@ the bare AWS terms for the agent loop.
     (**sequence** — in what order, dispatched twice for the Solo Mob round). For
     **`ui_bearing` units** the `design-system` lens engages (alongside `ux-design`),
     producing the **design contract** — tokens + UI-element inventory + state
-    matrices — as Gate-2 evidence inside the architecture handoff.
+    matrices — as Gate-2 evidence inside the architecture handoff. For those
+    `ui_bearing` units the `architect`'s output also includes the **proposed
+    `.ai-dlc/stack-binding.json`** (UI stack, browser, run/build commands the
+    visual-QA tools target), arbiter-confirmed inside the existing Gate-2 Decision
+    Record — no new gate, agent, or record-type.
   - **Challenge:** `code-reviewer`, `security` (depth per `risk_tier`).
-  - **Output:** architecture handoff (the design contract rides inside it for
-    `ui_bearing` units), then plan handoff (`artifacts.md`).
+  - **Output:** architecture handoff (the design contract and proposed
+    stack-binding ride inside it for `ui_bearing` units), then plan handoff
+    (`artifacts.md`).
+  - **Visual-QA evidence:** the visual-QA tools (`.ai-dlc/scripts/visual-qa/`) are
+    deterministic evidence feeding the **existing** Gate-2 and Gate-3 gates — not a
+    new gate or agent. Static checks run freely; **app/browser execution is
+    fail-closed** — human-confirmed per session, never auto-run from a freshly-pulled
+    or changed `stack-binding.json` (running the app runs the consumer's own code, a
+    residual risk; trusted repos only).
   - **Gate:** **Gate 2 — design fork** (architecture/plan approved before code).
 - **Implementation + review:**
   - **Lead:** `implementer` builds the unit against the plan; `test-engineer` owns

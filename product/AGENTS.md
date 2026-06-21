@@ -252,7 +252,19 @@ distinct from a system **component** (a module/service boundary) in
 `architecture-design`. All three are distinct from `requirements-elaboration` (what to
 build). For a `ui_bearing` unit the `design-system` and `ux-design` contracts ride
 **inside** the existing architecture handoff that Gate 2 approves — not a new gate or
-artifact-type.
+artifact-type. For those same `ui_bearing` units the `architect` also produces the
+**proposed `.ai-dlc/stack-binding.json`** (which UI stack, browser, and run/build
+commands the visual-QA tools target) as part of that Gate-2 handoff; it is
+**arbiter-confirmed inside the existing Gate-2 Decision Record** — no new gate,
+agent, or record-type.
+
+The **visual-QA tools** (`product/scripts/visual-qa/`) are deterministic
+**Gate-2/Gate-3 evidence** (a kit convention — the tools produce evidence, the human
+arbiter decides), not a gate or agent. The static checks run freely. **App/browser
+execution is fail-closed:** it is **human-confirmed per session** and is **never
+auto-run from a freshly-pulled or changed `stack-binding.json`** — a new or edited
+binding must be human-confirmed before any run. Running the app **runs the consumer's
+own code** (residual risk); only run it on trusted repositories.
 
 > The `ui_bearing` determination and the UI-lens proportionality are our faithful
 > application of AWS AI-DLC's proportionality guidance — not an AWS-named scheme; AWS
@@ -277,7 +289,8 @@ Several agents preload their matching skill via the `skills:` frontmatter field.
   `testing-strategy`, `code-review`, `rca-investigation`
 - **Operations**: `delivery-operations`, `observability-practice`
 - **Cross-cutting**: `security-review`, `dependency-compliance`, `ux-design`,
-  `design-system`, `spec-conformance`, `writing-docs`, `conventional-commits`
+  `design-system`, `stack-binding`, `spec-conformance`, `writing-docs`,
+  `conventional-commits`
 - **Kit extension**: `extending-the-kit`
 
 When `kit-extender` generates new kit components, a newly authored **skill**

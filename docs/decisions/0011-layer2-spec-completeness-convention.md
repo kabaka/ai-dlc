@@ -142,8 +142,10 @@ Options (a)–(c) are rejected:
   (show, don't assert) and the arbiter confirms it; there is no detector proving a
   seam is wired.
 - Neutral, because the **deterministic visual-QA + patch-coverage TOOLING and the
-  stack auto-binding are a LATER slice** — this slice ships the convention and its
-  wiring, not the deterministic detectors. Honest sequencing, not a hidden gap.
+  stack auto-binding are a LATER slice** — now designed in
+  [ADR-0012](0012-layer2-visual-qa-tooling-and-stack-auto-binding.md). This slice
+  ships the convention and its wiring, not the deterministic detectors. Honest
+  sequencing, not a hidden gap.
 - Neutral, because the convention lives in `.claude/` and is therefore
   **Claude-Code-first**; non-Claude tools inherit only the *principle* via the
   canonical `AGENTS.md` Delivery Rule (the standard cross-platform degradation).
@@ -206,7 +208,9 @@ Options (a)–(c) are rejected:
 - **Honest boundary:** enforcement is the existing `code-reviewer` verdict plus the
   human arbiter, **not** a new deterministic mechanism; reachability is an
   arbiter-confirmed / evidenced assertion. The deterministic **visual-QA +
-  patch-coverage tooling** and **stack auto-binding** are a **later slice**.
+  patch-coverage tooling** and **stack auto-binding** are a **later slice** — now
+  designed in
+  [ADR-0012](0012-layer2-visual-qa-tooling-and-stack-auto-binding.md).
 - **Mirrors, does not fork:** layer-1
   [ADR-0009](0009-definition-of-done-spec-completeness.md) (`definition-of-done`);
   expressed over native layer-2 primitives with an anti-drift cross-reference.
@@ -215,5 +219,6 @@ Options (a)–(c) are rejected:
   implements that direction); [ADR-0009](0009-definition-of-done-spec-completeness.md)
   (the layer-1 mechanism this mirrors).
 - **Revisit when:** the deterministic visual-QA / patch-coverage tooling and stack
-  auto-binding slice is designed (likely a follow-up ADR), or the native
+  auto-binding slice is designed (likely a follow-up ADR) — now designed in
+  [ADR-0012](0012-layer2-visual-qa-tooling-and-stack-auto-binding.md); or the native
   unit-of-work vocabulary changes (re-sync the mirror).

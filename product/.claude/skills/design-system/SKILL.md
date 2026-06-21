@@ -126,8 +126,9 @@ read `reference/binding-schema.md`).
   *"Bind your stack in `.ai-dlc/stack-binding.json` for concrete, checkable
   guidance."* Never block on a missing binding; never invent a stack.
 
-> Auto-detecting or calibrating the binding is a **later slice** — do not design
-> detection here. This slice only **reads** the binding if it is present.
+> Auto-detection and **production** of the binding is done by the `stack-binding`
+> skill at Gate 2 — the `architect` detects the stack and proposes the binding,
+> the arbiter confirms it. This skill only **reads** the binding if it is present.
 
 ## Testable outputs — the handoff
 

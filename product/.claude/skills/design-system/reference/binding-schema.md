@@ -7,9 +7,14 @@ binding. This reference defines the binding schema, how the skill consumes it, a
 the degrade-clean behavior when it is absent. Read it when a project does (or
 should) carry a binding.
 
-> **Scope of this slice:** the skill only **reads** the binding if present.
-> Auto-detecting, generating, or calibrating it is a **later slice** — do not
-> design detection here.
+> **Producer vs consumer:** the binding is **produced by the `stack-binding`
+> skill** at Gate 2 (the `architect` detects it; the arbiter confirms it). The
+> `design-system` skill only **reads** it. `stack-binding` is the **canonical
+> schema home**; this file is a **consumer-facing reference** covering the six
+> read-side fields below. The execution fields (the top-level
+> `command` / `args` / `env` / `static_dir` / `audit_paths` / `output_dir`) are NOT
+> duplicated here — they live in `stack-binding`'s `reference/schema.md`, which is
+> **canonical** for them.
 
 ## Location
 

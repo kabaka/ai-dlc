@@ -79,6 +79,10 @@ Contracts are the load-bearing output — they let the `planner` sequence and th
   this handoff. Produce it via the `design-system` skill (the *how it looks* layer)
   alongside `ux-design` (the *how it works* layer); the existing Gate 2 approves it.
   It is a sub-part of the architecture handoff, not a new gate or artifact-type.
+  For `ui_bearing` units you also produce the **proposed** `.ai-dlc/stack-binding.json`
+  (which UI stack / run command / audit paths the visual-QA tools target) via the
+  `stack-binding` skill — it rides inside this same handoff and the arbiter confirms
+  it inside the existing Gate-2 Decision Record.
 
 ### 3. Surface 2+ design options with trade-offs (for the arbiter)
 

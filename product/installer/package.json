@@ -6,6 +6,9 @@
   "bin": {
     "ai-dlc": "bin/ai-dlc.mjs"
   },
+  "scripts": {
+    "test": "node test/run-all.mjs"
+  },
   "engines": {
     "node": ">=18"
   },
@@ -13,6 +16,7 @@
     "bin/",
     "lib/",
     "payload/",
+    "payload-extra/",
     "README.md"
   ],
   "keywords": [

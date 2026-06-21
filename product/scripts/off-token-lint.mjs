@@ -12,7 +12,9 @@
 //   regex/string matching. It does NOT, and must NOT, execute any command,
 //   spawn a process, launch a browser, `eval`, fetch the network, or run the
 //   consumer's application. Browser-launch and app/command-execution design-QA
-//   tools are a LATER SLICE and are intentionally absent here.
+//   tools now ship under `visual-qa/`, behind the fail-closed app-exec harness
+//   (`lib/app-exec-harness.mjs`); THIS Slice-1 tool stays pure static analysis
+//   with NO RCE surface.
 //
 // REPO-LOCAL BINDING (optional)  ./.ai-dlc/stack-binding.json
 //   The single source of truth for how this repo is wired. Minimal schema:
@@ -51,18 +53,22 @@
 // Cross-platform: Node only (>=18), no shell, no bashisms, no dependencies
 // beyond the Node standard library.
 
-import { readFileSync, readdirSync, statSync, existsSync, realpathSync } from 'node:fs';
-import { join, relative, resolve, sep, extname } from 'node:path';
+import { readdirSync, statSync, existsSync } from 'node:fs';
+import { join, resolve, sep, extname } from 'node:path';
 
-// ---- exit codes (documented above) --------------------------------------
-const EXIT = { PASS: 0, FINDINGS: 1, ERROR: 2, SKIPPED: 3 };
-
-// ---- read-size cap ------------------------------------------------------
-// No file the linter reads (scanned sources, the binding, the token file) may
-// exceed this. Bounds memory and defeats a denial-of-service via a giant file
-// supplied by an untrusted binding. Oversized scanned files are skipped with a
-// printed note; an oversized binding/token file is a hard ERROR.
-const MAX_READ_BYTES = 5 * 1024 * 1024; // 5 MiB
+// Hardened primitives are shared via the audited lib so every design-QA tool
+// uses ONE implementation of path containment, bounded reads, binding load, and
+// the exit-code contract. Behavior here is byte-identical to the original
+// inline versions these import replaced.
+import {
+  EXIT,
+  MAX_READ_BYTES,
+  ToolError,
+  rel,
+  resolveContained,
+  readBoundedUtf8,
+  loadBinding,
+} from './lib/binding.mjs';
 
 // ---- defaults -----------------------------------------------------------
 const DEFAULT_SOURCE_EXTENSIONS = new Set([
@@ -125,34 +131,6 @@ function detectLine(line) {
   }
 
   return found;
-}
-
-// ---- binding loading ----------------------------------------------------
-function loadBinding(repoRoot) {
-  const bindingPath = join(repoRoot, '.ai-dlc', 'stack-binding.json');
-  if (!existsSync(bindingPath)) {
-    return { present: false, bindingPath, binding: null };
-  }
-  let raw;
-  try {
-    const r = readBoundedUtf8(bindingPath, { mode: 'strict' });
-    raw = r.content;
-  } catch (e) {
-    if (e instanceof ToolError) {
-      throw new ToolError(`cannot read binding ${rel(repoRoot, bindingPath)}: ${e.message}`);
-    }
-    throw e;
-  }
-  let binding;
-  try {
-    binding = JSON.parse(raw);
-  } catch (e) {
-    throw new ToolError(`binding ${rel(repoRoot, bindingPath)} is not valid JSON: ${e.message}`);
-  }
-  if (binding === null || typeof binding !== 'object' || Array.isArray(binding)) {
-    throw new ToolError(`binding ${rel(repoRoot, bindingPath)} must be a JSON object`);
-  }
-  return { present: true, bindingPath, binding };
 }
 
 // ---- DTCG token value collection ----------------------------------------
@@ -392,87 +370,8 @@ function stripValueForLookup(hit) {
 }
 
 // ---- helpers ------------------------------------------------------------
-class ToolError extends Error {}
-
-function rel(root, p) {
-  const r = relative(root, p);
-  return r === '' ? '.' : r.split(sep).join('/');
-}
-
-// ---- path containment (defends untrusted binding paths) -----------------
-// True iff `candidate` is `root` itself or lives underneath it. `root` and
-// `candidate` must both be absolute (already `resolve()`d). This is the guard
-// that keeps every path derived from the untrusted binding inside --repo:
-// `../` traversal and absolute paths in the binding resolve OUT of root and are
-// rejected here.
-function isContained(root, candidate) {
-  return candidate === root || candidate.startsWith(root + sep);
-}
-
-// Resolve a binding-supplied path against repoRoot and REJECT anything that
-// escapes the repo. When the target exists, additionally realpath it (and its
-// existing-ancestor prefix) and re-check, so a symlink cannot point outside the
-// repo either. Returns the contained, resolved absolute path.
-function resolveContained(repoRoot, rawPath, label) {
-  const root = resolve(repoRoot);
-  const resolved = resolve(root, rawPath);
-  if (!isContained(root, resolved)) {
-    throw new ToolError(
-      `${label} escapes --repo root: ${rawPath} (resolved ${resolved}) is outside ${root}`
-    );
-  }
-  // Defeat symlink escape: canonicalize whatever part of the path exists and
-  // re-check containment. The repo root itself is canonicalized too, so a
-  // symlinked repo root does not produce a false positive.
-  let realRoot;
-  try {
-    realRoot = realpathSync(root);
-  } catch {
-    realRoot = root;
-  }
-  if (existsSync(resolved)) {
-    let real;
-    try {
-      real = realpathSync(resolved);
-    } catch (e) {
-      throw new ToolError(`cannot resolve ${label} ${rawPath}: ${e.message}`);
-    }
-    if (!isContained(realRoot, real)) {
-      throw new ToolError(
-        `${label} escapes --repo root via symlink: ${rawPath} (real ${real}) is outside ${realRoot}`
-      );
-    }
-  }
-  return resolved;
-}
-
-// Bounded UTF-8 read. `mode: 'skip'` returns null when the file is too large or
-// unreadable (used for scanned sources, which must never crash the run);
-// `mode: 'strict'` throws a ToolError on oversize/unreadable (used for the
-// binding and token files, which the caller turns into exit 2).
-function readBoundedUtf8(file, { mode }) {
-  let st;
-  try {
-    st = statSync(file);
-  } catch (e) {
-    if (mode === 'strict') throw new ToolError(`cannot stat ${file}: ${e.message}`);
-    return null;
-  }
-  if (st.size > MAX_READ_BYTES) {
-    if (mode === 'strict') {
-      throw new ToolError(
-        `${file} is ${st.size} bytes, over the ${MAX_READ_BYTES}-byte read cap`
-      );
-    }
-    return { tooLarge: true, size: st.size };
-  }
-  try {
-    return { content: readFileSync(file, 'utf8') };
-  } catch (e) {
-    if (mode === 'strict') throw new ToolError(`cannot read ${file}: ${e.message}`);
-    return null;
-  }
-}
+// ToolError, rel, resolveContained, and readBoundedUtf8 are imported from
+// ./lib/binding.mjs (the shared, audited primitives).
 
 function parseArgs(argv) {
   const args = { repo: process.cwd(), help: false };

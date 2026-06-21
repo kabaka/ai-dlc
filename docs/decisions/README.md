@@ -21,6 +21,7 @@ the [MADR 4.0](https://adr.github.io/madr/) format (see
 | [0009](./0009-definition-of-done-spec-completeness.md) | Operationalizing spec-completeness with a Definition of Done | Accepted |
 | [0010](./0010-layer2-design-system-and-ui-bearing-completeness.md) | Skill-first design-system lens and a `ui_bearing` unit-of-work contract | Accepted |
 | [0011](./0011-layer2-spec-completeness-convention.md) | The layer-2 spec-completeness convention (`spec-conformance`) over native unit-of-work primitives | Accepted |
+| [0012](./0012-layer2-visual-qa-tooling-and-stack-auto-binding.md) | Layer-2 visual-QA tooling and Architect-produced stack auto-binding | Accepted |
 
 ## Statuses
 

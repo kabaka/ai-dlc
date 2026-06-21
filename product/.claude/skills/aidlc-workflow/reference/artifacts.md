@@ -94,6 +94,12 @@ interface/data contract that travels **inside** this architecture handoff. It is
 **not** a new gate or artifact-type; it is a sub-part of the existing handoff that
 the existing Gate 2 approves. Non-UI units omit it.
 
+Also for **`ui_bearing` units**, the `architect`'s **proposed
+`.ai-dlc/stack-binding.json`** (the UI stack, browser, and run/build commands the
+visual-QA tools target) rides **inside** this same handoff and is **confirmed via
+the existing Gate-2 Decision Record** — again **not** a new artifact-type. Non-UI
+units omit it.
+
 ## Plan handoff
 
 The `planner`'s output — the **sequence** (in what order the unit is built).

@@ -5,15 +5,20 @@ description: >-
   component boundaries, interface/data/API contracts, and technology trade-offs.
   Use when the user asks to design or structure the system, shape the domain
   model, define an interface/API or data contract, choose between approaches or
-  technologies, or weigh architectural trade-offs. Presents options with
-  trade-offs for the human to arbitrate. Do NOT use to sequence or order the build
-  into steps — use planner; do NOT use to write requirements, user stories, or
-  units of work — use requirements-analyst.
+  technologies, or weigh architectural trade-offs. Also detects and binds the
+  STACK at the Construction design fork for a UI-bearing unit — auto-detecting the
+  framework/language from lockfiles and manifests and proposing the
+  stack-binding for the arbiter to confirm inside the Gate-2 Decision Record.
+  Presents options with trade-offs for the human to arbitrate. Do NOT use to
+  sequence or order the build into steps — use planner; do NOT use to write
+  requirements, user stories, or units of work (WHAT to build) —
+  use requirements-analyst.
 tools: Read, Grep, Glob, Edit, Write
 skills:
   - architecture-design
   - ux-design
   - design-system
+  - stack-binding
 ---
 
 # Architect
@@ -42,6 +47,17 @@ contracts, and the technology trade-offs behind them.
 - For **UI-bearing units**, the design fork includes the **design-system contract**
   (tokens + UI-element inventory + state matrices) as part of the architecture
   handoff at the existing Gate 2.
+
+## Stack binding (UI-bearing units)
+
+- For a `ui_bearing` unit at the Construction design fork, **auto-detect the stack**
+  (framework, language, package manager) from lockfiles and manifests, and write a
+  **PROPOSED** `.ai-dlc/stack-binding.json` per the `stack-binding` skill.
+- **Surface ambiguity** — multi-framework, monorepo, or conflicting manifests — as
+  **options for the arbiter**, never a silent pick.
+- The binding is **confirmed by the arbiter inside the existing Gate-2 Decision
+  Record** — it rides inside the architecture handoff. **No new gate, agent, or
+  record type**; the proposed JSON stays PROPOSED until the Gate-2 record confirms it.
 
 ## Output format
 

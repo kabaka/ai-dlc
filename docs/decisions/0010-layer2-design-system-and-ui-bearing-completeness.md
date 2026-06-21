@@ -195,7 +195,8 @@ becomes justified at that point.
   the native `acceptance_criteria` / `non_goals` / `risk_tier` fields, mirroring
   (not forking) the layer-1 `definition-of-done`; **browser / app visual-QA
   tooling** with **stack auto-binding** — the auto-binding mechanism may get a
-  short **follow-up ADR**.
+  short **follow-up ADR** — now
+  [ADR-0012](0012-layer2-visual-qa-tooling-and-stack-auto-binding.md).
 - **Honest boundary:** aesthetic quality stays a **human-arbiter judgment**; agents
   emit evidence and never self-certify "looks good" (grounded in research on LLM
   weakness at subjective UI quality).
@@ -205,4 +206,5 @@ becomes justified at that point.
   than forks).
 - **Revisit when:** a later slice proves a UI/verification function the incumbent
   skills and agents cannot carry (earned-escalation to a dedicated agent), or when
-  the visual-QA stack auto-binding slice is designed (likely a follow-up ADR).
+  the visual-QA stack auto-binding slice is designed (likely a follow-up ADR) — now
+  [ADR-0012](0012-layer2-visual-qa-tooling-and-stack-auto-binding.md).

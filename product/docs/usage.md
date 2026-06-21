@@ -208,6 +208,77 @@ check that the built UI stays on-token.
 
 Read the skills for the full guidance rather than relying on this summary.
 
+## Visual QA (deterministic evidence)
+
+For a `ui_bearing` unit, the `architect` proposes a repo-local
+`.ai-dlc/stack-binding.json` — which UI stack, tokens, and run/build commands the
+visual-QA tools target — as part of the Gate-2 architecture handoff. You confirm
+it **inside the existing Gate-2 Decision Record**; there is **no new gate**.
+Approving the handoff approves the binding that rides in it. The visual-QA tools
+produce **evidence** for you to weigh — they never decide. **You judge the
+aesthetics**; a passing tool means the deterministic check held, not that the UI
+looks good.
+
+The suite is **seven tools**. Three run **freely** — they read only files and
+caller-provided artifacts and execute nothing:
+
+- **contrast** (`contrast-check.mjs`) — WCAG 2.x contrast ratios for the binding's
+  token pairs.
+- **patch-coverage** (`patch-coverage.mjs`) — test coverage of changed lines, from
+  a coverage report and a diff you provide.
+- **changelog** (`changelog-check.mjs`) — that the `Unreleased` section reflects
+  the unit's commits.
+
+The other **four audit a rendered UI** — accessibility, responsive layout, pixel
+diff, and route reachability:
+
+- **axe-audit** (`axe-audit.mjs`) — WCAG 2 A/AA accessibility audit via
+  `@axe-core/playwright`.
+- **responsive-check** (`responsive-check.mjs`) — horizontal-overflow / off-viewport
+  breaks across breakpoints.
+- **pixel-diff** (`pixel-diff.mjs`) — screenshots diffed against repo-local committed
+  baseline PNGs (`pixelmatch` / `pngjs`).
+- **reachability-runner** (`reachability-runner.mjs`) — every declared route renders
+  (2xx/3xx, non-empty body, no page error).
+
+Auditing a rendered UI means running your app and a browser — a real RCE surface —
+so those four are **fail-closed**. The model is **build → serve static → audit
+loopback**: the kit's harness runs your binding's **build/export command** to emit
+static files into a repo-local `static_dir`, the kit serves that directory on
+`127.0.0.1` at an **ephemeral kit-chosen port**, and the tools audit only that
+loopback origin. To enable them, install your pinned toolchain and the browser
+binary (`npx playwright install chromium`), then give a **per-session human
+confirmation** bound to the binding's SHA-256 hash — a TTY prompt, or the
+`--confirm-exec <token>` flag / `AIDLC_VISUAL_QA_CONFIRM=<token>` env var. A changed
+or freshly pulled binding must be **re-confirmed**; with no current confirmation a
+tool emits `SKIPPED` (default-deny), and the tools never auto-run on the strength of
+a binding alone. The browser tools are validated locally by a 28-check Chromium
+smoke test that passes — but that is a **local / Tier-2** step; **CI does not run
+Chromium.**
+
+Read the exit codes the way a gate must: `0` PASS (the only green), `1` findings
+to fix, `2` tool error, and `3` **SKIPPED — evidence-incomplete, never a pass**.
+"No binding" or "no inputs" SKIPs; it must not masquerade as success.
+
+The installer lands these tools in your repo at `.ai-dlc/scripts/`, so you run
+them from there — for example, the off-token linter and a contrast check:
+
+```sh
+node .ai-dlc/scripts/off-token-lint.mjs --repo .
+node .ai-dlc/scripts/visual-qa/contrast-check.mjs
+```
+
+The kit ships the tool scripts only; it does **not** bundle a browser or
+toolchain. Before the four browser audits can run, install your own pinned
+toolchain and the browser binary in your repo (`npx playwright install
+chromium`); the tools resolve Playwright, axe, and the rest from your repo's
+`node_modules`.
+
+See [the scripts reference](../scripts/README.md) for per-tool detail and the
+fail-closed harness, and
+[ADR 0012](../../docs/decisions/0012-layer2-visual-qa-tooling-and-stack-auto-binding.md)
+for the decision behind this slice.
+
 ## The artifact templates
 
 The installer lands these under `.ai-dlc/templates/artifacts/`. Copy one, fill it,
