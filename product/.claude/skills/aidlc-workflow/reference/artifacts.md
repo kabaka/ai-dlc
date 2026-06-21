@@ -8,6 +8,7 @@ handoff against the schema here — the next phase consumes a known shape, not p
 
 - [The handoff chain](#the-handoff-chain)
 - [Unit of Work — the Inception → Construction contract](#unit-of-work)
+- [Spec-conformance checklist](#spec-conformance-checklist)
 - [Architecture handoff](#architecture-handoff)
 - [Plan handoff](#plan-handoff)
 - [Diff + tests handoff](#diff--tests-handoff)
@@ -25,6 +26,11 @@ requirements → architecture → plan → diff+tests → review verdict → ops
 
 Keep each artifact compact and structured. These are contracts, not narrative —
 the value is that the next agent (or the human at a gate) reads a predictable shape.
+
+One companion artifact rides **alongside** this chain rather than between two
+stages: the **spec-conformance checklist** is seeded from the Unit of Work at
+Inception and re-checked at merge as Gate-3 input. It does not insert a new arrow —
+it travels with the unit and is consumed by `code-reviewer` at the review verdict.
 
 ## Unit of Work
 
@@ -47,6 +53,33 @@ parallelizable chunk of value sized to fit a bolt. Ship it as a real artifact (t
 
 `bolt_time_box` records intent only — there is no timer, burndown, or cutoff in
 AI-DLC. See the bolt section of `SKILL.md`.
+
+## Spec-conformance checklist
+
+The unit's **completeness checklist** — what "done" means for this unit, made
+falsifiable. It is **seeded at Inception** from the Unit of Work (its
+`acceptance_criteria` and `non_goals`) and **re-checked at merge** as Gate-3 input.
+It is a companion that travels with the unit, not a stage in the main chain.
+
+This is a **kit convention** — our native, operational sense of "done", not an
+AWS-named scheme. It captures four things per unit:
+
+These are checklist families (not new contract fields — the checklist adds no
+key to the Unit of Work schema):
+
+| Checklist family | Meaning |
+| --- | --- |
+| Requirement coverage | Every `acceptance_criteria` line is met — and the `non_goals` were not silently crossed. Measured against the same criteria the `test-engineer`'s oracle proves. |
+| Reachability | Every capability the unit adds has a named, end-to-end-reachable path — no orphan code wired to nothing. |
+| Companion freshness | Docs, tests, and any changelog/record the change implies are updated in the **same** effort — no stale companions left behind. |
+| Converge / no deferral | Nothing in scope was deferred to a "later unit" or "v2"; the delivered-vs-spec diff is empty or its gaps are arbiter-approved `non_goals`. |
+
+`requirements-elaboration` authors the `acceptance_criteria` this checklist measures
+against; `code-reviewer` applies the `spec-conformance` convention against it at
+merge, reopening any unmet or silently deferred item as `REQUEST_CHANGES` and
+folding the result into its existing verdict. The re-checked checklist is the
+**converge diff** that serves as **evidence for the existing Gate 3** — it is not a
+new gate, ceremony, or verdict.
 
 ## Architecture handoff
 

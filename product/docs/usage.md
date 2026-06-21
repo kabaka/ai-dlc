@@ -185,6 +185,16 @@ arbiter gate.** The four gates are unchanged.
   design tokens, a UI-element inventory with state matrices, app-wide
   empty/loading/error patterns, and a committed aesthetic — producing a visual
   contract for **you** to judge. It never self-certifies that the UI looks good.
+- **`spec-conformance`** is the **whole-unit completeness convention**. For every
+  unit, completeness — **requirement coverage** (every acceptance criterion met,
+  every non-goal honored), **end-to-end reachability** (every capability has a
+  named user-reachable path; no orphans), and **companion freshness** (docs, tests,
+  and `CHANGELOG` updated in the same effort) — is checked **at merge** by
+  `code-reviewer`, which applies `spec-conformance` and **folds the result into its
+  existing verdict** (no new gate). Deferred scope is **reopened, not silently
+  dropped**, and **only the arbiter approves a descope.** Vertical-slice and
+  walking-skeleton discipline in `requirements-elaboration` and
+  `implementation-planning` keep reachability holding by construction.
 
 For a unit of work whose `ui_bearing` field is set (agent-proposed,
 arbiter-confirmed at **Gate 1**), `requirements-analyst` and `architect` carry the

@@ -71,11 +71,16 @@ A **unit of work** is a **parallelizable chunk of value sized to fit a bolt** (t
 hours-to-days cadence — see `aidlc-methodology`). Decompose so that each unit is
 independently valuable, independently testable, and small enough for one bolt.
 
-- Cut along **value seams**, not technical layers — a unit should deliver something
-  a user or the system can use, not "the database part of everything".
+- Cut each unit as a **thin vertical slice** — a **walking skeleton** that runs
+  end-to-end through every layer it touches (UI → logic → data, or caller → API →
+  store), **not** a horizontal layer. A unit should deliver something a user or the
+  system can actually exercise, not "the database part of everything". Slicing
+  vertically prevents **orphan features by construction**: a slice has a
+  user-reachable path the moment it exists, so no capability lands wired to nothing.
 - Make units **parallelizable**: minimize cross-unit dependencies; record the ones
   that remain in `dependencies`.
-- If a unit is too big for a bolt, split it. If two units can't be tested apart,
+- If a unit is too big for a bolt, split it **into thinner slices that each still
+  run end-to-end** — never into orphan layers. If two units can't be tested apart,
   reconsider the seam.
 
 ### 4. Write testable acceptance criteria and explicit non-goals
@@ -91,6 +96,15 @@ These two fields are where elaboration quality lives — they become the
 - **Non-goals** state **what is deliberately excluded**. Make them explicit, not
   implied — an unstated exclusion becomes someone's silent assumption and then
   scope creep. Non-goals keep the unit "sized to be parallelizable".
+
+A unit's `acceptance_criteria` and `non_goals` **seed the `spec-conformance`
+checklist**: at this Inception step you are writing the line items that the
+pre-merge review later checks the change against — requirement coverage, the
+slice's end-to-end **reachability** path, and the **companion** docs/tests the
+criteria imply. Write them concretely enough to be checked off later (the bare
+phrase "definition of done" / "completeness" is a kit convention here — AWS AI-DLC
+names neither; we express it over the native `acceptance_criteria` / `non_goals`
+fields, scaled by `risk_tier`).
 
 More patterns (good vs weak criteria, the INVEST lens, splitting strategies) are in
 `reference/criteria-and-stories.md`.

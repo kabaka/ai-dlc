@@ -41,3 +41,32 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Architecture Decision Record 0010 (the design-system lens, the `ui_bearing`
   contract field, and the off-token linter as the operationalization of the
   existing Gate-2 design fork).
+- **`spec-conformance` skill** (ADR 0011): the layer-2 whole-unit completeness
+  convention — an enumerated acceptance checklist over the **native**
+  `acceptance_criteria` / `non_goals` / `dependencies` unit-of-work primitives,
+  covering **requirement coverage**, **end-to-end reachability** (every capability
+  has a named user-reachable path — no orphans), **companion freshness** (docs,
+  tests, and `CHANGELOG` updated in the same effort), a **converge / anti-deferral
+  diff** (promised vs. delivered, so dropped scope is surfaced), and **"show, don't
+  assert" evidence**. It mirrors — does not fork — the layer-1 `definition-of-done`.
+- **Vertical-slice and walking-skeleton discipline** woven into
+  `requirements-elaboration` (units are sliced as thin end-to-end increments) and
+  `implementation-planning` (a walking skeleton wires the seam first), so end-to-end
+  reachability holds **by construction** and orphan features are largely never built.
+- **Run-the-app "show, don't assert" evidence** woven into `testing-strategy`: a
+  unit is demonstrated by exercising its user-reachable path, not merely claimed
+  done.
+
+### Changed
+
+- **`code-review` now applies the `spec-conformance` convention** and folds the
+  result into its **existing** enumerated verdict (`APPROVE` / `REQUEST_CHANGES` /
+  `ESCALATE_SECURITY` / `BLOCK`) at the **existing Gate 3** (merge) — unmet or
+  silently deferred items become `REQUEST_CHANGES`. **No new gate, verdict,
+  ceremony, or agent** is added.
+- **`spec-conformance` preloaded on the `code-reviewer` agent** (via `skills:`
+  frontmatter), so the completeness convention is always loaded at the pre-merge
+  gate.
+- Architecture Decision Record 0011 (the layer-2 spec-completeness convention,
+  applied by `code-reviewer` at the existing verdict/gate; deterministic visual-QA
+  and patch-coverage tooling plus stack auto-binding are an explicitly later slice).

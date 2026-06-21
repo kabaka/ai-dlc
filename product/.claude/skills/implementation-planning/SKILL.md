@@ -58,6 +58,14 @@ You receive two upstream handoff artifacts; read both before sequencing (schemas
 4. **Order the steps.** Topologically sort by dependency. Within that order, pull
    **risky or uncertain steps early** (a load-bearing integration, an unproven
    assumption) so failure surfaces before later work piles on it.
+   - **Build a thin end-to-end thread first — a walking skeleton / tracer bullet.**
+     Sequence a minimal slice that exercises the **whole** path the unit touches (UI
+     → logic → data, or caller → API → store) end to end, then **thicken** it with
+     the remaining behavior. This is a concrete instance of pulling risky steps
+     early: it **front-loads integration risk** (the seams between layers are where
+     surprises live) and **proves end-to-end reachability** — that the slice has a
+     real user-reachable path — before the bulk of the work is built on top of an
+     unproven thread.
 5. **Attach validation per step.** State what each step must pass — the build, the
    specific tests, a lint/typecheck. The `test-engineer` owns the grading oracle;
    you say *which* checks gate *which* step, you do not author the tests.

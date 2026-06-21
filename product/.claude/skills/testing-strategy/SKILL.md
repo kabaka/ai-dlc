@@ -170,6 +170,31 @@ clearly and without weakening anything:
 - Do **not** propose silencing or loosening the test as the fix. The fix is in the
   code or, rarely, in the criterion via the arbiter.
 
+## Show, don't assert — the run-the-app evidence level
+
+The strongest evidence a unit is complete is **demonstration, not assertion**:
+**run the actual thing and show its real output**. An automated test that goes green
+is one kind of evidence; for behavior that lives end-to-end — a CLI that must
+produce a result, a server that must answer a request, a slice whose value is its
+**reachability** — back the green with a **run-the-app observation**:
+
+- Show the **command and its real result** — the invocation you ran and the output
+  it produced, an **end-to-end / E2E run** through the slice, or a reachability
+  observation that the user-facing path actually responds (not a description of what
+  it *would* do).
+- This **reinforces — never replaces** the don't-edit-the-oracle chain and the
+  rule that all reported output is **real, never fabricated**: if you did not run
+  it, say so; you may not paste output you did not produce. Demonstration that the
+  thing runs is exactly what makes "done" credible rather than merely claimed.
+- Right-size it to `risk_tier`: a trivial unit may need a single shown command; a
+  standard or high-risk slice warrants an end-to-end run of the whole path. This
+  whole-unit "show it works" check is the `spec-conformance` convention — the
+  pre-merge `code-review` applies its checklist (requirement coverage, reachability,
+  and companion freshness) against your evidence; furnish the run-the-app proof it
+  needs. ("Show it works" / completeness here is a kit convention; AWS AI-DLC names
+  no such level — we express it over the native `acceptance_criteria` and
+  `risk_tier`.)
+
 ## Handoff to code-review — the independent verifier chain
 
 You produce the **grading tests** half of the **diff + tests** Construction handoff

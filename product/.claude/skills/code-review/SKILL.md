@@ -22,8 +22,9 @@ something is flaky in production), that is diagnosis work: stop and route to
 - [ ] 1. Frame (read the unit of work: scope, acceptance_criteria, non_goals)
 - [ ] 2. Correctness (does the diff do what it claims, no regressions)
 - [ ] 3. Intent vs letter (does it satisfy real intent, or just pass the tests)
-- [ ] 4. Security lens (the standing lightweight pass — escalate per the boundary)
-- [ ] 5. Verdict (exactly one: APPROVE / REQUEST_CHANGES / ESCALATE_SECURITY / BLOCK)
+- [ ] 4. Spec-conformance (apply the convention: coverage + reachability + companions + no deferral)
+- [ ] 5. Security lens (the standing lightweight pass — escalate per the boundary)
+- [ ] 6. Verdict (exactly one: APPROVE / REQUEST_CHANGES / ESCALATE_SECURITY / BLOCK)
 ```
 
 ### 1. Frame the review
@@ -59,7 +60,35 @@ unit's **real intent**, not merely the **letter** of whatever tests exist. Ask:
 A change can pass every test and still fail intent. When it does, that is
 `REQUEST_CHANGES` (or `BLOCK` if the oracle itself was broken — see verdicts).
 
-### 4. Standing security lens (lightweight)
+### 4. Apply the spec-conformance convention
+
+This pre-merge review is where the `spec-conformance` convention is **applied** —
+not a new gate, ceremony, or verdict, just a lens you run before concluding. Check
+the change against the unit's spec, proportional to its `risk_tier`:
+
+- **Requirement coverage** — every `acceptance_criterion` is actually satisfied by
+  the change (using the oracle as evidence, per step 3), not just the ones the tests
+  happened to cover.
+- **End-to-end reachability** — the capability has a real **user-reachable path**;
+  no orphan feature wired to nothing (an API with no caller, a slice that never
+  connects end to end). Look for the run-the-app evidence the `test-engineer`
+  furnishes (see `testing-strategy`).
+- **Companion freshness** — the docs, tests, and changelog the change implies were
+  updated **in the same effort**, not deferred.
+- **Converge / anti-deferral** — diff the change against the spec for silently
+  **deferred or descoped** items ("v2", "later", "good enough for now"). An unmet or
+  deferred item is **reopened**, not waved through: you **REQUEST_CHANGES** (or
+  **BLOCK** on a fundamental mismatch) rather than passing it. You do **not**
+  approve a descope — **only the human arbiter** may approve narrowing the spec, and
+  only at the existing **Gate 3** Decision Record. ("Spec-conformance" / "definition
+  of done" is a kit convention expressed over the native `acceptance_criteria` /
+  `non_goals` / `risk_tier`; AWS AI-DLC names neither.)
+
+**Fold the result into the existing verdict** below — there is no separate
+completeness verdict or gate. A conformance gap routes through `REQUEST_CHANGES`
+(or `BLOCK`); a clean pass contributes to `APPROVE`.
+
+### 5. Standing security lens (lightweight)
 
 Every review carries a **lightweight security pass** — load the `security-review`
 skill and run its quick checks over the diff. This is the in-line half of the
@@ -82,7 +111,7 @@ Below that bar (a Low/Medium finding on an ordinary surface), keep it in-line:
 record it and use `REQUEST_CHANGES`. The boundary keeps routing deterministic —
 ordinary hygiene stays with you; real risk reaches the specialist.
 
-### 5. Emit exactly one verdict
+### 6. Emit exactly one verdict
 
 Conclude with **one** enumerated verdict. The enumeration keeps the merge gate
 deterministic for the Orchestrator and the arbiter:

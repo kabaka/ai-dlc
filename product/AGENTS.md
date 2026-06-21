@@ -234,7 +234,16 @@ designs **what to measure** — SLOs and instrumentation — while `devops` owns
 components for this repo** (propose-for-approval), distinct from the lifecycle agents
 that **build the product**. Dependency-compliance (licensing/SBOM, a `security-review`
 supply-chain lens) covers **what you may ship**, distinct from `security`'s
-**exploitability**. For **UI-bearing work** the design lens splits three ways:
+**exploitability**. Completeness splits four ways and must not be conflated:
+`spec-conformance` is the **convention** — what "done" means for a unit
+(requirement coverage against `acceptance_criteria` + end-to-end reachability +
+companion freshness + converge / anti-deferral), born at Inception and checked at
+merge; `code-review` is the **pre-merge check** that applies that convention and
+owns the verdict; `requirements-elaboration` **authors** the `acceptance_criteria`
+the convention measures against; `testing-strategy` is the **oracle** whose green
+tests are `spec-conformance`'s coverage evidence (it proves the criteria;
+`spec-conformance` consumes that proof and adds reachability + companion freshness).
+For **UI-bearing work** the design lens splits three ways:
 `design-system` = **design tokens / UI-element inventory / state matrices / visual
 contract** (how it *looks*); `ux-design` = **information architecture / interaction /
 usability / WCAG** (how it *works*); `architecture-design` = **system structure** (the
@@ -268,7 +277,7 @@ Several agents preload their matching skill via the `skills:` frontmatter field.
   `testing-strategy`, `code-review`, `rca-investigation`
 - **Operations**: `delivery-operations`, `observability-practice`
 - **Cross-cutting**: `security-review`, `dependency-compliance`, `ux-design`,
-  `design-system`, `writing-docs`, `conventional-commits`
+  `design-system`, `spec-conformance`, `writing-docs`, `conventional-commits`
 - **Kit extension**: `extending-the-kit`
 
 When `kit-extender` generates new kit components, a newly authored **skill**
@@ -299,6 +308,12 @@ documentation; see the `cross-platform-config` material. Single source of truth 
   fails closed without it); **Gates 1 and 2** have no command to intercept and rely
   on the record and discipline. Triage may make the record terse, never absent.
 - **`code-reviewer` can block.** No unit merges until it approves.
+- **Completeness is checked, not a new gate.** `code-reviewer` applies the
+  `spec-conformance` convention (requirement coverage + reachability + companion
+  freshness + converge/anti-deferral) and folds the result into its **existing**
+  enumerated verdict — unmet or silently deferred items become `REQUEST_CHANGES`.
+  This is evidence for Gate 3, not a separate gate, ceremony, or verdict. This
+  kit-convention sense of "done" is ours, not an AWS-named scheme.
 - **Real validation / tests must pass.** The project's build, tests, and checks run
   for real; the `test-engineer`'s oracle is independent and unedited by the
   implementer. See `testing-strategy`.

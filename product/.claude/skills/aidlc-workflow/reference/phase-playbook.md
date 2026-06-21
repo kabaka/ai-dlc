@@ -55,6 +55,16 @@ the bare AWS terms for the agent loop.
   - **Gate check:** `code-reviewer` (read-only) does the independent intent-vs-letter
     check and emits an enumerated verdict (`APPROVE` / `REQUEST_CHANGES` /
     `ESCALATE_SECURITY` / `BLOCK`). `ESCALATE_SECURITY` → hand off to `security`.
+    As part of the same verdict, `code-reviewer` applies the **`spec-conformance`**
+    convention against the unit's seeded checklist — requirement coverage vs
+    `acceptance_criteria`, end-to-end reachability, companion freshness, and
+    converge / anti-deferral — and **reopens any unmet or silently deferred item**
+    as `REQUEST_CHANGES`. This is folded into the existing verdict; it adds no new
+    verdict value.
+  - **Converge diff (Gate-3 evidence):** before the Decision Record, run the
+    delivered-vs-spec diff (the re-checked `spec-conformance` checklist from
+    `artifacts.md`). It is **evidence for the existing Gate 3**, not a new gate,
+    ceremony, or verdict.
   - **Gate:** **Gate 3 — merge** (unit approved for integration). Loop on
     `REQUEST_CHANGES` / `BLOCK`.
 

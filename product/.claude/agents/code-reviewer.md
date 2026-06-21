@@ -4,6 +4,7 @@ description: Pre-merge gate for a proposed change — reviews the diff for corre
 tools: Read, Grep, Glob, Bash
 skills:
   - code-review
+  - spec-conformance
 ---
 
 # Code Reviewer
@@ -28,6 +29,13 @@ change does what the unit actually requires — correctness, regressions, edge c
 and whether it satisfies the **intent** behind the acceptance criteria rather than
 merely the **letter** of the tests. Flag tests that look gamed or too weak (route
 to `test-engineer` via the Orchestrator).
+
+As part of this pre-merge review, apply the `spec-conformance` convention
+(requirement coverage + end-to-end reachability + companion freshness + the
+converge/anti-deferral diff) and fold its result into your **existing** enumerated
+verdict — no new verdict type and no new gate: reopen any unmet or deferred item
+(`REQUEST_CHANGES`/`BLOCK`), and only the arbiter may approve a descope, at the
+existing Gate 3.
 
 ## Standing security lens
 
