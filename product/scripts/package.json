@@ -1,0 +1,21 @@
+{
+  "//": "VALIDATION-ONLY toolchain for AI-DLC's own browser/app visual-QA tools. This package.json and its lockfile are used by THIS repo's tests to install a pinned Playwright + axe + image-diff toolchain so the smoke tests can run against a real chromium. CONSUMERS DO NOT GET THIS: it is NOT shipped by the installer payload — product/scripts/ must be fenced out of what `npx ai-dlc init/update` writes. Consumers install their OWN pinned toolchain (the tools resolve these modules from the consumer repo's node_modules). All versions are EXACT-PINNED (no ^/~) so our validation is reproducible.",
+  "name": "@ai-dlc/visual-qa-validation",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Validation-only pinned toolchain for AI-DLC visual-QA browser/app tools. Not shipped to consumers.",
+  "scripts": {
+    "test": "node test/run-all.mjs",
+    "smoke": "node test/_run-as-nonroot.mjs test/browser-tools.smoke.mjs",
+    "install:chromium": "playwright install chromium"
+  },
+  "dependencies": {
+    "@axe-core/playwright": "4.11.3",
+    "axe-core": "4.12.1",
+    "pixelmatch": "7.2.0",
+    "playwright": "1.56.1",
+    "playwright-core": "1.56.1",
+    "pngjs": "7.0.0"
+  }
+}

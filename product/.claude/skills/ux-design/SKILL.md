@@ -23,6 +23,9 @@ sitting in front of a screen, this skill does not apply.
   stories, acceptance criteria) is `requirements-elaboration`. *System structure,
   components, data/interface contracts, tech choices* is `architecture-design`.
   This skill is **only** the interface/interaction lens layered on top of those.
+- **Companion VISUAL lens:** `design-system` owns the visual layer — design tokens,
+  UI-element inventory, state matrices, and aesthetic — distinct from this skill's
+  IA / interaction / usability / WCAG scope, so the two do not overlap.
 
 Stay in your lane: describe screens, flows, states, and accessibility — not the
 service boundaries underneath them or the business rules above them.

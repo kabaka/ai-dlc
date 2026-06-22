@@ -35,8 +35,10 @@ mark_skip() { SKIPPED="$SKIPPED $1"; }
 # --- 1. Markdown lint ------------------------------------------------------
 section "markdownlint"
 if command -v npx >/dev/null 2>&1; then
-  # markdownlint-cli2 takes globs; "#node_modules" excludes that tree.
-  if npx --yes markdownlint-cli2 "**/*.md" "#node_modules"; then
+  # markdownlint-cli2 takes globs; "#node_modules" excludes a TOP-LEVEL
+  # node_modules and "#**/node_modules" excludes any NESTED one (e.g. the
+  # validation-only product/scripts/node_modules vendored for visual-QA tests).
+  if npx --yes markdownlint-cli2 "**/*.md" "#node_modules" "#**/node_modules"; then
     echo "markdownlint: PASS"
     mark_pass markdownlint
   else

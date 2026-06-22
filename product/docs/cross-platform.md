@@ -19,10 +19,10 @@ The complete AI-DLC experience has four parts:
 1. **Orchestrator definition** — the Orchestrator role, core principles, delivery
    rules, and the AI-DLC lifecycle loop (Inception → Construction → Operations).
    Lives in `AGENTS.md`.
-2. **Specialist agent roster** — the 12 lifecycle agents in `.claude/agents/`
+2. **Specialist agent roster** — the 14 lifecycle agents in `.claude/agents/`
    (`requirements-analyst`, `researcher`, `research-synthesizer`, `architect`,
    `planner`, `implementer`, `test-engineer`, `code-reviewer`, `debugger`, `devops`,
-   `security`, `documentation`).
+   `observability`, `security`, `documentation`, `kit-extender`).
 3. **On-demand skills** — the procedural playbooks in `.claude/skills/`, loaded when
    relevant (the `aidlc-workflow`, `architecture-design`, `code-review`,
    `security-review`, … skills).
@@ -37,7 +37,7 @@ does not enforce.
 
 | Tool | Reads canonical `AGENTS.md`? | Specialist agent roster | On-demand skills | Arbiter-gate hook | Net experience |
 | --- | --- | --- | --- | --- |
-| **Claude Code** | Yes — via `CLAUDE.md`'s `@AGENTS.md` import | **Yes** — all 12 agents in `.claude/agents/` | **Yes** — `.claude/skills/` auto-load on demand | **Yes** — installed, blocking | **Full.** Orchestrator + 12-agent roster + skills + enforced arbiter gate. |
+| **Claude Code** | Yes — via `CLAUDE.md`'s `@AGENTS.md` import | **Yes** — all 14 agents in `.claude/agents/` | **Yes** — `.claude/skills/` auto-load on demand | **Yes** — installed, blocking | **Full.** Orchestrator + 14-agent roster + skills + enforced arbiter gate. |
 | **GitHub Copilot** | **Yes** — reads `AGENTS.md` directly (and `.github/copilot-instructions.md`) | **Reported yes (verify)** — as of 2026-06 Copilot is reported to read `.claude/agents/` (Claude sub-agents format); this is third-party behavior that can change, so confirm against current Copilot docs | **No** — Copilot has no skill primitive; skills do **not** auto-load | **No** — no hook; arbiter gate is instruction only | **Strong but partial.** Orchestrator + agent roster (Copilot-side support unverified), **no** skill auto-loading, **no** enforced gate. |
 | **Cursor** | **Yes** — reads `AGENTS.md` (and `.cursor/rules/*.mdc`) | **No** — no specialist roster on Cursor | **No** — no skill primitive | **No** — no hook | **Rules only.** Orchestrator / steering rules; single assistant, no agent team, no enforced gate. |
 | **Kiro** | **Yes** — reads `AGENTS.md` (and `.kiro/steering/*.md`) | **No** — roster is Claude/Copilot only | **Not by default** — `SKILL.md` schema is shareable into `.kiro/skills/` only via a manual step | **No** — no hook | **Steering only.** Orchestrator / steering rules; single assistant, no agent team, no enforced gate. |
@@ -54,11 +54,15 @@ does not enforce.
   reported (as of 2026-06) to read the same directory, but that is fast-moving
   third-party behavior — verify it against current Copilot docs before relying on
   it. Cursor and Kiro do **not** get the roster — they get orchestrator/steering
-  rules and a single assistant. We do not imply a 12-agent team operates on Cursor
+  rules and a single assistant. We do not imply a 14-agent team operates on Cursor
   or Kiro.
 - **Skills auto-load only on Claude Code.** Copilot, Cursor, and Kiro have no
   automatic skill activation. (Kiro shares the `SKILL.md` schema, so skills can be
   shared into `.kiro/skills/` as a deliberate, manual step — not automatic.)
+- **The `design-system` / `ux-design` value travels as skills plus `AGENTS.md`
+  guidance**, so it degrades gracefully: on tools that do not load the agent
+  roster it still reaches the assistant through `AGENTS.md` (and, on Claude Code,
+  the auto-loaded skills), rather than being lost with the roster.
 - **`AGENTS.md` is the only source of truth.** The installer's tool-specific files
   (`.github/copilot-instructions.md`, `.cursor/rules/*.mdc`, `.kiro/steering/*.md`)
   are derived summaries that point back to it. Edit `AGENTS.md`; regenerate the rest.

@@ -111,6 +111,60 @@ export function buildPayload(payloadRoot) {
     add(hooksJson, ".ai-dlc/hooks/hooks.json", "kit");
   }
 
+  // --- Design-QA tools (kit-owned), landed under .ai-dlc/scripts ------------
+  // The skills/agents reference these tools by their consumer path
+  // (.ai-dlc/scripts/...). They MUST ship or those references are orphaned.
+  // They run via `node <path>` (no chmod+x) -> "kit" tier, matching how every
+  // other kit file is written/preserved on update (ADR-0006).
+  //
+  // We SHIP first-party tool .mjs only, preserving the directory shape so the
+  // tools' RELATIVE imports resolve unchanged under .ai-dlc/scripts/:
+  //   - off-token-lint.mjs         imports ./lib/*.mjs
+  //   - visual-qa/*.mjs            import  ../lib/*.mjs and ./<sibling>.mjs
+  // We FENCE OUT the validation-only scaffolding (package.json, the lockfile,
+  // node_modules/, and test/) — that toolchain pins THIS repo's own tests and
+  // must never land on a consumer machine (consumers install their own pinned
+  // Playwright/axe toolchain; "orchestrate, don't bundle"). See product/scripts/README.md.
+  const scriptsSrc = join(payloadRoot, "scripts");
+
+  // off-token-lint.mjs (Slice 1) — the single top-level tool.
+  const offTokenLint = join(scriptsSrc, "off-token-lint.mjs");
+  if (existsSync(offTokenLint)) {
+    add(offTokenLint, ".ai-dlc/scripts/off-token-lint.mjs", "kit");
+  }
+
+  // lib/*.mjs — the shared, audited primitives every tool imports. Ship ONLY
+  // first-party .mjs (no incidental non-.mjs file ever lands here).
+  for (const rel of listFilesRel(join(scriptsSrc, "lib"))) {
+    if (!rel.endsWith(".mjs")) continue;
+    add(join(scriptsSrc, "lib", rel), join(".ai-dlc/scripts/lib", rel), "kit");
+  }
+
+  // visual-qa/*.mjs — the exec-free checks plus the harness-gated browser tools
+  // and their drivers. Ship ONLY first-party .mjs.
+  for (const rel of listFilesRel(join(scriptsSrc, "visual-qa"))) {
+    if (!rel.endsWith(".mjs")) continue;
+    add(
+      join(scriptsSrc, "visual-qa", rel),
+      join(".ai-dlc/scripts/visual-qa", rel),
+      "kit"
+    );
+  }
+
+  // Consumer-facing README for the shipped tools (consumer invocation paths,
+  // fail-closed confirmation flow, `npx playwright install chromium`, T3 RCE
+  // residual-risk note). This is a SEPARATE, trimmed doc authored for consumers
+  // under installer/ — NOT the kit-internal product/scripts/README.md, which
+  // references the validation-only toolchain and `product/scripts/...` paths.
+  const consumerScriptsReadme = join(
+    INSTALLER_ROOT,
+    "payload-extra",
+    "scripts-README.md"
+  );
+  if (existsSync(consumerScriptsReadme)) {
+    add(consumerScriptsReadme, ".ai-dlc/scripts/README.md", "kit");
+  }
+
   // --- Cross-platform steering templates (degraded coverage) ----------------
   // Authored in parallel under templates/{github,cursor,kiro}. Present -> land at
   // the documented repo-root locations. Absent -> skipped cleanly.

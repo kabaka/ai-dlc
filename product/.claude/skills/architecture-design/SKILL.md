@@ -41,7 +41,7 @@ planner.
 > human stakeholders would not, so the diversity is weaker than a true human mob.
 
 In design this means: you propose the architecture; challenge agents
-(`adversarial-reviewer`, `security`, dual `planner`) **contest** it; the single
+(`code-reviewer`, `security`, dual `planner`) **contest** it; the single
 human **decides** at Gate 2. Use the name **Solo Mob Construction**; never the bare
 AWS "Mob Construction" for the agent loop.
 
@@ -74,6 +74,15 @@ Contracts are the load-bearing output — they let the `planner` sequence and th
   their compatibility constraints (what may change without breaking consumers).
 - Keep contracts **technology-light where you can** so the tech choice (step 3) does
   not leak into the interface a consumer depends on.
+- For **`ui_bearing` units**, the **design-system contract** — design tokens + a
+  UI-element inventory + state matrices — is itself an interface/data contract in
+  this handoff. Produce it via the `design-system` skill (the *how it looks* layer)
+  alongside `ux-design` (the *how it works* layer); the existing Gate 2 approves it.
+  It is a sub-part of the architecture handoff, not a new gate or artifact-type.
+  For `ui_bearing` units you also produce the **proposed** `.ai-dlc/stack-binding.json`
+  (which UI stack / run command / audit paths the visual-QA tools target) via the
+  `stack-binding` skill — it rides inside this same handoff and the arbiter confirms
+  it inside the existing Gate-2 Decision Record.
 
 ### 3. Surface 2+ design options with trade-offs (for the arbiter)
 
@@ -114,7 +123,7 @@ approves. Ship it as a compact, structured artifact, not loose prose. Include:
 | --- | --- |
 | Chosen design | The selected structure (the option the arbiter approved). |
 | Components / domain model | The components/entities and their **boundaries**. |
-| Interfaces & data contracts | Key interfaces/APIs and the data shapes crossing boundaries. |
+| Interfaces & data contracts | Key interfaces/APIs and the data shapes crossing boundaries. For `ui_bearing` units, the **design-system contract** (tokens + UI-element inventory + state matrices, via `design-system`) is one of these contracts. |
 | Alternatives considered | The other option(s) and **why rejected** — the trade-offs. |
 | Risks & assumptions | What could go wrong; what the design assumes (esp. for high-risk units). |
 
@@ -139,6 +148,9 @@ and downstream contracts are in `aidlc-workflow`'s `reference/artifacts.md`.
 
 - Order of work (NOT this skill): `implementation-planning`.
 - Inputs from the prior phase: `requirements-elaboration` (the Unit-of-Work contract).
+- For `ui_bearing` units: the **visual** design contract (tokens / UI-element
+  inventory / state matrices) is `design-system`; **interaction/usability/WCAG** is
+  `ux-design`. Both ride inside this architecture handoff.
 - The lifecycle loop, gates, triage, handoff schemas: `aidlc-workflow`
   (`reference/artifacts.md` for the full contract chain).
 - Concepts (phases, ceremonies, arbiter, values): `aidlc-methodology`.

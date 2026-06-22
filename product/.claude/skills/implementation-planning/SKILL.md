@@ -58,6 +58,14 @@ You receive two upstream handoff artifacts; read both before sequencing (schemas
 4. **Order the steps.** Topologically sort by dependency. Within that order, pull
    **risky or uncertain steps early** (a load-bearing integration, an unproven
    assumption) so failure surfaces before later work piles on it.
+   - **Build a thin end-to-end thread first — a walking skeleton / tracer bullet.**
+     Sequence a minimal slice that exercises the **whole** path the unit touches (UI
+     → logic → data, or caller → API → store) end to end, then **thicken** it with
+     the remaining behavior. This is a concrete instance of pulling risky steps
+     early: it **front-loads integration risk** (the seams between layers are where
+     surprises live) and **proves end-to-end reachability** — that the slice has a
+     real user-reachable path — before the bulk of the work is built on top of an
+     unproven thread.
 5. **Attach validation per step.** State what each step must pass — the build, the
    specific tests, a lint/typecheck. The `test-engineer` owns the grading oracle;
    you say *which* checks gate *which* step, you do not author the tests.
@@ -147,7 +155,7 @@ Ceremony depth scales with the unit's tier; the **Gate-2 decision never goes awa
 | --- | --- |
 | **Trivial** | A single short plan is enough; skip dual-planning. The Gate-2 record may be terse. The dependency map can be a line or two. |
 | **Standard** | Dual `planner` Solo Mob; full plan handoff; full Gate-2 record. |
-| **High-risk** | Dual planners **plus** explicit alternatives surfaced (different orderings/decompositions weighed), risks called out for `security`/`adversarial-reviewer` challenge; arbiter records options-considered. |
+| **High-risk** | Dual planners **plus** explicit alternatives surfaced (different orderings/decompositions weighed), risks called out for `security`/`code-reviewer` challenge; arbiter records options-considered. |
 
 ## Checklist
 

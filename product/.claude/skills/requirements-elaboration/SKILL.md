@@ -71,11 +71,16 @@ A **unit of work** is a **parallelizable chunk of value sized to fit a bolt** (t
 hours-to-days cadence — see `aidlc-methodology`). Decompose so that each unit is
 independently valuable, independently testable, and small enough for one bolt.
 
-- Cut along **value seams**, not technical layers — a unit should deliver something
-  a user or the system can use, not "the database part of everything".
+- Cut each unit as a **thin vertical slice** — a **walking skeleton** that runs
+  end-to-end through every layer it touches (UI → logic → data, or caller → API →
+  store), **not** a horizontal layer. A unit should deliver something a user or the
+  system can actually exercise, not "the database part of everything". Slicing
+  vertically prevents **orphan features by construction**: a slice has a
+  user-reachable path the moment it exists, so no capability lands wired to nothing.
 - Make units **parallelizable**: minimize cross-unit dependencies; record the ones
   that remain in `dependencies`.
-- If a unit is too big for a bolt, split it. If two units can't be tested apart,
+- If a unit is too big for a bolt, split it **into thinner slices that each still
+  run end-to-end** — never into orphan layers. If two units can't be tested apart,
   reconsider the seam.
 
 ### 4. Write testable acceptance criteria and explicit non-goals
@@ -92,10 +97,19 @@ These two fields are where elaboration quality lives — they become the
   implied — an unstated exclusion becomes someone's silent assumption and then
   scope creep. Non-goals keep the unit "sized to be parallelizable".
 
+A unit's `acceptance_criteria` and `non_goals` **seed the `spec-conformance`
+checklist**: at this Inception step you are writing the line items that the
+pre-merge review later checks the change against — requirement coverage, the
+slice's end-to-end **reachability** path, and the **companion** docs/tests the
+criteria imply. Write them concretely enough to be checked off later (the bare
+phrase "definition of done" / "completeness" is a kit convention here — AWS AI-DLC
+names neither; we express it over the native `acceptance_criteria` / `non_goals`
+fields, scaled by `risk_tier`).
+
 More patterns (good vs weak criteria, the INVEST lens, splitting strategies) are in
 `reference/criteria-and-stories.md`.
 
-### 5. Assign risk_tier and bolt_time_box
+### 5. Assign risk_tier, bolt_time_box, and ui_bearing
 
 - **`risk_tier`** is one of **`trivial` / `standard` / `high-risk`**. It sets how
   much ceremony the unit gets in Construction (depth scales; the gate never does —
@@ -105,6 +119,15 @@ More patterns (good vs weak criteria, the INVEST lens, splitting strategies) are
 - **`bolt_time_box`** records the **intended hours-to-days window** for the unit.
   It is **documentation/intent only — not an enforced timer.** Do not invent a
   countdown, burndown, or cutoff; AI-DLC prescribes none (see `aidlc-methodology`).
+- **`ui_bearing`** you set **true when the unit renders something a person sees and
+  operates** (a UI surface), **false otherwise**. You **propose, you do not decide**
+  it; the arbiter confirms it at Gate 1.
+
+The design-system / UX lens engages only when `ui_bearing` is true; depth scales by
+`risk_tier × ui_bearing`; non-UI units skip the lens but cross the same
+Gate-1/arbiter sign-off as every unit — triage reduces challenge depth, never the
+gate. `ui_bearing` is our faithful application of AWS AI-DLC's proportionality
+guidance, not an AWS-named scheme; AWS names no such field.
 
 ### 6. Produce the Unit-of-Work handoff and reach Gate 1
 
@@ -130,6 +153,7 @@ these exact field names — Construction consumes a known shape.
 | `dependencies` | yes (may be empty) | Other units this one needs; supports parallelization decisions. |
 | `bolt_time_box` | yes | Intended bolt window (hours–days). Documentation/intent field — **not** an enforced timer. |
 | `risk_tier` | yes | `trivial` / `standard` / `high-risk` — sets ceremony depth. |
+| `ui_bearing` | yes | `boolean` — Whether this unit renders something a person sees and operates (UI surface) — engages the design-system / UX lens; non-UI units skip it. Proposed by the analyst, arbiter-confirmed at Gate 1. |
 | `arbiter_signoff` | yes | Reference to the Gate 1 Decision Record approving this unit. |
 
 `bolt_time_box` records intent only — no timer, burndown, or cutoff exists in
@@ -146,6 +170,8 @@ AI-DLC. The full handoff chain and downstream contracts are in
   `acceptance_criteria` and explicit `non_goals`.
 - Every unit carries all Unit-of-Work fields, including `risk_tier` and
   `bolt_time_box`.
+- Every unit carries `ui_bearing`, proposed from the UI boundary test
+  (arbiter-confirmed at Gate 1).
 - The Gate 1 Decision Record exists (`chosen_option = approve`) before Construction
   starts; `arbiter_signoff` references it.
 
