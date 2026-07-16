@@ -2,12 +2,23 @@
 
 ## Status
 
-Accepted
+Accepted — **decision 9 corrected in place 2026-07-16** (see the correction note
+below)
 
 - Date: 2026-07-16
 - Deciders: Product owner (decision authority / arbiter); Orchestrator +
   `distribution-engineer`, `security`, `cross-platform-integrator`,
   `tooling-engineer`
+
+> **Correction (2026-07-16) — decision 9 superseded in place.** This ADR
+> originally **rejected** wiring `RTK.md` into the co-owned `CLAUDE.md` marker
+> region and shipped it as human-facing reference only. A follow-up change
+> **implemented** that wiring, so decision 9 (and the consequence/residual-risk
+> lines that referenced it) has been corrected to record shipped reality, per the
+> repo's faithfulness and companion-freshness rules. The original decision is kept
+> visible under decision 9 as **superseded** rather than deleted. The rest of the
+> ADR (decisions 1–8, the install/coexistence/supply-chain analysis) stands
+> unchanged.
 
 ## Context and Problem Statement
 
@@ -176,22 +187,55 @@ concrete decisions:
    explicit, one-time exception tied to the broken pipeline, **not** a new norm; the
    pipeline bug is fixed separately and remote CI resumes gating.
 
-9. **`RTK.md` ships as a human-facing reference doc, NOT an auto-loaded
-   agent-context file.** The installer delivers `RTK.md` as documentation a person
-   reads; it is **not** wired into any agent's auto-loaded context. Wiring it into
-   the co-owned `CLAUDE.md` marker region was considered and **rejected**: the
-   installer's payload is delivered whole-file and **hash-stamped** for drift
-   detection, with **no per-run conditional-content mechanism** — so injecting an
-   `rtk`-conditional line into `CLAUDE.md` would fight the drift/stamp model, and it
-   would **silently no-op** for the many consumers who already have their own
-   `CLAUDE.md` (the installer preserves consumer files rather than overwriting them,
-   per [ADR-0006](0006-installer-idempotent-merge-and-consumer-file-preservation.md)).
-   The honest scope consequence: the product owner's "used for all supported
-   purposes" is met on rtk's **`PreToolUse` hook surface** — the actual token
-   compression, which is the load-bearing capability — while rtk's **context-file
-   surface** is provided as **human reference only**, not auto-loaded agent context.
-   This is a deliberate, documented narrowing of "all supported purposes", not an
-   oversight.
+9. **`RTK.md` IS auto-loaded as agent context when the installer manages the
+   consumer's `CLAUDE.md`; for a consumer-owned `CLAUDE.md` the installer never
+   edits in place and instead prints an explicit add/remove instruction.**
+   *(Corrected 2026-07-16 — see the original, now-superseded decision at the end of
+   this item.)* Concretely:
+
+   - **Installer-managed `CLAUDE.md`** (the installer created/stamped it and the
+     `<!-- ai-dlc:begin -->` / `<!-- ai-dlc:end -->` markers are present): enabling
+     `rtk` keeps a `@.ai-dlc/rtk/RTK.md` import **inside** the managed marker
+     region, so `rtk`'s context doc is genuinely auto-loaded agent context;
+     disabling (`--without-rtk`, or the sticky recorded opt-out) **removes** that
+     import line. `RTK.md` still also ships as human-readable reference.
+   - **Consumer-owned `CLAUDE.md`** (marker-less — the installer did **not** create
+     it, per [ADR-0006](0006-installer-idempotent-merge-and-consumer-file-preservation.md)):
+     the installer **never edits it in place**. It writes a `CLAUDE.md.new` sidecar
+     and prints an explicit instruction to **add** the one import line (on enable)
+     or to **remove** it (on `--without-rtk`, since the import would otherwise
+     dangle once `RTK.md` is uninstalled). This is the honest boundary: the kit does
+     not silently rewrite a file the consumer owns.
+
+   **How the "fights the drift/stamp model" concern was resolved** (the crux of the
+   reversal): a **post-apply reconcile is made the SINGLE OWNER of `CLAUDE.md`'s
+   managed marker region**. Region ownership is passed to the apply engine
+   **explicitly** — a set of reconciler-owned dests (today just `CLAUDE.md`),
+   **never inferred from content diffs**. For a reconciler-owned dest the engine
+   **defers** the region to the reconcile: it does **not** force the static payload
+   over it (which would strip the reconciler's import and churn) and does **not**
+   freeze it (which would stop future baseline changes propagating). The reconcile
+   computes the desired region as the payload baseline marker-region **plus** the
+   conditional `@.ai-dlc/rtk/RTK.md` import line (present iff `rtk` is enabled), and
+   **writes and re-stamps only when it differs** from what is on disk. That makes it
+   **idempotent** (no churn on an unchanged region) **while** future
+   baseline changes still propagate to undrifted consumers — the two properties that
+   the original hash-stamp objection assumed were mutually exclusive. Everything
+   outside the markers is preserved byte-for-byte, and a marker-less or malformed
+   file is left untouched (the consumer-owned path above). Co-owned files **without**
+   a reconciler keep the original marker-update behavior.
+
+   **Superseded original decision (rejected wiring, kept for history).** This ADR
+   originally shipped `RTK.md` as a **human-facing reference doc only** and
+   **rejected** wiring it into `CLAUDE.md`, arguing that the whole-file, hash-stamped
+   payload had "no per-run conditional-content mechanism", so a conditional import
+   line would "fight the drift/stamp model" and "silently no-op" for consumers with
+   their own `CLAUDE.md`. The reconciler-owned-region design above resolves that
+   objection (a real conditional-content mechanism that coexists with drift
+   detection), and the consumer-owned-file boundary is handled honestly by the
+   sidecar-plus-instruction path rather than by declining to wire at all. The
+   original "deliberate narrowing of all supported purposes" is therefore **no longer
+   in force**.
 
 ### Consequences
 
@@ -250,10 +294,18 @@ concrete decisions:
 - Neutral, because the **CI bypass** is a one-time, arbiter-authorized exception
   recorded here for traceability; remote CI resumes as the gate once the pipeline is
   fixed.
-- Neutral, because **"all supported purposes" is deliberately narrowed**: rtk's
-  token-compression `PreToolUse` **hook** is fully wired, but rtk's context-file
-  surface is shipped as the human-facing `RTK.md` reference only, not as auto-loaded
-  agent context. This is documented (decision 9) rather than silently scoped down.
+- Good, because **"all supported purposes" is now delivered more fully** *(corrected
+  2026-07-16)*: rtk's token-compression `PreToolUse` **hook** is fully wired **and**
+  rtk's **context-file surface is genuinely auto-loaded** — the `@.ai-dlc/rtk/RTK.md`
+  import rides inside the managed marker region for an **installer-managed**
+  `CLAUDE.md`. `RTK.md` still ships as human-readable reference too, so both surfaces
+  are covered. See decision 9.
+- Neutral, because the **consumer-owned-`CLAUDE.md` boundary stays honest**: when the
+  installer did not create `CLAUDE.md`, it never edits it in place — it writes a
+  `CLAUDE.md.new` sidecar and prints an explicit add-line (enable) or remove-line
+  (`--without-rtk`) instruction, so wiring rtk's context doc there is a one-line
+  human action rather than a silent rewrite. This is a bounded residual step the
+  consumer performs, not a silent narrowing of scope.
 
 ## Pros and Cons of the Options
 

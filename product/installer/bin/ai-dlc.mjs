@@ -9,7 +9,7 @@
 // (ADR-0006). `init` on an already-initialized repo behaves like `update`.
 // Zero runtime dependencies (Node built-ins only).
 
-import { writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { writeFileSync, readFileSync, mkdirSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 import { resolvePayloadRoot, buildPayload } from "../lib/payload.mjs";
@@ -18,14 +18,28 @@ import {
   MANIFEST_REL,
   loadManifest,
   serializeManifest,
+  hash,
 } from "../lib/manifest.mjs";
-import { planActions, planRemovals, executeAction } from "../lib/apply.mjs";
+import {
+  planActions,
+  planRemovals,
+  executeAction,
+  MARK_BEGIN,
+  MARK_END,
+} from "../lib/apply.mjs";
 import {
   planSettingsMerge,
   planRtkSettings,
   SETTINGS_REL,
 } from "../lib/settings.mjs";
-import { planRtk, removeRtk, RTK_VERSION } from "../lib/rtk.mjs";
+import {
+  planRtk,
+  removeRtk,
+  reconcileClaudeRtkImport,
+  reconciledDests,
+  RTK_IMPORT_LINE,
+  RTK_VERSION,
+} from "../lib/rtk.mjs";
 
 function parseArgs(argv) {
   const args = argv.slice(2);
@@ -132,7 +146,12 @@ function main() {
   );
 
   // --- File actions ---------------------------------------------------------
-  const actions = planActions(entries, repoRoot, manifest);
+  // CLAUDE.md's managed marker region is owned by the post-apply rtk reconcile
+  // below, NOT the generic engine. Pass that ownership IN (never inferred) so the
+  // engine defers the region to the reconcile while still protecting the file's
+  // first-touch / marker-less-drift cases with a `.new` sidecar.
+  const reconciled = new Set(reconciledDests());
+  const actions = planActions(entries, repoRoot, manifest, reconciled);
   const results = [];
   const sidecars = [];
   for (const action of actions) {
@@ -164,6 +183,72 @@ function main() {
         const verb = dryRun ? "would remove" : "removed";
         console.log(`  ${verb}  ${r.dest} (rtk)`);
         rtkRemovals.push(r);
+      }
+    }
+  }
+
+  // --- rtk CLAUDE.md context import (@-import) reconcile --------------------
+  // rtk's value as agent context depends on CLAUDE.md importing RTK.md. When the
+  // installer MANAGES the consumer's CLAUDE.md (stamped in the manifest AND our
+  // markers are present on disk), surgically add/remove the `@.ai-dlc/rtk/RTK.md`
+  // import INSIDE the managed marker region only (content outside the markers is
+  // untouched), then RE-STAMP the manifest to the new on-disk bytes so a later run
+  // sees no drift and emits no spurious `.new` sidecar. When CLAUDE.md is
+  // consumer-OWNED (a `.new` sidecar case: not stamped, or marker-less), we NEVER
+  // edit it — we record the need so the summary prints a one-line manual instruction.
+  const CLAUDE_REL = "CLAUDE.md";
+  let rtkClaudeManual = false; // consumer-owned CLAUDE.md, enabling: add the import
+  let rtkClaudeManualRemove = false; // consumer-owned CLAUDE.md, disabling: drop a dangling import
+  {
+    const claudeAbs = join(repoRoot, CLAUDE_REL);
+    if (existsSync(claudeAbs)) {
+      const onDisk = readFileSync(claudeAbs, "utf8");
+      const stamped = Boolean(manifest.files[CLAUDE_REL]);
+      const managed =
+        stamped && onDisk.includes(MARK_BEGIN) && onDisk.includes(MARK_END);
+      if (managed) {
+        // The reconcile is the SINGLE AUTHORITY over the managed region. Compute the
+        // DESIRED region from the shipped payload baseline (so a baseline change
+        // propagates — no freeze) plus the import iff rtk is enabled.
+        const payloadClaude = readFileSync(join(payloadRoot, CLAUDE_REL), "utf8");
+        const { changed, content } = reconcileClaudeRtkImport(
+          onDisk,
+          rtkEnabled,
+          payloadClaude
+        );
+        if (changed) {
+          const verb = dryRun ? "would update" : "updated";
+          console.log(
+            `  ${verb} rtk context import in ${CLAUDE_REL} ` +
+              `(${rtkEnabled ? "added" : "removed"} ${RTK_IMPORT_LINE})`
+          );
+        }
+        // Persist ONLY on a real (non-dry-run) run: write the reconciled region when
+        // it changed, and ALWAYS re-stamp CLAUDE.md to the current on-disk bytes so
+        // out-of-marker consumer drift is adopted as the new baseline and the next
+        // run is a clean no-op. `content` == the on-disk bytes when unchanged, so the
+        // stamp always equals the on-disk hash after a run (no false drift). In
+        // dry-run we touch NEITHER the disk NOR the in-memory manifest.
+        if (!dryRun) {
+          if (changed) writeFileSync(claudeAbs, content);
+          manifest.files[CLAUDE_REL] = { hash: hash(content), tier: "co-owned" };
+        }
+      } else {
+        // Consumer-owned / marker-less CLAUDE.md we must NEVER edit in place. Print
+        // an accurate manual instruction in whichever direction applies.
+        const hasImport = onDisk
+          .split("\n")
+          .some((l) => l.trim() === RTK_IMPORT_LINE);
+        if (rtkEnabled && !hasImport) rtkClaudeManual = true;
+        // Removal instruction ONLY on an actual disable TRANSITION: rtk was enabled
+        // before this run (`rtkPlan.wasEnabled`, from the manifest's prior rtk state)
+        // and is now off. Without this guard a fresh `init` on a repo whose
+        // consumer-authored CLAUDE.md merely happens to contain the import would
+        // falsely claim RTK.md was removed (it was never installed), and every later
+        // sticky-off `update` (manifest already enabled:false -> wasEnabled false)
+        // would re-nag about a line the consumer owns.
+        else if (!rtkEnabled && hasImport && rtkPlan.wasEnabled)
+          rtkClaudeManualRemove = true;
       }
     }
   }
@@ -270,6 +355,29 @@ function main() {
     console.log(
       `\n${tag}rtk (Rust Token Killer) is DISABLED — its hook and files were removed. ` +
         "The arbiter gate and your other hooks are untouched."
+    );
+  }
+
+  // Consumer-owned CLAUDE.md we could not edit: tell them the exact line to add so
+  // rtk loads as agent context. The `.new` sidecar is the STATIC payload whose region
+  // is comment-only — it does NOT contain the import — so the message names the exact
+  // line to add rather than implying the sidecar shows it.
+  if (rtkClaudeManual) {
+    console.log(
+      `\n${tag}rtk enabled: add \`${RTK_IMPORT_LINE}\` to your ${CLAUDE_REL} to load rtk ` +
+        `as agent context. Your ${CLAUDE_REL} is consumer-owned, so it was not edited; a ` +
+        `${CLAUDE_REL}.new sidecar shows the kit's managed layout (the import is NOT in it — ` +
+        `add the exact line above yourself).`
+    );
+  }
+
+  // Symmetric case: rtk was disabled but a consumer-owned CLAUDE.md still imports the
+  // now-removed RTK.md. Tell them to remove the dangling line (we never edit their file).
+  if (rtkClaudeManualRemove) {
+    console.log(
+      `\n${tag}rtk disabled: your consumer-owned ${CLAUDE_REL} still contains ` +
+        `\`${RTK_IMPORT_LINE}\`, which now points at a removed file. Remove that line from ` +
+        `${CLAUDE_REL} to avoid a dangling import.`
     );
   }
 

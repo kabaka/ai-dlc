@@ -69,12 +69,32 @@ With rtk enabled, `init`/`update` land three files in your repo and add a
 | ---------------------------- | ------------------------------------------------ |
 | `.ai-dlc/hooks/rtk-wrap.sh`  | The runtime-gated `PreToolUse` wrapper (0755).   |
 | `.ai-dlc/rtk/install-rtk.sh` | The cloud setup-script installer (0755).         |
-| `.ai-dlc/rtk/RTK.md`         | Human-readable reference doc (not auto-loaded).  |
+| `.ai-dlc/rtk/RTK.md`         | rtk context doc for the agent (see below).       |
 
-`RTK.md` is a human-readable reference that ships with `--with-rtk`; it is
-**not** auto-injected into `CLAUDE.md` or the agent's context. rtk's own "context
-file" surface is provided here as human reference only — the automated surface
-AI-DLC delivers is the `PreToolUse` hook that does the token compression.
+`RTK.md` tells the agent that rtk may be compressing its command output. Whether
+it loads as agent context depends on who owns your `CLAUDE.md`:
+
+- **Installer-managed `CLAUDE.md`** (the installer created or stamped it and the
+  `<!-- ai-dlc:begin -->` / `<!-- ai-dlc:end -->` markers are present):
+  `--with-rtk` adds an `@.ai-dlc/rtk/RTK.md` import to that managed region, so
+  **RTK.md is loaded as agent context** automatically. `--without-rtk` removes
+  that import again.
+- **Consumer-owned `CLAUDE.md`** (you already had one, so the installer left it
+  untouched and wrote a `CLAUDE.md.new` sidecar instead): the installer does
+  **not** edit your file. It prints an instruction to add one line to your
+  `CLAUDE.md` yourself so rtk context loads:
+
+  ```text
+  @.ai-dlc/rtk/RTK.md
+  ```
+
+  On `--without-rtk` it instead reminds you to **remove** that line (otherwise it
+  points at a deleted file). Until you add it, `RTK.md` is a human-facing
+  reference only, not agent context.
+
+Either way, the automated compression surface AI-DLC delivers is the `PreToolUse`
+hook that does the token compression; loading `RTK.md` only tells the agent that
+compression may be happening.
 
 ### Step 2 — install the rtk binary
 
