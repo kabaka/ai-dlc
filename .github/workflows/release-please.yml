@@ -1,0 +1,85 @@
+# Automates version bumps, CHANGELOG entries, git tags, and GitHub Releases for
+# the npm package @kabaka/ai-dlc (sources at product/installer/) using
+# release-please in manifest mode. It does NOT publish: it only proposes and cuts
+# releases. Publishing is handled entirely by release.yml, which runs on the
+# `release: published` event and publishes to npm via OIDC trusted publishing.
+#
+# ─── How the two workflows compose ────────────────────────────────────────────
+# 1. Commits land on main (Conventional Commits: feat/fix/… drive the SemVer bump).
+# 2. release-please (this workflow) opens/updates a "release PR" that bumps
+#    product/installer/package.json + writes the changelog + updates the manifest.
+# 3. When that release PR is merged, release-please creates a git tag and a
+#    GitHub Release. Tag format is `vX.Y.Z` (no component prefix) — see the tag
+#    config in release-please-config.json (include-component-in-tag: false,
+#    include-v-in-tag: true).
+# 4. The published Release triggers release.yml, whose version-guard strips the
+#    leading `v` from the tag and asserts it equals product/installer/package.json
+#    `version`. Because release-please bumps that file and tags `v<same version>`,
+#    the guard passes and the OIDC publish proceeds.
+#
+# ─── Why a GitHub App token (not GITHUB_TOKEN) ────────────────────────────────
+# A Release created with the workflow's default GITHUB_TOKEN does NOT trigger
+# other workflows (GitHub suppresses recursive workflow runs from GITHUB_TOKEN).
+# That would leave release.yml un-fired and nothing would publish. So this
+# workflow mints a token from a GitHub App via actions/create-github-app-token;
+# a Release created with an App token DOES dispatch `release: published`, firing
+# release.yml. The App token also carries the write scopes release-please needs
+# (contents + pull-requests) via the App's own installation permissions, so the
+# job's GITHUB_TOKEN needs no write scope of its own.
+#
+# ─── One-time maintainer setup (NOT automated) ────────────────────────────────
+#   a. Create a GitHub App (org or personal) with Repository permissions:
+#        Contents: Read and write   (create tags, commits, releases)
+#        Pull requests: Read and write  (open/update the release PR)
+#   b. Install that App on the kabaka/ai-dlc repository.
+#   c. Add two repository secrets (Settings → Secrets and variables → Actions):
+#        RELEASE_PLEASE_APP_ID          = the App's App ID (a number)
+#        RELEASE_PLEASE_APP_PRIVATE_KEY = the App's generated .pem private key
+#      (App ID is not itself sensitive, but storing it as a secret keeps the two
+#      inputs together and avoids hardcoding anything in this file.)
+
+name: release-please
+
+on:
+  push:
+    branches: [main]
+
+# Least privilege: the App token minted below carries the contents/pull-requests
+# write scopes release-please needs, so the job's own GITHUB_TOKEN gets read only.
+permissions:
+  contents: read
+
+# Avoid overlapping release-please runs racing on the same release PR.
+concurrency:
+  group: release-please-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    name: Release Please
+    runs-on: ubuntu-latest
+    # Skip on forks: the App is installed only on the canonical repo, and its
+    # secrets are not available to forks anyway.
+    if: github.repository == 'kabaka/ai-dlc'
+    permissions:
+      contents: read # App token (below) supplies the write scopes; GITHUB_TOKEN stays read only
+    steps:
+      - name: Mint a GitHub App installation token
+        # Pinned by full commit SHA. A Release created with THIS token (not the
+        # default GITHUB_TOKEN) will trigger release.yml's `release: published`.
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        id: app-token
+        with:
+          app-id: ${{ secrets.RELEASE_PLEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_PLEASE_APP_PRIVATE_KEY }}
+
+      - name: Run release-please (manifest mode)
+        # Pinned by full commit SHA. Manifest mode: config-file + manifest-file
+        # drive everything; `release-type` is set per-package in the config, not
+        # here. Passing the App token via `token` makes every API action
+        # (release PR, tag, Release) use the App identity.
+        uses: googleapis/release-please-action@5c625bfb5d1ff62eadeeb3772007f7f66fdcf071 # v4.4.1
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
