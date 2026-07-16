@@ -19,7 +19,8 @@
     "payload/",
     "payload-extra/",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "CHANGELOG.md"
   ],
   "keywords": [
     "ai-dlc",
