@@ -115,8 +115,15 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
     turns the wired hook on (unset/`0` keeps it inert); it is **not** read at
     install time. A plain `npx ai-dlc init` lands nothing rtk-related
     (byte-for-byte unchanged), and `update` preserves a prior `--with-rtk` choice
-    via an `rtk` block in `.ai-dlc/manifest.json`. `RTK.md` is a human-readable
-    reference doc — it is **not** auto-injected into `CLAUDE.md` or agent context.
+    via an `rtk` block in `.ai-dlc/manifest.json`. When the installer **manages
+    your `CLAUDE.md`** (it created/stamped it, so the `ai-dlc` markers are
+    present), `--with-rtk` adds an `@.ai-dlc/rtk/RTK.md` import to that managed
+    region so `RTK.md` **loads as agent context** (and `--without-rtk` removes
+    it); when your `CLAUDE.md` is **consumer-owned** (left untouched with a
+    `CLAUDE.md.new` sidecar) the installer does not edit it and instead prints an
+    instruction to add — or, on `--without-rtk`, remove — the one line
+    `@.ai-dlc/rtk/RTK.md` yourself, and until you add it `RTK.md` stays a
+    human-facing reference.
   - **Cloud install pinned to an immutable commit SHA.** The landed
     `install-rtk.sh` (run from a Claude Code web setup script) does
     `cargo install --git https://github.com/rtk-ai/rtk --rev 5a7880d404db8364d602f2ecdc41dd790f64013f --locked --force`

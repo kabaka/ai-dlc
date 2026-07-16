@@ -1,9 +1,13 @@
 # rtk output compression (may be active)
 
 This repository has AI-DLC's optional **rtk (Rust Token Killer)** integration
-installed. This file is a **human-facing reference** describing what rtk does when
-it is active — it is **not** loaded automatically as agent context (nothing
-imports it).
+installed. This file describes what rtk does when it is active. When the installer
+**manages your `CLAUDE.md`** (it created/stamped it and the `<!-- ai-dlc:begin -->`
+markers are present), enabling rtk adds an `@.ai-dlc/rtk/RTK.md` import to that
+managed region, so this doc **is loaded as agent context** — the agent is aware rtk
+may be compressing command output. If your `CLAUDE.md` is **consumer-owned** (the
+installer left it untouched and wrote a `CLAUDE.md.new` sidecar instead), this file
+is a **human-facing reference** until you add that one import line yourself.
 
 rtk is gated at two independent layers, so it commonly lands while runtime-inert:
 

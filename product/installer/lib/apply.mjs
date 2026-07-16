@@ -18,6 +18,14 @@
 //                   `--without-rtk` — delete the landed file (if present) and drop
 //                   its manifest stamp. Never produced by decideAction; only by
 //                   planRemovals, which the bin calls exclusively for rtk dests.
+//
+// Reconciler-owned dests (see the `reconciledDests` set threaded through
+// planActions/decideAction) are the exception to marker handling: for those dests
+// the generic engine NEVER writes or reconciles the managed marker region — a
+// post-apply reconciler in the bin is the single authority over that region.
+// The engine still protects the file's first-touch / marker-less-drift cases with
+// the co-owned `.new` sidecar exactly as it does for any other co-owned file.
+// Ownership is passed IN explicitly; it is never inferred from a content diff.
 
 import {
   chmodSync,
@@ -50,11 +58,20 @@ function assertInsideRepo(repoRoot, destRel) {
   return destAbs;
 }
 
-const MARK_BEGIN = "<!-- ai-dlc:begin -->";
-const MARK_END = "<!-- ai-dlc:end -->";
+export const MARK_BEGIN = "<!-- ai-dlc:begin -->";
+export const MARK_END = "<!-- ai-dlc:end -->";
 
-/** Decide the action for one payload entry given current disk + stamp state. */
-export function decideAction(entry, repoRoot, manifest) {
+/**
+ * Decide the action for one payload entry given current disk + stamp state.
+ *
+ * `reconciledDests` is the set of co-owned dests whose managed marker region is
+ * owned by a POST-APPLY RECONCILER (today just `CLAUDE.md`, via the rtk
+ * `@`-import reconcile in the bin). For a dest in this set the engine never
+ * writes or reconciles the marker region itself — it defers to the reconciler —
+ * while still protecting the file's first-touch / marker-less-drift cases with a
+ * `.new` sidecar. Ownership is passed IN, never inferred from a content diff.
+ */
+export function decideAction(entry, repoRoot, manifest, reconciledDests = new Set()) {
   // Containment (M2): the resolved dest MUST stay inside repoRoot. Refuse
   // otherwise — never write outside the repo we are installing into.
   const destAbs = assertInsideRepo(repoRoot, entry.dest);
@@ -85,21 +102,51 @@ export function decideAction(entry, repoRoot, manifest) {
     // file, a crafted <!-- ai-dlc:begin/end --> string must NOT cause an in-place
     // edit — fall back to the `.new` sidecar regardless of marker presence.
     const installerStamped = Boolean(stamped);
-    if (
-      installerStamped &&
-      onDisk.includes(MARK_BEGIN) &&
-      onDisk.includes(MARK_END)
-    ) {
-      // Opt-in managed region present in a file WE own: update inside markers.
-      return { ...base, kind: "marker-update" };
+    const hasMarkers = onDisk.includes(MARK_BEGIN) && onDisk.includes(MARK_END);
+
+    // Reconciler-owned dest (e.g. CLAUDE.md): a post-apply reconciler is the single
+    // authority over the managed marker region. The engine must NOT touch that
+    // region — neither force it to the static payload (which would strip the
+    // reconciler's import and churn) nor freeze it (which would stop future managed
+    // content reaching an undrifted consumer). It DEFERS the region to the
+    // reconciler for any file we already own with markers present (drifted or not);
+    // the reconciler splices only the region and preserves everything outside it.
+    // Ownership is passed IN, not inferred from a content diff.
+    if (reconciledDests.has(entry.dest)) {
+      if (installerStamped && hasMarkers) {
+        return {
+          ...base,
+          kind: "noop",
+          note: "managed marker region deferred to post-apply reconciler",
+        };
+      }
+      // First-touch pre-existing file (never stamped), OR a stamped file whose
+      // markers were removed/corrupted: NEVER edit in place -> sidecar. (The bin
+      // also prints a manual add/remove instruction for this consumer-owned case.)
+      return decideSidecar(base, repoRoot, manifest, "coowned-sidecar", content);
     }
-    // Stamped, undrifted, marker-less: we wrote it and the consumer hasn't
-    // touched it -> safe clean overwrite.
-    if (stamped && onDiskHash === stamped.hash) {
+
+    // --- Non-reconciler co-owned files: the generic marker-update path ---------
+    // Undrifted file WE stamped (on disk == our last stamp). The raw-payload match
+    // was already handled as a whole-file noop above, so a difference here means the
+    // static payload's managed region legitimately changed (a newer kit version).
+    // Reconcile ONLY the marked region in place so that change propagates without
+    // clobbering the consumer's out-of-marker content; a marker-less co-owned file
+    // we own is safe to overwrite wholesale.
+    if (installerStamped && onDiskHash === stamped.hash) {
+      if (hasMarkers) {
+        return { ...base, kind: "marker-update" };
+      }
       return { ...base, kind: "update" };
     }
-    // First-touch pre-existing file (not stamped), OR a stamped file the
-    // consumer edited: NEVER edit in place -> sidecar.
+
+    // Stamped file the consumer DRIFTED (edited) that still carries our markers:
+    // update ONLY inside the markers in place, preserving their out-of-marker edits.
+    if (installerStamped && hasMarkers) {
+      return { ...base, kind: "marker-update" };
+    }
+    // First-touch pre-existing file (never stamped), OR a stamped+drifted+marker-less
+    // file: NEVER edit in place -> sidecar.
     return decideSidecar(base, repoRoot, manifest, "coowned-sidecar", content);
   }
 
@@ -129,9 +176,13 @@ function decideSidecar(base, repoRoot, manifest, kind, content) {
   return { ...base, kind, content };
 }
 
-/** Build the full action plan across all payload entries. */
-export function planActions(entries, repoRoot, manifest) {
-  return entries.map((e) => decideAction(e, repoRoot, manifest));
+/**
+ * Build the full action plan across all payload entries. `reconciledDests` (a Set
+ * of co-owned dests whose marker region a post-apply reconciler owns; today just
+ * `CLAUDE.md`) is threaded to decideAction so ownership is explicit, not inferred.
+ */
+export function planActions(entries, repoRoot, manifest, reconciledDests = new Set()) {
+  return entries.map((e) => decideAction(e, repoRoot, manifest, reconciledDests));
 }
 
 /**
@@ -158,14 +209,30 @@ function ensureDir(absFile) {
   mkdirSync(dirname(absFile), { recursive: true });
 }
 
-/** Replace the content between markers, preserving the rest of the file. */
-function spliceMarkers(onDisk, payload) {
+/**
+ * Replace the content between markers, preserving the rest of the file. `payload`
+ * is a Buffer or string; its trimmed text becomes the new region body. Returns the
+ * new whole-file string, or null when the markers are absent/malformed.
+ */
+export function spliceMarkers(onDisk, payload) {
   const begin = onDisk.indexOf(MARK_BEGIN);
   const end = onDisk.indexOf(MARK_END);
   if (begin === -1 || end === -1 || end < begin) return null;
   const before = onDisk.slice(0, begin + MARK_BEGIN.length);
   const after = onDisk.slice(end);
   return `${before}\n${payload.toString("utf8").trim()}\n${after}`;
+}
+
+/**
+ * Return the raw text BETWEEN the managed markers (exclusive of the markers), or
+ * null when they are absent/malformed. Lets post-apply reconcilers read the current
+ * managed region without re-implementing marker parsing.
+ */
+export function extractMarkerRegion(onDisk) {
+  const begin = onDisk.indexOf(MARK_BEGIN);
+  const end = onDisk.indexOf(MARK_END);
+  if (begin === -1 || end === -1 || end < begin) return null;
+  return onDisk.slice(begin + MARK_BEGIN.length, end);
 }
 
 /**
