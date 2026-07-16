@@ -66,6 +66,13 @@ does not enforce.
 - **`AGENTS.md` is the only source of truth.** The installer's tool-specific files
   (`.github/copilot-instructions.md`, `.cursor/rules/*.mdc`, `.kiro/steering/*.md`)
   are derived summaries that point back to it. Edit `AGENTS.md`; regenerate the rest.
+- **rtk output compression is an optional, Claude-Code-only add-on.** The opt-in
+  [rtk integration](rtk.md) rides on a Claude Code `PreToolUse` hook, so — like the
+  arbiter gate — it exists only on Claude Code, and only when you install it with
+  `--with-rtk`. Copilot, Cursor, and Kiro have **no hook surface**: rtk is simply
+  **absent, and documented as absent** there, exactly like every other Claude-only
+  capability. It changes nothing about the single-source-of-truth model — no
+  steering file references it and no other tool degrades because of it.
 
 ## Why we degrade instead of faking parity
 

@@ -22,6 +22,7 @@
 import { existsSync, statSync, readdirSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { rtkPayloadEntries } from "./rtk.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url)); // installer/lib
 const INSTALLER_ROOT = resolve(HERE, "..");           // installer/
@@ -71,8 +72,11 @@ function listFilesRel(dir) {
  * Directory trees that may be absent at build time (the cross-platform steering
  * templates authored in parallel) are included only if present — the installer
  * skips them CLEANLY when missing, per the task contract.
+ *
+ * `options.withRtk` (default false) appends the OPT-IN rtk payload files. When
+ * false the payload is byte-for-byte the default install — no rtk files land.
  */
-export function buildPayload(payloadRoot) {
+export function buildPayload(payloadRoot, options = {}) {
   const entries = [];
   const add = (src, dest, tier) => entries.push({ src, dest, tier });
 
@@ -185,6 +189,16 @@ export function buildPayload(payloadRoot) {
   for (const { from, to } of steering) {
     for (const rel of listFilesRel(from)) {
       add(join(from, rel), join(to, rel), "kit");
+    }
+  }
+
+  // --- rtk (Rust Token Killer) payload — OPT-IN only ------------------------
+  // Landed at .ai-dlc/hooks/rtk-wrap.sh (0755), .ai-dlc/rtk/install-rtk.sh
+  // (0755), and .ai-dlc/rtk/RTK.md (kit). Included ONLY when the consumer opts
+  // in; the default path above is unchanged. See lib/rtk.mjs.
+  if (options.withRtk) {
+    for (const e of rtkPayloadEntries(payloadRoot)) {
+      add(e.src, e.dest, e.tier);
     }
   }
 

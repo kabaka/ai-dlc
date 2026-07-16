@@ -7,7 +7,7 @@
 #   3. node scripts/validate-links.mjs
 #   4. node scripts/validate-manifests.mjs (plugin/marketplace; skips if absent)
 #   5. node scripts/validate-evals.mjs (eval-record lint; skips if absent)
-#   6. shellcheck on scripts/*.sh + product/installer/**/*.sh (skipped if absent)
+#   6. shellcheck on scripts/*.sh + product/installer/**/*.sh + product/templates/**/*.sh (skipped if absent)
 #
 # Aggregates results and exits non-zero if any check FAILED. A check that is
 # SKIPPED (tool not installed) does not fail the run, but is reported clearly.

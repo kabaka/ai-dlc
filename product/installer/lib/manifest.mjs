@@ -51,6 +51,17 @@ export function serializeManifest(manifest) {
     updatedAt: manifest.updatedAt,
     files: {},
   };
+  // OPT-IN rtk state. Persisted ONLY when the consumer has opted in (or explicitly
+  // opted out after opting in) so that `update` preserves the prior choice — a
+  // plain `npx ai-dlc update` after `init --with-rtk` keeps rtk. A DEFAULT install
+  // never sets `manifest.rtk`, so the manifest stays byte-for-byte unchanged (no
+  // rtk block) unless opted in. Placed before `files` for readability.
+  if (manifest.rtk && typeof manifest.rtk === "object") {
+    ordered.rtk = {
+      enabled: Boolean(manifest.rtk.enabled),
+      version: manifest.rtk.version,
+    };
+  }
   // Sort file keys for deterministic output (stable diffs / idempotent writes).
   for (const k of Object.keys(manifest.files).sort()) {
     ordered.files[k] = manifest.files[k];
