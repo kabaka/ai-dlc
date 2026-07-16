@@ -57,7 +57,7 @@ instructed" prose, not a hook. The hook also only checks that an approval
 On non-Claude tools there is no hook at all — record your decisions by discipline.
 See the [cross-platform contract](cross-platform.md) and the
 [installer reference](../installer/README.md) for the exact boundaries and the
-`AIDLC_GATE_PATTERNS` / `AIDLC_RECORDS_DIR` configuration.
+`AIDLC_PROTECTED_BRANCHES` / `AIDLC_RECORDS_DIR` configuration.
 
 ## Complexity triage
 
@@ -309,6 +309,30 @@ own `AGENTS.md` / `CLAUDE.md` content is preserved. To make future updates of th
 managed region automatic, wrap it in `<!-- ai-dlc:begin -->` /
 `<!-- ai-dlc:end -->` markers (opt-in). Full semantics are in the
 [installer reference](../installer/README.md).
+
+## Optional: rtk output compression (Claude Code)
+
+An **opt-in, Claude-Code-only** integration routes noisy Bash output (build logs,
+test runners, linters) through [rtk](https://github.com/rtk-ai/rtk) before it
+reaches the model, cutting those output tokens by roughly 60–90%. It is off by
+default; a plain `init` lands nothing rtk-related. Enabling it is two steps —
+install the files, then flip a runtime switch:
+
+```bash
+npx ai-dlc init --with-rtk    # 1. land the rtk files + wire the (inert) hook
+export AIDLC_ENABLE_RTK=1      # 2. activate it at runtime (hook is inert without this)
+```
+
+The two signals are distinct: `--with-rtk` (or `AIDLC_INSTALL_RTK=1`, the
+non-interactive install equivalent) **installs and wires** the inert hook, while
+the separate runtime-only `AIDLC_ENABLE_RTK=1` **activates** it. Verify with
+`rtk --version` (expect `0.43.0`) and `echo "$AIDLC_ENABLE_RTK"` (expect `1`).
+Disable for a session with `AIDLC_ENABLE_RTK=0`; remove it entirely — and record
+a **sticky opt-out** that a later `update` will not undo — with
+`npx ai-dlc init --without-rtk`. rtk never bypasses the arbiter gate — transition
+commands are passed through un-compressed and the gate evaluates them
+independently. The full guide (the two-step model, the SHA-pinned cloud install,
+the crates.io name-collision warning) is in [rtk output compression](rtk.md).
 
 ## Other platforms
 

@@ -102,6 +102,40 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
     for a `ui_bearing` unit the `architect` proposes `.ai-dlc/stack-binding.json`
     inside the Gate-2 architecture handoff, arbiter-confirmed inside the existing
     Gate-2 Decision Record — no new gate, agent, or record-type.
+- **Opt-in `rtk` (Rust Token Killer) output compression** (ADR 0013): a
+  **Claude-Code-only**, **off-by-default** integration that routes noisy Bash
+  output (build logs, test runners, linters) through
+  [rtk](https://github.com/rtk-ai/rtk) (Apache-2.0, pinned `v0.43.0`) via a
+  `PreToolUse` hook, cutting those output tokens by roughly 60–90%.
+  - **Two distinct signals.** *Install:* `npx ai-dlc init --with-rtk` (or
+    `AIDLC_INSTALL_RTK=1`, the non-interactive install equivalent) lands the rtk
+    files (`.ai-dlc/hooks/rtk-wrap.sh`, `.ai-dlc/rtk/install-rtk.sh`,
+    `.ai-dlc/rtk/RTK.md`) and wires a **separate**, inert `PreToolUse` hook.
+    *Runtime activation:* the separate, **runtime-only** `AIDLC_ENABLE_RTK=1`
+    turns the wired hook on (unset/`0` keeps it inert); it is **not** read at
+    install time. A plain `npx ai-dlc init` lands nothing rtk-related
+    (byte-for-byte unchanged), and `update` preserves a prior `--with-rtk` choice
+    via an `rtk` block in `.ai-dlc/manifest.json`. `RTK.md` is a human-readable
+    reference doc — it is **not** auto-injected into `CLAUDE.md` or agent context.
+  - **Cloud install pinned to an immutable commit SHA.** The landed
+    `install-rtk.sh` (run from a Claude Code web setup script) does
+    `cargo install --git https://github.com/rtk-ai/rtk --rev 5a7880d404db8364d602f2ecdc41dd790f64013f --locked --force`
+    (that commit is rtk `v0.43.0`; pinning by immutable SHA is deliberate
+    supply-chain hardening) and verifies identity via `rtk hook claude --help` —
+    rejecting the unrelated crates.io `rtk` ("Rust Type Kit"). Release-asset
+    installers (`curl | bash` / `.deb` / `.rpm`) are avoided because they `403` in
+    the cloud proxy. The same `cargo install --git … --rev …` works locally too,
+    so non-cloud use is supported (just not automated by a setup script).
+  - **Safe by design.** The wrapper **fails open** (an absent/broken rtk never
+    blocks a command) and passes transition commands (merge/push/tag/publish/
+    deploy) through un-compressed; the arbiter gate is provably unaffected
+    (parallel `PreToolUse` evaluation on the original command, `deny` wins).
+  - **Disable/uninstall.** `AIDLC_ENABLE_RTK=0` disables it per session;
+    `npx ai-dlc init --without-rtk` removes the hook and files cleanly (arbiter
+    gate untouched) and records a **sticky opt-out** — a later `update` will not
+    bring rtk back, and no env var silently re-enables it; only an explicit
+    `--with-rtk`/`AIDLC_INSTALL_RTK` re-installs. New consumer guide at
+    `product/docs/rtk.md`.
 
 ### Changed
 

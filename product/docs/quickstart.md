@@ -21,6 +21,10 @@ npx ai-dlc init
 Preview first if you like — `npx ai-dlc init --dry-run` prints the plan and writes
 nothing.
 
+Optionally add `--with-rtk` to enable the opt-in, Claude-Code-only
+[rtk output compression](rtk.md) hook (off by default; it also needs a runtime
+env var to activate).
+
 ## 2. See what landed
 
 After `init`, your repo has:

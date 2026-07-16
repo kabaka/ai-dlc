@@ -23,3 +23,20 @@ shared across tools. The notes below apply only to Claude Code.
 - **Do not put project context in a plugin-root `CLAUDE.md`** when we ship the
   product — Claude Code does not load it. Plugins contribute via skills/agents/
   hooks (see the `plugin-packaging` skill).
+
+## rtk dogfood (opt-in, Claude Code web only)
+
+This repo can use `rtk` (output compression) in its own Claude Code **web**
+sessions. It is **opt-in and inert by default** — nothing happens unless a
+contributor turns it on. Claude Code **web only**; local sessions are unaffected.
+
+- **Enable it**: set `AIDLC_ENABLE_RTK=1` in your Claude Code web environment
+  config, and point that environment's **setup script** at
+  `scripts/setup/rtk-dogfood-setup.sh` (which installs `rtk` only when the flag
+  is set, then exits cleanly otherwise).
+- **How it stays inert**: the committed `PreToolUse` hook in `.claude/settings.json`
+  runs the canonical wrapper `product/templates/hooks/rtk-wrap.sh`, which self-gates
+  on `AIDLC_ENABLE_RTK` and fails open — so for any contributor who has not set the
+  flag, the hook does nothing.
+- Rationale and the full decision are in
+  [ADR 0013](docs/decisions/0013-opt-in-rtk-output-compression.md).

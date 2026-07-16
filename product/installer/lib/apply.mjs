@@ -14,12 +14,17 @@
 //                   instructions; never edit in place.
 //   marker-update : co-owned, dest contains our managed markers -> update only the
 //                   marked region in place (opt-in path).
+//   remove        : BOUNDED deletion used ONLY for rtk-managed files during
+//                   `--without-rtk` — delete the landed file (if present) and drop
+//                   its manifest stamp. Never produced by decideAction; only by
+//                   planRemovals, which the bin calls exclusively for rtk dests.
 
 import {
   chmodSync,
   existsSync,
   mkdirSync,
   readFileSync,
+  rmSync,
   writeFileSync,
 } from "node:fs";
 import { dirname, join, resolve, sep } from "node:path";
@@ -129,6 +134,26 @@ export function planActions(entries, repoRoot, manifest) {
   return entries.map((e) => decideAction(e, repoRoot, manifest));
 }
 
+/**
+ * Build BOUNDED removal actions for a set of consumer-repo-relative dest paths.
+ * Used ONLY for rtk-managed files during `--without-rtk`. Each dest is
+ * containment-checked (assertInsideRepo) exactly like a write. A dest that is
+ * neither present on disk nor stamped yields a no-op removal (idempotent). This is
+ * the only path that deletes files; it is never wired to general payload flow.
+ */
+export function planRemovals(dests, repoRoot, manifest) {
+  return dests.map((dest) => {
+    const destAbs = assertInsideRepo(repoRoot, dest);
+    const onDisk = existsSync(destAbs);
+    const stamped = Boolean(manifest.files[dest]);
+    return {
+      entry: { dest },
+      destAbs,
+      kind: onDisk || stamped ? "remove" : "remove-noop",
+    };
+  });
+}
+
 function ensureDir(absFile) {
   mkdirSync(dirname(absFile), { recursive: true });
 }
@@ -151,6 +176,7 @@ function spliceMarkers(onDisk, payload) {
 export function executeAction(action, repoRoot, manifest, { dryRun }) {
   const { entry, destAbs, payload, payloadHash, kind } = action;
   const wrote = [];
+  const removed = [];
   let note = "";
 
   const stamp = () => {
@@ -215,9 +241,26 @@ export function executeAction(action, repoRoot, manifest, { dryRun }) {
       break;
     }
 
+    case "remove": {
+      // BOUNDED deletion (rtk `--without-rtk` only). Delete the file if present
+      // and drop its manifest stamp so a later run does not treat it as managed.
+      if (existsSync(destAbs)) {
+        if (!dryRun) rmSync(destAbs, { force: true });
+        removed.push(destAbs);
+      }
+      delete manifest.files[entry.dest];
+      note = "rtk file removed";
+      break;
+    }
+
+    case "remove-noop":
+      // Nothing on disk and nothing stamped -> nothing to remove.
+      delete manifest.files[entry.dest];
+      break;
+
     default:
       throw new Error(`Unknown action kind: ${kind}`);
   }
 
-  return { dest: entry.dest, kind, wrote, note };
+  return { dest: entry.dest, kind, wrote, removed, note };
 }

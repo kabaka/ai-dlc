@@ -5,10 +5,12 @@ description: Design guidance for the AI-DLC installer — the PRIMARY delivery m
 
 # Installer Design (AI-DLC)
 
-This is **design guidance** for how the deliverable kit reaches consumers. No
-working installer is built yet — implementation is deferred to the product
-phase. It sits above `plugin-packaging` and `marketplace-publishing`: those
-cover the Claude-native plugin surface; this covers everything that surface
+This is **design guidance** for how the deliverable kit reaches consumers. The
+installer described here **is fully implemented** in `product/installer/` (the
+`npx ai-dlc init`/`update` CLI, idempotent merge/version-stamp semantics, and the
+opt-in rtk channel below); this skill is the design rationale behind it, kept for
+future changes. It sits above `plugin-packaging` and `marketplace-publishing`:
+those cover the Claude-native plugin surface; this covers everything that surface
 provably cannot deliver. Verified against
 https://code.claude.com/docs/en/plugins-reference and the AWS reference
 distribution https://github.com/awslabs/aidlc-workflows (mid-2026).
@@ -81,6 +83,18 @@ The update path is the hard part. Make it deterministic and non-destructive:
 Security note: an installer runs on the consumer's machine. It is in scope for
 the `security` agent and `security-review` skill — no `curl | bash` of unpinned
 remote code, validate inputs, least privilege, no surprise network calls.
+
+## Optional feature channel: rtk (opt-in, Claude-Code-only)
+
+The installer also gates an **optional** integration behind a flag: `--with-rtk`
+(equivalently `AIDLC_ENABLE_RTK=1` in the install-time environment) lands the
+opt-in rtk output-compression hook and files; `--without-rtk` removes them. The
+default path lands **nothing** rtk-related and stays byte-for-byte unchanged, and
+`update` preserves a prior `--with-rtk` choice via an `rtk` block in the manifest.
+Note the design split: the installer only makes rtk *available*; the authoritative
+**runtime** activation gate is the `AIDLC_ENABLE_RTK` env var read inside the hook
+(a committed hook fires for everyone, so opt-in must hold where the hook runs, not
+just at install time). See ADR 0013 for the full rationale.
 
 ## Channel tradeoffs
 
