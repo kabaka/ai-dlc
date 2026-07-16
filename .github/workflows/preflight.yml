@@ -36,6 +36,8 @@ jobs:
         # actionlint also shellchecks each workflow `run:` block. Mirrors the
         # prebuilt-tool install pattern used above (apt shellcheck / npm markdownlint).
         run: |
+          # The download script requires the target DIR to already exist.
+          mkdir -p "$RUNNER_TEMP/actionlint-bin"
           bash <(curl -sSL https://raw.githubusercontent.com/rhysd/actionlint/v1.7.12/scripts/download-actionlint.bash) 1.7.12 "$RUNNER_TEMP/actionlint-bin"
           echo "$RUNNER_TEMP/actionlint-bin" >> "$GITHUB_PATH"
 
