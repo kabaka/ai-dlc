@@ -21,10 +21,13 @@ The installer is the primary way in. It needs only Node 18+ and writes only into
 your repo.
 
 ```bash
-npx ai-dlc init      # scaffold the kit into the current repo
-npx ai-dlc update    # update an existing install to the current kit version
-npx ai-dlc init --dry-run   # print the plan, write nothing
+npx @kabaka/ai-dlc init      # scaffold the kit into the current repo
+npx @kabaka/ai-dlc update    # update an existing install to the current kit version
+npx @kabaka/ai-dlc init --dry-run   # print the plan, write nothing
 ```
+
+`@kabaka/ai-dlc` is a public, SemVer-versioned npm package. (A global install
+exposes the command as `ai-dlc`; the `npx` form uses the scoped package name.)
 
 `init` lands these in your repo:
 
@@ -46,13 +49,42 @@ Full behavior is in the [installer README](installer/README.md).
 
 ### Install channels
 
-- **Installer (primary).** `npx ai-dlc init` / `update`. It is the only channel
-  that can place the cross-platform top-level files (`AGENTS.md`, `CLAUDE.md`,
-  `.github/`, `.cursor/`, `.kiro/`) and wire the arbiter-gate hook. See
+- **Installer (primary).** `npx @kabaka/ai-dlc init` / `update`. It is the only
+  channel that can place the cross-platform top-level files (`AGENTS.md`,
+  `CLAUDE.md`, `.github/`, `.cursor/`, `.kiro/`) and wire the arbiter-gate hook.
+  See
   [ADR 0002](../docs/decisions/0002-installer-primary-plugin-secondary-distribution.md).
-- **Claude Code plugin / marketplace (secondary).** A `/plugin`-discoverable
-  surface for the Claude-native slice (agents and skills). It cannot manage the
-  top-level files, so it complements the installer rather than replacing it.
+- **Claude Code plugin / marketplace (secondary).** A Claude-native discovery
+  surface for the agents and skills. It cannot place the top-level files, so it
+  complements the installer rather than replacing it.
+  - **Local Claude Code CLI** (interactive slash commands):
+
+    ```text
+    /plugin marketplace add kabaka/ai-dlc
+    /plugin install ai-dlc@ai-dlc
+    ```
+
+  - **Claude Code on the web / cloud.** The interactive `/plugin` commands are
+    **not available** there. Declare the plugin ahead of time in your target
+    repo's project-scope `.claude/settings.json`:
+
+    ```json
+    {
+      "extraKnownMarketplaces": {
+        "ai-dlc": { "source": { "source": "github", "repo": "kabaka/ai-dlc" } }
+      },
+      "enabledPlugins": { "ai-dlc@ai-dlc": true }
+    }
+    ```
+
+    (`enabledPlugins` is an object map of `"name@marketplace": true`, not an
+    array.) Alternatively, run the non-interactive
+    `claude plugin marketplace add kabaka/ai-dlc` and
+    `claude plugin install ai-dlc@ai-dlc` from the environment's setup script or a
+    `SessionStart` hook. Either way, on the web the plugin channel still does
+    **not** deliver the top-level files (`AGENTS.md`, `CLAUDE.md`, and the
+    cross-platform steering), so `npx @kabaka/ai-dlc init` (or the setup script) is
+    still needed for those.
 
 ## How it works
 

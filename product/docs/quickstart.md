@@ -15,15 +15,23 @@ you reach the merge step.
 From the root of your repo:
 
 ```bash
-npx ai-dlc init
+npx @kabaka/ai-dlc init
 ```
 
-Preview first if you like — `npx ai-dlc init --dry-run` prints the plan and writes
-nothing.
+Preview first if you like — `npx @kabaka/ai-dlc init --dry-run` prints the plan and
+writes nothing.
 
 Optionally add `--with-rtk` to enable the opt-in, Claude-Code-only
 [rtk output compression](rtk.md) hook (off by default; it also needs a runtime
 env var to activate).
+
+The installer is the primary channel because it is the only one that can place the
+top-level files (`AGENTS.md`, `CLAUDE.md`, and the cross-platform steering). The
+Claude Code plugin is a secondary channel for the agents and skills. On Claude Code
+**web/cloud** the interactive `/plugin` commands are unavailable — declare the
+plugin in your repo's `.claude/settings.json` instead; see
+[install channels](../README.md#install-channels). Even then, the installer
+(`npx @kabaka/ai-dlc init`) is still needed for the top-level files.
 
 ## 2. See what landed
 

@@ -13,6 +13,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   the skill library (`.claude/skills/`) used to build the AI-DLC kit.
 - Repository scaffolding: license, contribution guide, markdown/frontmatter
   linting, and a CI pre-flight workflow.
+- CI workflow to publish the installer to npm as the public scoped package
+  `@kabaka/ai-dlc` on a release, plus `actionlint` over the GitHub Actions
+  workflows in pre-flight/CI.
 - Seed Architecture Decision Records for the canonical-doc strategy and the
   distribution model.
 - **Deliverable AI-DLC product (layer 2)** under `product/`, installable into a
@@ -30,7 +33,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
     enforced by a real installed hook, complexity-triage tiers, phase-handoff
     output contracts, the hardened citation-verification gate, and the
     don't-edit-the-oracle independent-verifier split.
-  - **Installer + plugin/marketplace packaging**: `npx ai-dlc init` / `update`
+  - **Installer + plugin/marketplace packaging**: `npx @kabaka/ai-dlc init` / `update`
     (primary) lands the cross-platform top-level files, agents, skills, artifact
     templates, and the arbiter-gate hook with idempotent, version-stamped,
     drift-aware updates and consumer-file preservation; a Claude Code plugin and

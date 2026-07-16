@@ -8,6 +8,7 @@
 #   4. node scripts/validate-manifests.mjs (plugin/marketplace; skips if absent)
 #   5. node scripts/validate-evals.mjs (eval-record lint; skips if absent)
 #   6. shellcheck on scripts/*.sh + product/installer/**/*.sh + product/templates/**/*.sh (skipped if absent)
+#   7. actionlint on .github/workflows/*.yml (skipped if absent)
 #
 # Aggregates results and exits non-zero if any check FAILED. A check that is
 # SKIPPED (tool not installed) does not fail the run, but is reported clearly.
@@ -111,6 +112,31 @@ if command -v shellcheck >/dev/null 2>&1; then
 else
   echo "shellcheck: SKIPPED (shellcheck not installed)"
   mark_skip shellcheck
+fi
+
+# --- 7. actionlint ---------------------------------------------------------
+section "actionlint"
+if command -v actionlint >/dev/null 2>&1; then
+  # Lint GitHub Actions workflows. When shellcheck is also on PATH, actionlint
+  # additionally shellchecks each `run:` block. Absent workflows -> nothing to do.
+  WF_FILES=$(find .github/workflows -type f \( -name '*.yml' -o -name '*.yaml' \) 2>/dev/null | sort)
+  if [ -z "$WF_FILES" ]; then
+    echo "actionlint: no workflow files found"
+    mark_pass actionlint
+  else
+    # Word-splitting of the file list is intended here.
+    # shellcheck disable=SC2086
+    if actionlint $WF_FILES; then
+      echo "actionlint: PASS"
+      mark_pass actionlint
+    else
+      echo "actionlint: FAIL"
+      mark_fail actionlint
+    fi
+  fi
+else
+  echo "actionlint: SKIPPED (actionlint not installed)"
+  mark_skip actionlint
 fi
 
 # --- Summary ---------------------------------------------------------------

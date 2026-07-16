@@ -23,6 +23,7 @@ the [MADR 4.0](https://adr.github.io/madr/) format (see
 | [0011](./0011-layer2-spec-completeness-convention.md) | The layer-2 spec-completeness convention (`spec-conformance`) over native unit-of-work primitives | Accepted |
 | [0012](./0012-layer2-visual-qa-tooling-and-stack-auto-binding.md) | Layer-2 visual-QA tooling and Architect-produced stack auto-binding | Accepted |
 | [0013](./0013-opt-in-rtk-output-compression.md) | Opt-in `rtk` (Rust Token Killer) output compression for Claude Code | Accepted |
+| [0014](./0014-publish-installer-to-npm-with-oidc-trusted-publishing.md) | Publish the installer to npm as a scoped public package with OIDC trusted publishing | Accepted |
 
 ## Statuses
 
@@ -41,7 +42,7 @@ shape:
 
 1. Copy [`adr-template.md`](./adr-template.md) to a new file.
 2. Name it `NNNN-short-kebab-title.md`, where `NNNN` is the next zero-padded
-   sequential number (the next free number is **0014**). Numbers are never reused,
+   sequential number (the next free number is **0015**). Numbers are never reused,
    even if an ADR is later rejected or superseded.
 3. Fill in every section of the template. Keep the title line consistent:
    `# NNNN — Title`.

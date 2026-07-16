@@ -5,16 +5,20 @@ on:
   push:
     branches: [main]
 
+# This workflow only reads the repo to run pre-flight checks; grant no write scope.
+permissions:
+  contents: read
+
 jobs:
   preflight:
     name: Pre-flight checks
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Set up Node 20
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: "20"
 
@@ -26,9 +30,19 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y shellcheck
 
+      - name: Install actionlint
+        # Prebuilt binary (no Go build), pinned to a specific version and fetched
+        # from that version's tagged download script. Installed AFTER shellcheck so
+        # actionlint also shellchecks each workflow `run:` block. Mirrors the
+        # prebuilt-tool install pattern used above (apt shellcheck / npm markdownlint).
+        run: |
+          bash <(curl -sSL https://raw.githubusercontent.com/rhysd/actionlint/v1.7.12/scripts/download-actionlint.bash) 1.7.12 "$RUNNER_TEMP/actionlint-bin"
+          echo "$RUNNER_TEMP/actionlint-bin" >> "$GITHUB_PATH"
+
       - name: Run pre-flight
         # Drives markdownlint, frontmatter validation (layer-1 + product
         # surfaces), link integrity, plugin/marketplace manifest validation,
-        # eval-record lint, and shellcheck (scripts/ + product/installer/).
+        # eval-record lint, shellcheck (scripts/ + product/installer/), and
+        # actionlint (.github/workflows/*.yml).
         # Manifest and eval checks skip cleanly until those artifacts exist.
         run: bash scripts/preflight.sh

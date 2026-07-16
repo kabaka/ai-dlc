@@ -7,7 +7,7 @@ Code `PreToolUse` hook so those savings apply automatically to eligible Bash
 commands. It is [`github.com/rtk-ai/rtk`](https://github.com/rtk-ai/rtk),
 Apache-2.0.
 
-This feature is **opt-in and off by default.** A plain `npx ai-dlc init` lands
+This feature is **opt-in and off by default.** A plain `npx @kabaka/ai-dlc init` lands
 nothing rtk-related; your install is byte-for-byte identical whether or not rtk
 exists. You turn it on deliberately, in two steps (below).
 
@@ -51,7 +51,7 @@ That is the expected resting state until you export `AIDLC_ENABLE_RTK=1`.
 Opt in at install time with the flag:
 
 ```bash
-npx ai-dlc init --with-rtk
+npx @kabaka/ai-dlc init --with-rtk
 ```
 
 Setting `AIDLC_INSTALL_RTK=1` in your environment at install time is the
@@ -59,7 +59,7 @@ non-interactive equivalent of passing `--with-rtk` (handy in CI or a setup
 script). This is a **separate** variable from the runtime `AIDLC_ENABLE_RTK`
 switch below, which the installer does not read. `update` **preserves** a prior
 `--with-rtk` choice (it is persisted in `.ai-dlc/manifest.json` as an `rtk`
-block), so a later plain `npx ai-dlc update` keeps rtk wired without re-passing
+block), so a later plain `npx @kabaka/ai-dlc update` keeps rtk wired without re-passing
 the flag.
 
 With rtk enabled, `init`/`update` land three files in your repo and add a
@@ -157,11 +157,11 @@ Two independent controls, matching the two-step model:
 - **Uninstall the integration (sticky opt-out).** Run:
 
   ```bash
-  npx ai-dlc init --without-rtk
+  npx @kabaka/ai-dlc init --without-rtk
   ```
 
   This removes the rtk hook entry and the rtk files cleanly **and records a
-  sticky opt-out**: a later `npx ai-dlc update` will **not** bring rtk back, and
+  sticky opt-out**: a later `npx @kabaka/ai-dlc update` will **not** bring rtk back, and
   no environment variable silently re-enables it — only an explicit `--with-rtk`
   (or `AIDLC_INSTALL_RTK=1`) re-installs it. It leaves the arbiter-gate hook and
   any of your own hooks intact.

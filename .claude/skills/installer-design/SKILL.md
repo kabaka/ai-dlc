@@ -1,15 +1,16 @@
 ---
 name: installer-design
-description: Design guidance for the AI-DLC installer — the PRIMARY delivery mechanism, because the kit must ship top-level cross-platform files (AGENTS.md, CLAUDE.md, .github/copilot-instructions.md, .cursor/rules/, .kiro/steering/) that a Claude Code plugin provably cannot manage. Use when designing `npx ai-dlc init`/`update`, choosing a distribution channel, planning idempotent merge/version-stamp update semantics, or weighing npm vs git-submodule vs curl|bash vs copy-.claude. Keywords: installer, npx ai-dlc, scaffold, idempotent update, version stamp, drift detection, cross-platform steering files.
+description: Design guidance for the AI-DLC installer — the PRIMARY delivery mechanism, because the kit must ship top-level cross-platform files (AGENTS.md, CLAUDE.md, .github/copilot-instructions.md, .cursor/rules/, .kiro/steering/) that a Claude Code plugin provably cannot manage. Use when designing `npx ai-dlc init`/`update`, choosing a distribution channel, planning idempotent merge/version-stamp update semantics, or weighing npm vs git-submodule vs curl|bash vs copy-.claude. Keywords: installer, npx ai-dlc, `@kabaka/ai-dlc`, scaffold, idempotent update, version stamp, drift detection, cross-platform steering files.
 ---
 
 # Installer Design (AI-DLC)
 
 This is **design guidance** for how the deliverable kit reaches consumers. The
-installer described here **is fully implemented** in `product/installer/` (the
-`npx ai-dlc init`/`update` CLI, idempotent merge/version-stamp semantics, and the
-opt-in rtk channel below); this skill is the design rationale behind it, kept for
-future changes. It sits above `plugin-packaging` and `marketplace-publishing`:
+installer described here **is fully implemented** in `product/installer/` and
+**published to npm as the scoped public package `@kabaka/ai-dlc`** (the
+`npx @kabaka/ai-dlc init`/`update` CLI, idempotent merge/version-stamp semantics,
+and the opt-in rtk channel below); this skill is the design rationale behind it,
+kept for future changes. It sits above `plugin-packaging` and `marketplace-publishing`:
 those cover the Claude-native plugin surface; this covers everything that surface
 provably cannot deliver. Verified against
 https://code.claude.com/docs/en/plugins-reference and the AWS reference
@@ -45,14 +46,16 @@ improves on the manual copy with a real installer.
 
 ## Recommended channel: npm + `npx`
 
-npm gives free semantic versioning and a one-line, no-clone install. Two
-commands:
+npm gives free semantic versioning and a one-line, no-clone install — and it is
+the channel AI-DLC ships on: the CLI is published as the scoped public package
+`@kabaka/ai-dlc` (see `marketplace-publishing` for the OIDC trusted-publishing
+pipeline). Two commands:
 
-- `npx ai-dlc init` — **scaffold.** Detect which platforms the repo targets,
-  write the top-level files, and record a version stamp. Idempotent: re-running
-  on an already-initialized repo behaves like `update`.
-- `npx ai-dlc update` — **re-apply + merge.** Bring an existing install up to the
-  current kit version deterministically, without clobbering user edits.
+- `npx @kabaka/ai-dlc init` — **scaffold.** Detect which platforms the repo
+  targets, write the top-level files, and record a version stamp. Idempotent:
+  re-running on an already-initialized repo behaves like `update`.
+- `npx @kabaka/ai-dlc update` — **re-apply + merge.** Bring an existing install up
+  to the current kit version deterministically, without clobbering user edits.
 
 ### Idempotent, merge-aware update semantics
 

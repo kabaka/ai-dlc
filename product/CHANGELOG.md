@@ -8,6 +8,10 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 
+- **Public npm package.** The installer is published to npm as the public scoped
+  package `@kabaka/ai-dlc`, so `npx @kabaka/ai-dlc init` and
+  `npx @kabaka/ai-dlc update` work from a clean machine. The package bundles its
+  `LICENSE`. A global install still exposes the command as `ai-dlc`.
 - **Design-system lens for UI-bearing work** (ADR 0010): the new `design-system`
   skill — the **visual** layer for any unit of work that renders a visible
   interface. It is stack-neutral and produces a testable visual contract:
@@ -107,13 +111,13 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   output (build logs, test runners, linters) through
   [rtk](https://github.com/rtk-ai/rtk) (Apache-2.0, pinned `v0.43.0`) via a
   `PreToolUse` hook, cutting those output tokens by roughly 60–90%.
-  - **Two distinct signals.** *Install:* `npx ai-dlc init --with-rtk` (or
+  - **Two distinct signals.** *Install:* `npx @kabaka/ai-dlc init --with-rtk` (or
     `AIDLC_INSTALL_RTK=1`, the non-interactive install equivalent) lands the rtk
     files (`.ai-dlc/hooks/rtk-wrap.sh`, `.ai-dlc/rtk/install-rtk.sh`,
     `.ai-dlc/rtk/RTK.md`) and wires a **separate**, inert `PreToolUse` hook.
     *Runtime activation:* the separate, **runtime-only** `AIDLC_ENABLE_RTK=1`
     turns the wired hook on (unset/`0` keeps it inert); it is **not** read at
-    install time. A plain `npx ai-dlc init` lands nothing rtk-related
+    install time. A plain `npx @kabaka/ai-dlc init` lands nothing rtk-related
     (byte-for-byte unchanged), and `update` preserves a prior `--with-rtk` choice
     via an `rtk` block in `.ai-dlc/manifest.json`. `RTK.md` is a human-readable
     reference doc — it is **not** auto-injected into `CLAUDE.md` or agent context.
@@ -131,7 +135,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
     deploy) through un-compressed; the arbiter gate is provably unaffected
     (parallel `PreToolUse` evaluation on the original command, `deny` wins).
   - **Disable/uninstall.** `AIDLC_ENABLE_RTK=0` disables it per session;
-    `npx ai-dlc init --without-rtk` removes the hook and files cleanly (arbiter
+    `npx @kabaka/ai-dlc init --without-rtk` removes the hook and files cleanly (arbiter
     gate untouched) and records a **sticky opt-out** — a later `update` will not
     bring rtk back, and no env var silently re-enables it; only an explicit
     `--with-rtk`/`AIDLC_INSTALL_RTK` re-installs. New consumer guide at
@@ -139,6 +143,9 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Changed
 
+- **Plugin manifest no longer carries a `version`.** `plugin.json` intentionally
+  omits `version`: the Claude Code plugin channel keys updates on the plugin
+  source's git commit SHA, while SemVer lives on the `@kabaka/ai-dlc` npm package.
 - **`code-review` now applies the `spec-conformance` convention** and folds the
   result into its **existing** enumerated verdict (`APPROVE` / `REQUEST_CHANGES` /
   `ESCALATE_SECURITY` / `BLOCK`) at the **existing Gate 3** (merge) — unmet or
@@ -162,6 +169,17 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Fixed
 
+- **Corrected the install/update documentation** across the product README,
+  quickstart, installer README, plugin catalog README, the usage guide
+  (`docs/usage.md`), and the rtk guide (`docs/rtk.md`), plus the two files the
+  installer ships into a consumer repo — the installed `CLAUDE.md` and the
+  design-QA scripts README (`.ai-dlc/scripts/README.md`). Every install/update
+  command now uses the published scoped package (`npx @kabaka/ai-dlc …`), and the
+  plugin channel is documented for both the local CLI (`/plugin marketplace add …`
+  / `/plugin install ai-dlc@ai-dlc`) and Claude Code web/cloud (declaring the
+  plugin in `.claude/settings.json`, where the interactive `/plugin` commands are
+  unavailable). The prior docs referenced an unpublished unscoped `ai-dlc` package
+  and a `/plugin` flow that does not work on Claude Code web.
 - **The installer now delivers the design-QA tools to consumer repos** at
   `.ai-dlc/scripts/` — the off-token linter (`off-token-lint.mjs`), the
   seven-tool visual-QA suite (`visual-qa/`), and the shared `lib/`. This closes

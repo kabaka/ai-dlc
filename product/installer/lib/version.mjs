@@ -1,9 +1,12 @@
 // Resolve the kit version the installer is applying.
 //
-// Source of truth: the plugin manifest's `version` (product/.claude-plugin/
-// plugin.json). When that omits `version` (the iterate-fast mode), fall back to
-// the installer package.json version, then to "0.0.0-unstamped". The kit version
-// is recorded in the consumer's stamp manifest so updates are auditable.
+// Source of truth: the installer's package.json `version`. It is the single
+// SemVer authority — npm owns it and the team bumps it there. The plugin manifest
+// (product/.claude-plugin/plugin.json) NO LONGER carries a `version` field, so the
+// legacy read below never returns and resolution falls through to package.json;
+// it is kept only as a defensive fallback for an older plugin.json that still
+// stamps a version. If neither yields one, use "0.0.0-unstamped". The resolved kit
+// version is recorded in the consumer's stamp manifest so updates are auditable.
 
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";

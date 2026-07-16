@@ -53,7 +53,7 @@ export function serializeManifest(manifest) {
   };
   // OPT-IN rtk state. Persisted ONLY when the consumer has opted in (or explicitly
   // opted out after opting in) so that `update` preserves the prior choice — a
-  // plain `npx ai-dlc update` after `init --with-rtk` keeps rtk. A DEFAULT install
+  // plain `npx @kabaka/ai-dlc update` after `init --with-rtk` keeps rtk. A DEFAULT install
   // never sets `manifest.rtk`, so the manifest stays byte-for-byte unchanged (no
   // rtk block) unless opted in. Placed before `files` for readability.
   if (manifest.rtk && typeof manifest.rtk === "object") {

@@ -1,5 +1,5 @@
 {
-  "name": "ai-dlc",
+  "name": "@kabaka/ai-dlc",
   "version": "0.1.0",
   "description": "Installer for the AI-DLC kit: scaffolds and updates the cross-platform orchestrator, agents, skills, methodology templates, and the arbiter-gate hook into your repository.",
   "type": "module",
@@ -7,6 +7,7 @@
     "ai-dlc": "bin/ai-dlc.mjs"
   },
   "scripts": {
+    "prepack": "node scripts/build-payload.mjs",
     "test": "node test/run-all.mjs"
   },
   "engines": {
@@ -17,7 +18,8 @@
     "lib/",
     "payload/",
     "payload-extra/",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "keywords": [
     "ai-dlc",
@@ -27,6 +29,23 @@
     "agents",
     "skills"
   ],
+  "author": {
+    "name": "Kyle Johnson and AI-DLC contributors",
+    "url": "https://github.com/kabaka/ai-dlc"
+  },
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kabaka/ai-dlc.git",
+    "directory": "product/installer"
+  },
+  "homepage": "https://github.com/kabaka/ai-dlc#readme",
+  "bugs": {
+    "url": "https://github.com/kabaka/ai-dlc/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "dependencies": {}
 }

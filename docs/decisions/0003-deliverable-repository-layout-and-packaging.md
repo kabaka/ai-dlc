@@ -117,7 +117,11 @@ Windows/CI-fragile mechanism. Concretely:
 - Related: [ADR-0002](0002-installer-primary-plugin-secondary-distribution.md)
   (installer-primary, plugin-secondary distribution — why the installer owns
   post-install consumption); [ADR-0006](0006-installer-idempotent-merge-and-consumer-file-preservation.md)
-  (how the installer applies the payload idempotently).
+  (how the installer applies the payload idempotently);
+  [ADR-0014](0014-publish-installer-to-npm-with-oidc-trusted-publishing.md) (the
+  versioning model for this layout — `product/installer/package.json` `version`
+  is the single SemVer source of truth and `product/.claude-plugin/plugin.json`
+  omits `version`).
 - **Revisit when:** the Claude Code plugin manifest schema changes which component
   path fields are supported, or the marketplace `source`/`git-subdir` semantics
   change.

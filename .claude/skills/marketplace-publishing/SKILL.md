@@ -1,16 +1,17 @@
 ---
 name: marketplace-publishing
-description: Reference for publishing a Claude Code plugin marketplace — the `.claude-plugin/marketplace.json` schema, plugin source types, the install/enable/update CLI and slash commands, and the version-propagation gotcha that causes "already at latest". Use when authoring or validating marketplace.json, choosing a plugin source (github/url/git-subdir/npm/relative), wiring team enforcement via extraKnownMarketplaces/enabledPlugins, seeding CI, or debugging why an update did not reach users. Keywords: marketplace.json, /plugin marketplace add, /plugin install, /plugin update, version bump, extraKnownMarketplaces, CLAUDE_CODE_PLUGIN_SEED_DIR.
+description: Reference for publishing a Claude Code plugin marketplace — the `.claude-plugin/marketplace.json` schema, plugin source types, the install/enable/update CLI and slash commands, and the version-propagation gotcha that causes "already at latest". Also covers publishing the installer package to npm via OIDC trusted publishing (provenance, the release trigger, and the first-publish bootstrap). Use when authoring or validating marketplace.json, choosing a plugin source (github/url/git-subdir/npm/relative), wiring team enforcement via extraKnownMarketplaces/enabledPlugins, seeding CI, publishing `@kabaka/ai-dlc` to npm, or debugging why an update did not reach users. Keywords: marketplace.json, /plugin marketplace add, /plugin install, /plugin update, version bump, extraKnownMarketplaces, CLAUDE_CODE_PLUGIN_SEED_DIR, npm publish, OIDC trusted publishing, provenance.
 ---
 
 # Marketplace Publishing (Claude Code)
 
 This is the catalog-and-distribution reference for the kit's Claude-native
-surface. It is expertise/reference, not a live marketplace — actual publishing
-happens in the product phase. It builds on `plugin-packaging` (the plugin
-manifest itself) and complements `installer-design` (the primary delivery for
-the cross-platform top-level files a marketplace/plugin cannot ship). Every
-field, source type, and command is verified against the official reference:
+surface. The repo ships a real `.claude-plugin/marketplace.json` catalog, and the
+installer CLI is published to npm as `@kabaka/ai-dlc` (see *Publishing the
+installer to npm* below). It builds on `plugin-packaging` (the plugin manifest
+itself) and complements `installer-design` (the primary delivery for the
+cross-platform top-level files a marketplace/plugin cannot ship). Every field,
+source type, and command is verified against the official reference:
 https://code.claude.com/docs/en/plugin-marketplaces (mid-2026).
 
 ## What a marketplace is
@@ -131,8 +132,42 @@ Consequences — internalize these:
 - **Never set `version` in both places.** `plugin.json` wins silently, so a stale
   manifest version can mask a newer marketplace-entry version.
 
+**In AI-DLC concretely:** `product/.claude-plugin/plugin.json` omits `version` and
+the marketplace entry sets none either, so the plugin's **git commit SHA** is its
+update key. SemVer lives in `product/installer/package.json` (the installer / npm
+package, below), decoupled from the plugin's SHA-based update key.
+
 Release channels: point two marketplaces at different `ref`s/SHAs of the same
 repo; each channel must resolve to a *different* version or updates are skipped.
+
+## Publishing the installer to npm (OIDC trusted publishing)
+
+Distinct from the Claude Code plugin **marketplace** above, the installer CLI is
+distributed as the scoped public npm package **`@kabaka/ai-dlc`**
+(`npx @kabaka/ai-dlc init`/`update` — see `installer-design`). It is published
+from CI with **npm OIDC trusted publishing**, so no long-lived npm token lives in
+the repo or in GitHub secrets:
+
+- **Trigger.** A GitHub Actions workflow publishes on the GitHub
+  **`release: published`** event — cutting a release is the publish signal.
+- **Tokenless + provenance.** The job authenticates to npm over OIDC and npm
+  records a **provenance** attestation automatically (the package page links the
+  building workflow and commit). No `NODE_AUTH_TOKEN` / `NPM_TOKEN` is stored.
+- **Toolchain floor.** OIDC trusted publishing requires **Node 22** and
+  **npm ≥ 11.5.1** in the workflow — older npm has no OIDC support and the
+  tokenless publish will not authenticate. Pin the versions in CI.
+- **Bootstrap gotcha (bites once).** OIDC trusted publishing **cannot create a
+  package that does not yet exist** on the registry. The **first** publish of
+  `@kabaka/ai-dlc` is a one-time **manual** publish with an automation token to
+  create the package and register the trusted publisher; every release after that
+  is tokenless via OIDC. Budget for this on the initial release only.
+- **Versioning.** The published version is `product/installer/package.json`
+  `version` — the single SemVer source of truth for the kit, bumped by the team's
+  automation, never hand-edited by the product owner.
+
+npm is also a valid **plugin `source`** (table above), but AI-DLC uses npm for the
+**installer**, not the plugin — the plugin ships through the git-hosted
+marketplace catalog.
 
 ## Team enforcement & CI seeding
 

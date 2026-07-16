@@ -6,8 +6,8 @@ description: Reference for authoring a Claude Code plugin — the `.claude-plugi
 # Plugin Packaging (Claude Code)
 
 This is the manifest-and-layout reference for shipping the kit's Claude-native
-surface as a Claude Code **plugin**. It is expertise/reference, not a working
-plugin — actual packaging is built in the product phase. Pair it with
+surface as a Claude Code **plugin**. The kit ships a real manifest at
+`product/.claude-plugin/plugin.json`; this skill is the reference behind it. Pair it with
 `marketplace-publishing` (how the plugin is distributed and versioned) and
 `installer-design` (the primary delivery for everything a plugin provably
 cannot ship). Every field, path rule, and command below is verified against the
@@ -50,7 +50,6 @@ else is optional.
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "ai-dlc",
   "displayName": "AI-DLC",
-  "version": "0.1.0",
   "description": "Claude-Code-first, cross-platform development-lifecycle kit",
   "author": { "name": "AI-DLC Team", "email": "team@example.com", "url": "https://example.com" },
   "homepage": "https://example.com/ai-dlc",
@@ -61,6 +60,11 @@ else is optional.
 }
 ```
 
+`version` is intentionally absent above (it is optional). AI-DLC's shipped
+`product/.claude-plugin/plugin.json` **omits `version`** so the git commit SHA is
+the plugin's update key; the SemVer source of truth is the installer's
+`product/installer/package.json`. See the version gotcha below.
+
 ### Field reference
 
 | Field            | Type    | Notes                                                                                                 |
@@ -68,7 +72,7 @@ else is optional.
 | `name`           | string  | **Required.** kebab-case, no spaces. Used for namespacing — `ai-dlc:planner`, `/ai-dlc:some-skill`.   |
 | `$schema`        | string  | Editor autocomplete/validation only; ignored at load.                                                 |
 | `displayName`    | string  | UI label; may contain spaces/casing. Falls back to `name`. Requires Claude Code v2.1.143+.            |
-| `version`        | string  | Semver. Pins the plugin — see version gotcha below and `marketplace-publishing`.                      |
+| `version`        | string  | Semver, optional. Cache key for updates — see version gotcha below. **AI-DLC omits it** (git SHA is the update key; `package.json` holds SemVer). |
 | `description`    | string  | Brief purpose.                                                                                         |
 | `author`         | object  | `{ name, email, url }`.                                                                                |
 | `homepage`       | string  | Docs URL.                                                                                              |
@@ -179,7 +183,10 @@ The resolved version is the cache key for updates. It resolves from, in order:
 set an explicit `version` you **must bump it every release** or `/plugin update`
 reports "already at the latest version". While iterating, **omit `version`** so
 every commit counts as new. Never set it in both places — `plugin.json` wins
-silently. Full mechanics live in `marketplace-publishing`.
+silently. **AI-DLC's shipped `product/.claude-plugin/plugin.json` omits `version`
+on purpose:** the git commit SHA is the plugin's update key, while the installer's
+`product/installer/package.json` `version` is the single SemVer source of truth
+for the whole kit. Full mechanics live in `marketplace-publishing`.
 
 ## Anti-patterns
 

@@ -39,7 +39,7 @@ shared across tools. The notes below apply only to Claude Code.
   this kit's standards (propose-for-approval), rather than replacing the built-in
   generator.
 - **The installer manages this file.** `AGENTS.md` and `CLAUDE.md` are co-owned:
-  `npx ai-dlc update` never edits a pre-existing copy in place — it writes a `.new`
+  `npx @kabaka/ai-dlc update` never edits a pre-existing copy in place — it writes a `.new`
   sidecar with merge instructions, or updates only the `<!-- ai-dlc:begin -->` /
   `<!-- ai-dlc:end -->` marker region once you opt in. Your hand-written project
   context is safe to add here.
