@@ -9,7 +9,7 @@ Code and to degrade gracefully onto GitHub Copilot, Kiro, Cursor, and any other
 > **Status:** The **internal kit-builder** — the orchestrator, agents, and skills
 > the AI team uses to produce the kit — is in place, and the **deliverable
 > product** now exists under [`product/`](product/README.md). Consumers install it
-> with `npx ai-dlc init`. See [Two layers](#two-layers).
+> with `npx @kabaka/ai-dlc init`. See [Two layers](#two-layers).
 
 ## What this is
 
@@ -30,7 +30,7 @@ This repository deliberately separates two things:
 | Layer | What it is | Who it serves | Lives in |
 | ----- | ---------- | ------------- | -------- |
 | **Internal kit-builder** | The orchestrator + agents + skills + tooling used to *build the kit itself* | This repo's contributors (human + AI) | `AGENTS.md`, `CLAUDE.md`, `.claude/` |
-| **Deliverable product** | The AI-DLC kit that *consumers install* into their own repos (`npx ai-dlc init`) | Downstream adopters | [`product/`](product/README.md) |
+| **Deliverable product** | The AI-DLC kit that *consumers install* into their own repos (`npx @kabaka/ai-dlc init`) | Downstream adopters | [`product/`](product/README.md) |
 
 When you contribute, always know which layer your change serves. To install and
 use the deliverable product, see [`product/README.md`](product/README.md).

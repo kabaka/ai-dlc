@@ -5,14 +5,25 @@ delivery mechanism (ADR-0002): a Claude Code plugin cannot place top-level files
 like `AGENTS.md`/`CLAUDE.md` into your repo, so the installer owns them.
 
 ```bash
-npx ai-dlc init      # scaffold the kit into the current repo
-npx ai-dlc update    # update an existing install to the current kit version
-npx ai-dlc init --dry-run     # print the plan, write nothing
-npx ai-dlc init --with-rtk    # also land the opt-in rtk output-compression hook
-npx ai-dlc init --without-rtk # remove the rtk hook + files (arbiter gate kept)
+npx @kabaka/ai-dlc init      # scaffold the kit into the current repo
+npx @kabaka/ai-dlc update    # update an existing install to the current kit version
+npx @kabaka/ai-dlc init --dry-run     # print the plan, write nothing
+npx @kabaka/ai-dlc init --with-rtk    # also land the opt-in rtk output-compression hook
+npx @kabaka/ai-dlc init --without-rtk # remove the rtk hook + files (arbiter gate kept)
 ```
 
-Zero runtime dependencies (Node >= 18, built-ins only).
+`@kabaka/ai-dlc` is a public, SemVer-versioned npm package; a global install
+exposes the command as `ai-dlc`. Zero runtime dependencies (Node >= 18, built-ins
+only).
+
+The installer is the **primary** channel. The Claude Code plugin / marketplace is
+a **secondary**, Claude-native channel for the agents and skills — installed
+locally with `/plugin marketplace add kabaka/ai-dlc` then
+`/plugin install ai-dlc@ai-dlc`, or declared in `.claude/settings.json` on Claude
+Code web. It cannot place the top-level files, so it complements this installer
+rather than replacing it. See the
+[plugin catalog README](../../.claude-plugin/README.md) and
+[install channels](../README.md#install-channels).
 
 ## What it lands
 

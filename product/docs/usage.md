@@ -300,7 +300,7 @@ rather than memorizing them here.
 ## Updating the kit
 
 ```bash
-npx ai-dlc update
+npx @kabaka/ai-dlc update
 ```
 
 Updates are idempotent and version-stamped. A kit-owned file you edited is not
@@ -319,7 +319,7 @@ default; a plain `init` lands nothing rtk-related. Enabling it is two steps —
 install the files, then flip a runtime switch:
 
 ```bash
-npx ai-dlc init --with-rtk    # 1. land the rtk files + wire the (inert) hook
+npx @kabaka/ai-dlc init --with-rtk    # 1. land the rtk files + wire the (inert) hook
 export AIDLC_ENABLE_RTK=1      # 2. activate it at runtime (hook is inert without this)
 ```
 
@@ -329,7 +329,7 @@ the separate runtime-only `AIDLC_ENABLE_RTK=1` **activates** it. Verify with
 `rtk --version` (expect `0.43.0`) and `echo "$AIDLC_ENABLE_RTK"` (expect `1`).
 Disable for a session with `AIDLC_ENABLE_RTK=0`; remove it entirely — and record
 a **sticky opt-out** that a later `update` will not undo — with
-`npx ai-dlc init --without-rtk`. rtk never bypasses the arbiter gate — transition
+`npx @kabaka/ai-dlc init --without-rtk`. rtk never bypasses the arbiter gate — transition
 commands are passed through un-compressed and the gate evaluates them
 independently. The full guide (the two-step model, the SHA-pinned cloud install,
 the crates.io name-collision warning) is in [rtk output compression](rtk.md).

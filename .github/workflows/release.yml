@@ -1,0 +1,130 @@
+# Publishes the scoped public npm package @kabaka/ai-dlc (installer sources at
+# product/installer/) to https://registry.npmjs.org on every published GitHub
+# Release, using npm OIDC **trusted publishing** with automatic build provenance.
+# No npm token or secret is used or needed — authentication is the short-lived
+# OIDC id-token minted for this job.
+#
+# ─── One-time maintainer setup (NOT automated by this workflow) ───────────────
+# 1. Bootstrap publish (once): trusted publishing cannot create a brand-new
+#    package, so the FIRST publish of @kabaka/ai-dlc must be done by hand (or with
+#    an npm automation token) to register the package name:
+#        cd product/installer && npm publish --access public
+#    Requires npm CLI >= 11.5.1 and Node >= 22.14.0 on the maintainer's machine.
+# 2. Register the trusted publisher on npmjs.com for @kabaka/ai-dlc:
+#        Package settings -> Trusted Publisher -> GitHub Actions
+#          Organization/user:  kabaka
+#          Repository:         ai-dlc
+#          Workflow filename:  release.yml   <-- must equal THIS file's name.
+#    npm matches the *initiating* workflow filename. That is why publishing runs
+#    DIRECTLY in this top-level workflow and is never delegated to a reusable
+#    (workflow_call) job — a reusable workflow changes the initiating filename npm
+#    sees and the publish fails with a 404. Do not refactor the publish into one.
+# 3. Environment trap: LEAVE the "Environment name" field BLANK in npm's
+#    trusted-publisher config. This workflow's publish job intentionally declares
+#    NO `environment:`, so npm's OIDC subject has no environment component. If you
+#    set an environment name on npm's side without adding a matching `environment:`
+#    to the publish job below, the OIDC subject will not match and the publish
+#    fails (403/404). Keep both sides environment-less, or add both together.
+#
+# ─── Version model ────────────────────────────────────────────────────────────
+# product/installer/package.json `version` is the SINGLE SemVer source of truth
+# (plugin.json no longer carries a version). This workflow never edits version
+# files: the version-guard step below fails the run if the Release tag (vX.Y.Z)
+# does not equal that `version`.
+
+name: release
+
+on:
+  release:
+    types: [published]
+
+# Least privilege at the top level; the publish job widens only what it needs.
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Publish @kabaka/ai-dlc to npm
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # required: mints the OIDC token npm trusted publishing uses
+      contents: read # required: checkout the release ref
+    defaults:
+      run:
+        # Installer-scoped steps run here; steps that need the repo root override
+        # working-directory to ${{ github.workspace }} explicitly.
+        working-directory: product/installer
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Set up Node 22
+        # Node 22 satisfies the Node >= 22.14.0 floor for trusted publishing;
+        # registry-url writes the .npmrc registry line npm publish targets.
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Upgrade npm to a trusted-publishing-capable release
+        # Trusted publishing + automatic provenance require npm CLI >= 11.5.1,
+        # newer than the npm bundled with Node 22. Upgrade before any publish.
+        run: npm install -g npm@latest
+
+      - name: Install installer dependencies
+        # No package-lock.json is committed (the installer has zero runtime deps),
+        # so `npm install` is correct here; `npm ci` would fail without a lockfile.
+        run: npm install
+
+      - name: Run installer test suite
+        run: node test/run-all.mjs
+
+      - name: Version guard — Release tag must equal package.json version
+        working-directory: ${{ github.workspace }}
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          set -euo pipefail
+          pkg_version="$(node -p "require('./product/installer/package.json').version")"
+          tag_version="${RELEASE_TAG#v}" # strip a single leading 'v' (v1.2.3 -> 1.2.3)
+          echo "Release tag:          ${RELEASE_TAG} (normalized: ${tag_version})"
+          echo "package.json version: ${pkg_version}"
+          if [ "${tag_version}" != "${pkg_version}" ]; then
+            echo "::error::Release tag '${RELEASE_TAG}' does not match product/installer/package.json version '${pkg_version}'. Bump the version and re-tag."
+            exit 1
+          fi
+          echo "Version guard passed."
+
+      - name: Tarball smoke gate — pack, extract, dry-run install
+        working-directory: ${{ github.workspace }}
+        run: |
+          set -euo pipefail
+          workdir="$(mktemp -d)"
+          # `npm pack` runs the package's prepack (scripts/build-payload.mjs), which
+          # builds product/installer/payload/ INTO the tarball. Packing the real
+          # artifact is what makes this a true publish smoke test. Pack from the
+          # installer dir so the correct package.json is used.
+          ( cd product/installer && npm pack --pack-destination "${workdir}" >/dev/null )
+          tarball="$(find "${workdir}" -maxdepth 1 -name '*.tgz' -print -quit)"
+          if [ -z "${tarball}" ]; then
+            echo "::error::npm pack produced no tarball."
+            exit 1
+          fi
+          echo "Packed: ${tarball}"
+          # Extract the packed payload (npm tarballs unpack under package/).
+          tar -xzf "${tarball}" -C "${workdir}"
+          # Throwaway git repo to install into; --dry-run writes nothing.
+          target="${workdir}/target-repo"
+          mkdir -p "${target}"
+          git -C "${target}" init -q
+          # Run the CLI from the PACKED tree. resolvePayloadRoot() looks for
+          # package/payload/AGENTS.md; if prepack did not build the payload the
+          # CLI throws and this step (and the job) fails — exactly the gate we want.
+          node "${workdir}/package/bin/ai-dlc.mjs" init --dry-run --repo "${target}"
+          echo "Tarball smoke gate passed."
+
+      - name: Publish to npm (trusted publishing + provenance)
+        # No NODE_AUTH_TOKEN: the OIDC id-token authenticates the publish and npm
+        # generates provenance automatically. --access public is required for a
+        # scoped package. --provenance is explicit for clarity (implied under OIDC).
+        run: npm publish --provenance --access public

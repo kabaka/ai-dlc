@@ -26,6 +26,10 @@ top-level files, with the Claude-native surface as a complement.
 > product phase; this internal layer only builds the expertise (the
 > `installer-design`, `plugin-packaging`, and `marketplace-publishing` skills and
 > the `distribution-engineer` agent).
+>
+> **Realized by [ADR-0014](0014-publish-installer-to-npm-with-oidc-trusted-publishing.md):**
+> the deferred publish mechanism (scoped public npm package `@kabaka/ai-dlc` via
+> OIDC trusted publishing) is decided there.
 
 ## Decision Drivers
 
@@ -101,7 +105,9 @@ version-stamped updates; a Claude Code plugin plus a marketplace entry provides
   (marketplace schema, install/enable/update mechanics).
 - Agent: `distribution-engineer` (packaging, marketplace, installer, versioning).
 - Related: [ADR-0001](0001-canonical-agents-md-with-claude-md-import.md) (why
-  `AGENTS.md`/`CLAUDE.md` are top-level files in the first place).
+  `AGENTS.md`/`CLAUDE.md` are top-level files in the first place);
+  [ADR-0014](0014-publish-installer-to-npm-with-oidc-trusted-publishing.md) (the
+  npm publish mechanism that realizes the deferred implementation).
 - **Revisit when:** the product phase begins and the distribution implementation is
   built, or if the Claude Code plugin model changes to permit writing top-level
   files at the repo root.

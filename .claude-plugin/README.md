@@ -41,16 +41,49 @@ channel.
 
 ## Install
 
-```bash
-# git-added marketplace (relative source works):
+This plugin channel is **secondary** — it delivers the Claude-native agents and
+skills, but not the top-level files (`AGENTS.md`, `CLAUDE.md`, and the
+cross-platform steering). For those, run the primary installer,
+`npx @kabaka/ai-dlc init` (see the [product README](../product/README.md)).
+
+**Local Claude Code CLI** (interactive slash commands):
+
+```text
 /plugin marketplace add kabaka/ai-dlc
 /plugin install ai-dlc@ai-dlc
 ```
 
+The git-added marketplace clones the whole repo, so the relative `./product`
+source resolves.
+
+**Claude Code on the web / cloud.** The interactive `/plugin` commands are **not
+available** there. Declare the plugin ahead of time in your target repo's
+project-scope `.claude/settings.json`:
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "ai-dlc": { "source": { "source": "github", "repo": "kabaka/ai-dlc" } }
+  },
+  "enabledPlugins": { "ai-dlc@ai-dlc": true }
+}
+```
+
+`enabledPlugins` is an object map of `"name@marketplace": true`, not an array.
+Alternatively, run the non-interactive `claude plugin marketplace add kabaka/ai-dlc`
+and `claude plugin install ai-dlc@ai-dlc` from the environment's setup script or a
+`SessionStart` hook. On the web the plugin channel still does not deliver the
+top-level files, so `npx @kabaka/ai-dlc init` (or the setup script) is still
+needed for those.
+
 ## Versioning
 
-`plugin.json` intentionally omits `version` while the kit iterates: with no
-explicit version set, Claude Code uses the plugin source's git commit SHA as the
-update cache key, so every published commit counts as a new release and
-`/plugin update` is never falsely "already at the latest version". When the team
-cuts SemVer releases, it owns the version bump — consumers never hand-edit it.
+`plugin.json` **intentionally omits** a `version` field. With no explicit version,
+Claude Code keys plugin-channel updates on the plugin source's **git commit SHA**:
+every published commit counts as a new release, so `/plugin update` is never
+falsely "already at the latest version". The manifest carries no SemVer — the SHA
+is the sole plugin-channel update key.
+
+SemVer lives on the **npm package** (`@kabaka/ai-dlc`) instead, which is the
+primary installer channel. Versions there are team-owned and automated; consumers
+never hand-edit them.

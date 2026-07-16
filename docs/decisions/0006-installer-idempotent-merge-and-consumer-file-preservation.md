@@ -20,6 +20,12 @@ files they care about, getting the merge/ownership semantics wrong is both a
 correctness failure and a trust failure. We need precise rules for what the kit owns
 versus what it must preserve, and how updates are tracked.
 
+> **Naming note ([ADR-0014](0014-publish-installer-to-npm-with-oidc-trusted-publishing.md)):**
+> the installer is published as the scoped package `@kabaka/ai-dlc`; the
+> `npx @kabaka/ai-dlc init` / `update` commands below reflect that name. This
+> ADR's merge and consumer-file-preservation decision is unchanged by the package
+> name.
+
 ## Decision Drivers
 
 - **Faithfulness & safety on the consumer's machine (Core Principle 1).** Never
@@ -35,7 +41,7 @@ versus what it must preserve, and how updates are tracked.
 
 ## Considered Options
 
-- **(a)** Idempotent, version-stamped installer (`npx ai-dlc init/update`) with a
+- **(a)** Idempotent, version-stamped installer (`npx @kabaka/ai-dlc init/update`) with a
   per-file-hash manifest, drift detection, **whole-file stamping** for kit-owned
   files, and a **first-touch sidecar rule** that never edits a pre-existing co-owned
   file in place.
@@ -50,7 +56,7 @@ preservation**, because it is the only option that updates deterministically whi
 guaranteeing the consumer's hand-written instructions are never destroyed.
 Specifics:
 
-- **`npx ai-dlc init/update` is idempotent and version-stamped.** A
+- **`npx @kabaka/ai-dlc init/update` is idempotent and version-stamped.** A
   `.ai-dlc/manifest.json` records per-file hashes; the installer is
   **drift-detecting** (it compares on-disk hashes to the manifest before acting).
 - **Consumer-authored files are preserved.** A pre-existing consumer `AGENTS.md`,

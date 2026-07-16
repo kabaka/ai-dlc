@@ -1,7 +1,7 @@
 # AI-DLC design-QA tools
 
 Deterministic, safe design-QA tooling installed into your repository by
-`npx ai-dlc init`. These tools help your UI stay **on-token** (visually
+`npx @kabaka/ai-dlc init`. These tools help your UI stay **on-token** (visually
 consistent) and let the kit gather **rendered-UI evidence** for the Construction
 gates. They live under `.ai-dlc/scripts/` and run with plain Node — no global
 install.

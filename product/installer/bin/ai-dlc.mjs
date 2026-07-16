@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 // AI-DLC installer CLI.
 //
-//   npx ai-dlc init      scaffold the kit into the current repo
-//   npx ai-dlc update    re-apply + merge to the current kit version
-//   npx ai-dlc <cmd> --dry-run    print the plan; touch nothing
+//   npx @kabaka/ai-dlc init      scaffold the kit into the current repo
+//   npx @kabaka/ai-dlc update    re-apply + merge to the current kit version
+//   npx @kabaka/ai-dlc <cmd> --dry-run    print the plan; touch nothing
 //
 // init and update share one idempotent, version-stamped, drift-detecting engine
 // (ADR-0006). `init` on an already-initialized repo behaves like `update`.
@@ -88,8 +88,8 @@ function resolveRtkEnabled({ withRtk, withoutRtk, envInstall }, manifest) {
 const USAGE = `ai-dlc — install and update the AI-DLC kit in your repository
 
 Usage:
-  npx ai-dlc init [--dry-run]      Scaffold the kit into this repo.
-  npx ai-dlc update [--dry-run]    Update an existing install to the current kit.
+  npx @kabaka/ai-dlc init [--dry-run]      Scaffold the kit into this repo.
+  npx @kabaka/ai-dlc update [--dry-run]    Update an existing install to the current kit.
 
 Options:
   --dry-run, -n     Print the plan without writing anything.
@@ -405,7 +405,7 @@ function main() {
         "========================================================\n" +
         `  Reason: ${gateError.message}\n` +
         `  Phase-transition gating is INACTIVE until ${SETTINGS_REL} registers\n` +
-        "  the hook. Fix the cause above and re-run `npx ai-dlc init`."
+        "  the hook. Fix the cause above and re-run `npx @kabaka/ai-dlc init`."
     );
     process.exit(1);
   }

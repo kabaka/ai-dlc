@@ -2,7 +2,6 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "ai-dlc",
   "displayName": "AI-DLC",
-  "version": "0.1.0",
   "description": "Claude-Code-first AI-Driven Development Lifecycle kit: an Orchestrator plus a specialist agent roster and on-demand skills for Inception -> Construction -> Operations, with the human as sole arbiter.",
   "author": {
     "name": "Kyle Johnson and AI-DLC contributors",

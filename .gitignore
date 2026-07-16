@@ -35,3 +35,7 @@ Thumbs.db
 # Eval / validation artifacts
 .ai-dlc-eval-results/
 *.local
+
+# Generated installer payload (assembled by product/installer/scripts/build-payload.mjs
+# on prepack; never committed — the product/ tree is the single source of truth)
+product/installer/payload/
