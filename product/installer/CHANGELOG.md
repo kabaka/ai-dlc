@@ -4,6 +4,13 @@ All notable changes to the AI-DLC deliverable product are documented here. The
 format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0](https://github.com/kabaka/ai-dlc/compare/v0.1.1...v0.2.0) (2026-07-16)
+
+
+### Features
+
+* **ci:** automate releases with release-please ([#8](https://github.com/kabaka/ai-dlc/issues/8)) ([ea83895](https://github.com/kabaka/ai-dlc/commit/ea8389590f3d3d9b62ac0bd5eb9ca0a1d51a8886))
+
 ## [Unreleased]
 
 ## [0.1.1] - 2026-07-16
