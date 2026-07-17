@@ -13,6 +13,17 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Fixed
+
+* **Visual-QA audit-path validation** (`scripts/visual-qa/browser-lib.mjs`): the
+  R13 control-char / whitespace reject in `normalizeAuditPath` no longer embeds
+  raw non-printable bytes in its regex character class (`[<NUL>-<0x1F><0x7F>\s]`),
+  which triggered a CodeQL "overly permissive regular expression range" alert and
+  was unreadable/unverifiable in source. It is now spelled explicitly as
+  `/[\s\x00-\x1f\x7f]/` — behavior is byte-for-byte identical (every C0 control
+  char, DEL, and all whitespace are still rejected; ordinary paths and hyphens are
+  still allowed), and a new unit test pins that behavior.
+
 ## [0.1.1] - 2026-07-16
 
 ### Added
