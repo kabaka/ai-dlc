@@ -34,7 +34,7 @@ or under-serve critical work.
   responsibilities cause cross-fire and dead agents (Core Principle 2).
 - **Faithfulness to the methodology.** The roster must serve Inception →
   Construction → Operations and the human-as-arbiter / independent-verifier model
-  (`product/docs/methodology-spec.md`; Core Principle 1).
+  (`docs/methodology/methodology-spec.md`; Core Principle 1).
 - **Right-sizing.** Security and documentation effort spans trivial-to-critical;
   the model must scale without either extreme being mishandled.
 - **Least privilege.** Read-only gates and diagnosers get no write access; only
@@ -143,7 +143,7 @@ hand off to the dedicated agent:
 
 ## More Information
 
-- Spec: `product/docs/methodology-spec.md` (phase → agent mapping, Solo Mob,
+- Spec: `docs/methodology/methodology-spec.md` (phase → agent mapping, Solo Mob,
   independent-verifier model).
 - Skills: `description-engineering` and `skill-evaluation` (mutually-exclusive
   descriptions and near-miss evals that prove routing); `security-review` and the

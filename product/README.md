@@ -38,8 +38,12 @@ exposes the command as `ai-dlc`; the `npx` form uses the scoped package name.)
 | `.claude/skills/` | The on-demand procedural playbooks. |
 | `.ai-dlc/templates/artifacts/` | Methodology artifact templates to copy and fill. |
 | `.ai-dlc/hooks/arbiter-gate.sh` | The arbiter-gate hook (Claude Code). |
+| `.ai-dlc/hooks/hooks.json` | Hook registration reference (also merged into `.claude/settings.json`). |
+| `.ai-dlc/scripts/` | The off-token linter (`off-token-lint.mjs`), its `lib/`, the visual-QA tools under `visual-qa/`, and a consumer `README.md`. |
+| `.ai-dlc/records/` | Where you store approve Decision Records (created with a `.gitkeep`). |
 | `.github/`, `.cursor/`, `.kiro/` | Cross-platform steering files. |
 | `.ai-dlc/manifest.json` | Version stamp + per-file hashes for safe updates. |
+| `.claude/settings.json` | Merged — the arbiter-gate hook is wired in idempotently; your other settings are untouched. |
 
 Re-running is safe. The installer is **idempotent and version-stamped**: with no
 kit change it writes nothing, and `update` never clobbers a kit-owned file you

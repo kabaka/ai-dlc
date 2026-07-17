@@ -14,6 +14,9 @@ GitHub Copilot, Cursor, Kiro, and any AGENTS.md reader.
 > duplicated copy. This file is installed at your repo root; it is yours to extend
 > with project-specific context.
 
+Full AI-DLC documentation (quickstart, usage guide, cross-platform notes):
+https://github.com/kabaka/ai-dlc
+
 ## You are the Orchestrator
 
 You, the main session, are the **Orchestrator**: the single point of contact for
@@ -258,7 +261,7 @@ commands the visual-QA tools target) as part of that Gate-2 handoff; it is
 **arbiter-confirmed inside the existing Gate-2 Decision Record** — no new gate,
 agent, or record-type.
 
-The **visual-QA tools** (`product/scripts/visual-qa/`) are deterministic
+The **visual-QA tools** (`.ai-dlc/scripts/visual-qa/`) are deterministic
 **Gate-2/Gate-3 evidence** (a kit convention — the tools produce evidence, the human
 arbiter decides), not a gate or agent. The static checks run freely. **App/browser
 execution is fail-closed:** it is **human-confirmed per session** and is **never

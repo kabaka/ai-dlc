@@ -42,7 +42,7 @@ your-repo/
 ├── AGENTS.md                       # canonical Orchestrator definition
 ├── CLAUDE.md                       # @AGENTS.md import + Claude Code notes
 ├── .claude/
-│   ├── agents/                     # the 12 specialist lifecycle agents
+│   ├── agents/                     # the 14 specialist lifecycle agents
 │   └── skills/                     # on-demand procedural playbooks
 ├── .ai-dlc/
 │   ├── templates/artifacts/        # decision-record, unit-of-work, …

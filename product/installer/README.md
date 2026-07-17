@@ -16,6 +16,11 @@ npx @kabaka/ai-dlc init --without-rtk # remove the rtk hook + files (arbiter gat
 exposes the command as `ai-dlc`. Zero runtime dependencies (Node >= 18, built-ins
 only).
 
+**Documentation.** New here? Start with the
+[quickstart](https://github.com/kabaka/ai-dlc/blob/main/product/docs/quickstart.md),
+then the
+[usage guide](https://github.com/kabaka/ai-dlc/blob/main/product/docs/usage.md).
+
 The installer is the **primary** channel. The Claude Code plugin / marketplace is
 a **secondary**, Claude-native channel for the agents and skills — installed
 locally with `/plugin marketplace add kabaka/ai-dlc` then
@@ -33,6 +38,9 @@ rather than replacing it. See the
 | `.claude/agents/*`, `.claude/skills/*` | kit-owned   | The specialist roster + on-demand skills. |
 | `.ai-dlc/templates/artifacts/*`        | kit-owned   | Methodology artifact templates to copy. |
 | `.ai-dlc/hooks/arbiter-gate.sh`        | kit-owned   | The arbiter-gate hook (executable). |
+| `.ai-dlc/hooks/hooks.json`             | kit-owned   | Hook registration reference (also merged into `.claude/settings.json`). |
+| `.ai-dlc/scripts/*`                    | kit-owned   | The off-token linter (`off-token-lint.mjs`), its `lib/*`, the visual-QA tools under `visual-qa/`, and a consumer `README.md`. |
+| `.ai-dlc/records/`                     | kit-owned   | Where you store approve Decision Records (created with a `.gitkeep`). |
 | `.ai-dlc/hooks/rtk-wrap.sh`, `.ai-dlc/rtk/*` | kit-owned | The opt-in rtk hook + files — landed **only** with `--with-rtk` (see below). |
 | `.github/*`, `.cursor/*`, `.kiro/*`    | kit-owned   | Cross-platform steering (landed only if shipped). |
 | `.ai-dlc/manifest.json`                | installer   | Version stamp + per-file hashes. |

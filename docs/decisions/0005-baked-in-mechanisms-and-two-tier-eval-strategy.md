@@ -10,7 +10,7 @@ Accepted
 
 ## Context and Problem Statement
 
-The methodology spec (`product/docs/methodology-spec.md`) defines several
+The methodology spec (`docs/methodology/methodology-spec.md`) defines several
 properties the product must **guarantee**, not merely suggest: the human-arbiter
 gate, proportional ceremony depth, structured phase handoffs, citation integrity,
 and an independent verifier. The repo's own delivery rules say must-run behavior
@@ -122,7 +122,7 @@ about whether agents/skills fire correctly; only the manual Tier-2 evals do.
 
 ## More Information
 
-- Spec: `product/docs/methodology-spec.md` (§4 arbiter/Decision Record and blocking
+- Spec: `docs/methodology/methodology-spec.md` (§4 arbiter/Decision Record and blocking
   semantics, §5 triage tiers, §3 Unit-of-Work contract, the independent-verifier
   split).
 - Skills: `kit-validation` (the two-tier static-vs-behavioral model),

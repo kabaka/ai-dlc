@@ -87,8 +87,23 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   - Layer-1 eval coverage: `scripts/validate-evals.mjs` now also scans a new
     top-level `evals/` directory, seeded with `evals/definition-of-done.jsonl`.
   - Architecture Decision Record 0009 (definition-of-done spec completeness).
+- Architecture Decision Record 0015 (documentation information architecture and
+  layer placement) — establishes that `product/docs/` is exclusively
+  consumer-facing and that internal build/authoring specs live under repo-root
+  `docs/methodology/`; refines ADR 0003.
 
 ### Changed
+
+- **Root `README.md` overhaul** — reworked the repository landing page for
+  clarity on the two-layer model and navigation into the kit-builder and the
+  deliverable product.
+- **Documentation information architecture (layer separation)** — relocated the
+  two internal build specs out of the consumer-facing `product/docs/` hub to a
+  new repo-root `docs/methodology/` directory: `methodology-spec.md` and
+  `extension-methodology-notes.md`. `product/docs/` is now exclusively
+  consumer-facing. Backtick code-span paths to these specs in ADRs 0004, 0005,
+  0007, and 0008 were updated to the new locations (mechanical path maintenance;
+  no decision content changed). See ADR 0015.
 
 - The `orchestration-workflow` gains two beats — enumerate and arbiter-confirm
   the acceptance checklist up front, and a spec-conformance gate before deliver —

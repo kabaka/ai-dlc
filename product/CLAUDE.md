@@ -2,6 +2,8 @@
 
 <!-- ai-dlc:begin -->
 <!-- AI-DLC-managed region — `npx ai-dlc` owns everything between these markers. Add your own project context OUTSIDE the markers; edits inside are reconciled on update (e.g. the rtk `@`-import is added here when you enable rtk). -->
+
+Full AI-DLC documentation (quickstart, usage guide, cross-platform notes): https://github.com/kabaka/ai-dlc
 <!-- ai-dlc:end -->
 
 # Claude Code specifics

@@ -203,8 +203,8 @@ plus the UI-element inventory and state matrices — rides inside the architectu
 handoff and is approved at the **existing Gate 2** (the design fork); no new gate
 is added. **You judge the aesthetics**; the lenses surface the contract, they do
 not decide it. The `off-token-lint.mjs` script (see
-[the scripts reference](../scripts/README.md)) gives a deterministic, non-blocking
-check that the built UI stays on-token.
+`.ai-dlc/scripts/README.md` in your repo after install) gives a deterministic,
+non-blocking check that the built UI stays on-token.
 
 Read the skills for the full guidance rather than relying on this summary.
 
@@ -274,8 +274,8 @@ toolchain and the browser binary in your repo (`npx playwright install
 chromium`); the tools resolve Playwright, axe, and the rest from your repo's
 `node_modules`.
 
-See [the scripts reference](../scripts/README.md) for per-tool detail and the
-fail-closed harness, and
+See `.ai-dlc/scripts/README.md` in your repo (after install) for per-tool detail
+and the fail-closed harness, and
 [ADR 0012](../../docs/decisions/0012-layer2-visual-qa-tooling-and-stack-auto-binding.md)
 for the decision behind this slice.
 

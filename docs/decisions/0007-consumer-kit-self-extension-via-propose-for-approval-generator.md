@@ -115,7 +115,7 @@ product-owner-requested capability**: a consumer extending **their own** install
 kit for **their own** repo, on a bounded, propose-for-approval basis. It is the
 **only** consumer agent whose output target is `.claude/` itself, and it exists by
 **deliberate, scoped exception** — not by reversing ADR-0004's principle. Per
-`product/docs/extension-methodology-notes.md`, it is an **on-demand authoring
+`docs/methodology/extension-methodology-notes.md`, it is an **on-demand authoring
 capability outside the three-phase model** (like `documentation`/`security`): **not a
 phase, ceremony, or arbiter gate**, and anything it proposes re-enters the normal
 lifecycle and the four existing gates when adopted.
@@ -170,7 +170,7 @@ lifecycle and the four existing gates when adopted.
 
 ## More Information
 
-- Methodology placement: `product/docs/extension-methodology-notes.md` §1 —
+- Methodology placement: `docs/methodology/extension-methodology-notes.md` §1 —
   `kit-extender` is an on-demand authoring capability outside the three phases; not a
   phase, ceremony, or gate.
 - Prior art: Anthropic's `skill-creator` loop (assess → draft → eval → approve →
