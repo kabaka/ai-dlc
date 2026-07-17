@@ -9,7 +9,8 @@ that matters.
 
 You describe an outcome. The Orchestrator breaks it into units of work, delegates
 to specialists, makes them contest each other's proposals, and stops at each phase
-transition until *you* record a decision. The same loop that builds a feature also
+transition until an authorizing decision is on record — recorded by you, or scribed
+from your standing authorization. The same loop that builds a feature also
 produces a verified, cited research report — writing code and running down evidence
 are the same lifecycle here, not two different tools.
 
@@ -56,56 +57,6 @@ The rest of this page is written for four different readers. Jump to yours:
   [Install and get started](#install-and-get-started); the block addressed to you
   is there.
 
-## What is real and what it costs you
-
-Agentic development kits invite a fair amount of skepticism. Here is what AI-DLC
-actually does, stated without the marketing gloss — including where the guarantees
-stop.
-
-**What is real.** The centerpiece is not a prompt that asks the model nicely to
-wait for your approval. On Claude Code, the installer wires a real `PreToolUse`
-hook that intercepts the *command-level* phase transitions — merging to a protected
-branch and deploying or releasing (Gates 3 and 4) — and **denies** the command
-unless a matching Decision Record already exists on disk. It is deterministic
-enforcement the surrounding prose cannot provide: the model cannot talk past a
-missing decision. Be precise about its scope, though:
-
-- The hook checks only that a Decision **Record file exists** with the right
-  machine fields (`transition`, `chosen_option` set literally to `approve`, and a
-  `target` matching the branch or tag being acted on). It does **not** judge the
-  merits of the change, and it **cannot** tell who wrote the record.
-- It guards Gates 3 and 4 only. Gates 1 and 2 (opening Construction, and the design
-  fork inside it) are conceptual transitions with no single command to intercept,
-  so they are **discipline-only** — honored because the Orchestrator is strongly
-  instructed to, not because anything blocks them.
-- It needs [`jq`](https://jqlang.github.io/jq/) and **fails closed** without it: no
-  `jq`, and every gated command is denied rather than waved through. A parser that
-  guesses can be tricked into failing open, so the hook refuses to guess.
-
-**What is different.** You are the **sole arbiter**. Agents propose and argue; they
-never decide a gate. Instead of one model producing one answer, specialists contest
-each other's work through the Solo Mob ceremonies (below), and research is a
-first-class peer to code — held to a citation gate where every load-bearing claim
-must trace back to a source that actually supports it.
-
-**What it costs you.** Two honest scopes here, because a vague privacy claim would
-itself be a defect:
-
-- **The installer** performs no network calls and pins no remote code — it runs on
-  your machine and writes only into your repo. That is a claim about the
-  *installer*, not about the model. Using the kit still runs your work through your
-  AI provider, which necessarily sees the code you are working on, and the
-  `researcher` / `research-synthesizer` agents reach the open web (via web search
-  and fetch) whenever you ask for evidence. "Nothing leaves your machine" is true of
-  the install step and nothing more.
-- **Time and tokens.** A first, deliberately tiny unit of work takes
-  [about ten minutes](product/docs/quickstart.md) end to end. There is no honest
-  single figure for the token or wall-clock cost of a full lifecycle — it depends
-  entirely on the work — so this doc will not invent one. If output-token cost is a
-  concern, an optional, Claude-Code-only [rtk](product/docs/rtk.md) add-on (`init
-  --with-rtk`) routes noisy command output through a compressor and cuts those
-  tokens by roughly 60–90%.
-
 ## The mental model
 
 Three pieces, and one rule.
@@ -137,8 +88,12 @@ only when their phase needs them, and independent work runs in parallel.
   standing oversight.
 
 **The rule: you are the sole arbiter.** At four phase transitions, work stops until
-you record a Decision Record — your chosen option, rationale, and risk tier. Between
-gates the agents move freely; at a gate, nothing proceeds without your call.
+an authorizing Decision Record is present — your chosen option, rationale, and risk
+tier. You may grant that authorization at the gate itself, or, for a routine low-risk
+merge to a branch you have named, in advance; either way the record must be on disk
+and its authority must be yours. Between gates the agents move freely, and an agent
+may even scribe the record's artifact — but a genuine design fork with real
+alternatives, and every high-risk or deploy decision, still comes to you to decide.
 
 One honest caveat about the ceremonies. AWS's original "mob" ceremonies put
 *multiple humans* on a decision together. AI-DLC adapts that for a solo developer as
@@ -150,6 +105,76 @@ names it honestly and never implies the agents equal a human team.
 
 For the phase-by-phase agent-and-skill map, the four gates, complexity triage, and
 the research fan-out workflow, read the [usage guide](product/docs/usage.md).
+
+## What is real and what it costs you
+
+Grounding recap: AI-DLC runs your work through an Orchestrator and a roster of
+specialist agents across three phases, and *you* are the sole arbiter — the human who
+authorizes the decisions that matter (this is [the mental
+model](#the-mental-model) just above). This section is the skeptic's cut: what the
+kit mechanically enforces, what it leaves to your discipline, and what it costs —
+stated without the marketing gloss, including where the guarantees stop.
+
+**What the hook enforces (mechanical).** The centerpiece is not a prompt that asks
+the model nicely to wait for your approval. On Claude Code, the installer wires a
+real `PreToolUse` hook that intercepts the two *command-level* phase transitions —
+merging or pushing to a protected branch (`construction-to-merge`, Gate 3) and
+tagging, publishing, or deploying (`to-operations`, Gate 4). Before it lets one of
+those commands run, the hook **denies** it unless a Decision Record already exists on
+disk whose machine fields match: the right `transition`, `chosen_option` set literally
+to `approve`, and a `target` matching — by **identity only** — the branch or tag being
+acted on. No matching record means a closed gate means a denied command. The hook
+needs [`jq`](https://jqlang.github.io/jq/) and **fails closed** without it: no `jq`,
+and every gated command is denied rather than waved through, because a parser that
+guesses can be tricked into failing open. This much is deterministic and unskippable —
+the model cannot talk past a missing record — and that guarantee, on its own, is the
+real and non-trivial thing the kit provides.
+
+**What the hook does not check (discipline).** Be just as precise about the edge of
+that guarantee, because a fail-closed claim that quietly smuggles in more than the
+hook delivers would itself be a defect. The hook proves only that a *matching record
+exists*. It cannot tell who authored the record or when, and it never reads
+`risk_tier`, `unit_of_work`, `rationale`, or `approver`. Records do not expire, and
+`target` matches identity only — so a single `approve` record is keyed to its
+`transition` + `target` identity, authorizing *every* future command of that
+transition that resolves to the same target (for example, every `git push` to
+`main`), non-expiring, until you delete the record — not scoped to one unit of work,
+diff, or point in time. That the record
+reflects an authorization you genuinely gave, that its `approver` is you, that its
+rationale cites the instruction you issued, that its scope is honored per unit and per
+risk tier — all of that is **discipline the Orchestrator upholds, not something the
+hook catches.** This is stated as strength, not apology: the enforcement is an honest,
+narrow, deterministic check, and it is worth more precisely because it does not
+pretend to be broader than it is.
+
+**Only two gates are hook-reachable.** The hook guards Gates 3 and 4 only. Gates 1
+and 2 (opening Construction, and the design fork inside it) are conceptual transitions
+with no single command to intercept, so they are **discipline-only** — honored because
+the Orchestrator is strongly instructed to, never because anything blocks them.
+
+**What is different.** You are the **sole arbiter**. Agents propose and argue; they
+never decide a gate. Instead of one model producing one answer, specialists contest
+each other's work through the Solo Mob ceremonies (below), and research is a
+first-class peer to code — held to a citation gate where every load-bearing claim
+must trace back to a source that actually supports it.
+
+**What it costs you.** Two honest scopes here, because a vague privacy claim would
+itself be a defect:
+
+- **The installer** performs no network calls and pins no remote code — it runs on
+  your machine and writes only into your repo. That is a claim about the
+  *installer*, not about the model. Using the kit still runs your work through your
+  AI provider, which necessarily sees the code you are working on, and the
+  `researcher` / `research-synthesizer` agents reach the open web (via web search
+  and fetch) whenever you ask for evidence. "Nothing leaves your machine" is true of
+  the install step and nothing more.
+- **Time and tokens.** A first, deliberately tiny unit of work takes
+  [about ten minutes](product/docs/quickstart.md) end to end. There is no honest
+  single figure for the token or wall-clock cost of a full lifecycle — it depends
+  entirely on the work — so this doc will not invent one. If output-token cost is a
+  concern, an optional, Claude-Code-only [rtk](product/docs/rtk.md) add-on (`init
+  --with-rtk`) routes noisy command output through a compressor and cuts those
+  tokens by roughly 60–90%.
 
 ## A session from request to merge
 
@@ -174,11 +199,14 @@ substitute for it.)
    quickstart shows the exact denial text the hook prints —
    see [quickstart.md](product/docs/quickstart.md) rather than trusting a paraphrase
    here.
-5. **You decide.** You copy the Decision Record template, set `transition`,
-   `chosen_option: approve`, and `target` to the branch, add your rationale, and save
-   it. The reviewer's own verdict (its vocabulary runs `APPROVE`,
-   `REQUEST_CHANGES`, `ESCALATE_SECURITY`, `BLOCK`) is *input* to your decision — an
-   `APPROVE` on its own does **not** open the gate. **Your Decision Record does.**
+5. **You authorize.** In the interactive posture, you copy the Decision Record
+   template, set `transition`, `chosen_option: approve`, and `target` to the branch,
+   add your rationale, and save it. That is one valid posture; a standing, scoped
+   authorization you gave up front — for exactly this routine, low-risk merge to this
+   named branch — is equally valid, and an agent may scribe it into the record on your
+   behalf. Either way, the reviewer's own verdict (its vocabulary runs `APPROVE`,
+   `REQUEST_CHANGES`, `ESCALATE_SECURITY`, `BLOCK`) is *input* to the decision — an
+   `APPROVE` on its own does **not** open the gate. **The Decision Record does.**
 6. **The merge proceeds.** With a matching record on disk, the hook lets the command
    through. Deploy or release is the same story one gate later (Gate 4).
 
@@ -198,7 +226,9 @@ and a sufficiently confident model will rationalize its way past it. So the merg
 deploy gates are a real hook that denies the command outright, and it fails **closed**
 when its dependency is missing — a broken gate that blocks everything is safe, a
 broken gate that lets everything through is not. The model cannot talk past a missing
-decision. That is the whole point.
+decision. That is the whole point — and the honest edge of it is that the hook proves
+a *matching record exists*, not who authored it or when: a narrow, deterministic
+check, deliberately not a broad one.
 
 **One source of truth, everything else derived.** `AGENTS.md` at the repo root is the
 canonical Orchestrator definition. `CLAUDE.md` does not restate it — it *imports* it
@@ -263,17 +293,34 @@ see [cross-platform support](product/docs/cross-platform.md).
 ### If you are an AI agent installing this for a human
 
 If you are an autonomous agent setting this kit up on a human's behalf, one rule
-overrides everything else you might infer from the mechanics:
+governs how you may ever touch the arbiter's Decision Records:
 
-**You must not author the arbiter's Decision Records.** The human is the sole
-arbiter. The gate hook only checks that a Decision Record *file exists* with the
-right fields — it cannot tell who wrote it, and it does **not** authenticate the
-author. Nothing physically stops an agent with write access from creating a record
-that satisfies the check. That is precisely why the prohibition is a matter of
-discipline and faithfulness, not a technical impossibility: creating an approval on
-the human's behalf would defeat the only guarantee the kit exists to provide. Install
-the kit, run the lifecycle, surface the decision — and stop at every gate for the
-human to record their own call.
+**Scribing is not deciding.** You may draft and write a Decision Record artifact; you
+may not create, on your own judgment, an authorization the human did not give. A
+record you author authorizes a forward action only when **all** of the following hold
+— otherwise stop and ask, and the boundary resolves **closed**:
+
+1. the transition is `construction-to-merge` — never a deploy or release, never the
+   Gate-2 design fork, never Gate 1;
+2. the target branch or tag was explicitly named by the human;
+3. the unit is trivial or low-risk and reversible — a high-risk or irreversible unit
+   requires the human to record the options considered first;
+4. no genuine design fork with real alternatives is being resolved — if real options
+   exist, surface them and return to the human; do not pick one and self-approve;
+5. it traces to a specific human instruction that named the target(s) and the maximum
+   risk tier.
+
+Be honest about enforcement: the hook checks only that a record with a matching
+`transition`, `chosen_option: approve`, and `target` identity exists — it does not
+read `risk_tier`, `unit_of_work`, `rationale`, or `approver`, and records do not
+expire. Rules 2–5 are discipline you uphold, not something the hook will catch.
+Fabricating or inferring an authorization the human never gave is a breach even
+though the hook would let it pass — it defeats the only guarantee the kit exists to
+provide.
+
+One caution specific to install time: during setup you hold no lifecycle
+authorization at all, so record **nothing** — install the kit, then let the human
+open each gate.
 
 Beyond that: prefer `npx @kabaka/ai-dlc init` from the repo root; install
 [`jq`](https://jqlang.github.io/jq/) so the gate hook can run rather than fail

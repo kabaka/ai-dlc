@@ -23,9 +23,15 @@ shared across tools. The notes below apply only to Claude Code.
   (`git merge`, `gh pr merge`, `git push` to a protected branch) and deploy/release
   (`git tag` create, `npm publish`, `deploy`/`release`) — and blocks them unless a
   Decision Record under `.ai-dlc/records/` matches by exact value (`transition`,
-  `chosen_option == approve`, and `target` == the branch/tag/release acted on). The
+  `chosen_option == approve`, and `target` == the branch/tag **identity**). The
   hook **requires `jq` and fails closed** if it is absent. This is real enforcement,
-  not a prompt the model can skip. **Gates 1 and 2** (Inception → Construction, and
+  not a prompt the model can skip. **The match is branch/tag identity only:** one
+  `approve` record is keyed to its `transition` + `target` identity, so it authorizes
+  **every** future command of that transition that resolves to the same target (for
+  example, every `git push` to `main`) — non-expiring, not scoped to a unit, diff, or
+  risk (`risk_tier` is never read) — until the record file is deleted. Finer per-unit
+  scoping is discipline, not
+  hook-enforced. **Gates 1 and 2** (Inception → Construction, and
   the design fork) have **no command to intercept**, so the hook cannot reach them —
   they rely on the recorded Decision Record and discipline. See `aidlc-workflow`.
 - **Non-authoring specialists** (`code-reviewer`, `debugger`, `security`) carry no

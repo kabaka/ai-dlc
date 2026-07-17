@@ -114,18 +114,37 @@ Four phase transitions require a recorded human **Decision Record** before work 
 proceed: **(1)** Inception → Construction, **(2)** the design fork within
 Construction, **(3)** Construction → integration/merge, and **(4)** → Operations
 (deploy/release). Between gates, agents propose and contest freely; **at** a gate,
-work is **blocked** until the human records a decision (chosen option, rationale,
-approver, date, risk tier).
+work is **blocked** until an authorizing Decision Record is present — recorded by
+the human, or scribed from the human's standing authorization; `approver` always
+names the human. The record carries the chosen option, rationale, approver, date,
+and risk tier.
 
 **Gates 3 and 4 are mechanically enforced** by a **real installed hook** (not an
 honor-system prompt): it intercepts the command-level transitions — merge/integration
 (`git merge`, `gh pr merge`, `git push` to a protected branch) and deploy/release
 (`git tag` create, `npm publish`, `deploy`/`release`) — and blocks them unless a
 Decision Record under `.ai-dlc/records/` matches by exact value (`transition` == the
-gate, `chosen_option` == `approve`, `target` == the branch/tag/release acted on). The
+gate, `chosen_option` == `approve`, and `target` == the branch/tag **identity**). The
 hook **requires `jq` and fails closed** if it is absent. **Gates 1 and 2 are
 conceptual** — there is no command to intercept, so they rely on the recorded
 Decision Record and discipline, not the hook. See `CLAUDE.md` and `aidlc-workflow`.
+
+**Honest note — what the hook actually matches.** The hook matches **branch/tag
+identity only**, nothing finer. A single record with `target: main`,
+`chosen_option: approve`, `transition: construction-to-merge` is keyed to that
+`transition` + `target` **identity**, so it authorizes **every** future command of
+that transition that resolves to the same target (for example, every `git push` to
+`main`): it is **non-expiring** and is **not** scoped to a unit of work, a diff, or a
+decision, and it stays in force until the record file is deleted. The hook **never reads `risk_tier`**. So mechanical enforcement is a coarse
+identity check — **do not read it as per-unit, per-decision, or per-risk gating.**
+The finer scoping below is **discipline**, not something the hook verifies.
+
+**Scoped, upfront authorization (discipline).** Routine, low-risk forward actions —
+e.g. merges to a named target — may be **pre-authorized** by the human once and the
+record **agent-scribed** from that standing authorization; genuine design forks,
+high-risk units, deploys/releases, and any **unnamed** target return to the human
+for a fresh decision. Fabricating or inferring an authorization the human did not
+give is a breach.
 
 ### Complexity triage (right-size the ceremony, never the gate)
 

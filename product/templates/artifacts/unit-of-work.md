@@ -25,5 +25,6 @@ required field — the next phase reads a known shape, not prose.
   AI-DLC.
 - `acceptance_criteria` are the oracle's source of truth. The `implementer` may not
   edit the grading tests derived from them.
-- `arbiter_signoff` cannot be filled until the human records the Gate 1 Decision
-  Record (see `decision-record.md`).
+- `arbiter_signoff` cannot be filled until the Gate-1 (`inception-to-construction`)
+  Decision Record is recorded — Gate 1 is a genuine fork the human decides (see
+  `decision-record.md`).

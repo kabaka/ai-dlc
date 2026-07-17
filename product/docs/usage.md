@@ -38,11 +38,21 @@ may proceed:
 
 A gate opens **only** when a Decision Record for that transition has
 `chosen_option` set to an approval. Absence of a record means a closed gate, and
-the AI must not proceed. Copy
-`.ai-dlc/templates/artifacts/decision-record.md`, fill every field
+the AI must not proceed.
+
+Recording that decision has two valid postures. The **hands-on** posture: *you*
+copy `.ai-dlc/templates/artifacts/decision-record.md`, fill every field
 (`decision_id`, `transition`, `unit_of_work`, `chosen_option`, `rationale`,
 `approver`, `date`, `risk_tier`), and store it where the hook looks
-(`.ai-dlc/records/` by default).
+(`.ai-dlc/records/` by default). The **delegated** posture: you grant a **standing,
+scoped authorization** up front — an instruction that names the target branch(es)
+and a maximum risk tier — for routine, low-risk, reversible merges, and let the
+agent **scribe** the record within that scope. That scope is deliberately narrow:
+it covers only `construction-to-merge` to a target you named, for a trivial,
+reversible unit with no genuine design fork. A **genuine design fork** (Gate 2 with
+real alternatives), a **high-risk or irreversible** unit, any **deploy/release**
+(Gate 4), or an **unnamed target** always comes back to you for a fresh decision.
+Either way, the record must exist before the gate opens.
 
 ### What the hook enforces — honestly
 
@@ -53,7 +63,15 @@ an approve Decision Record exists. That covers **Gate 3 and Gate 4** mechanicall
 **Gates 1 and 2** are conceptual transitions, not single commands — no shell call
 marks them — so they rely on the Orchestrator's honestly-labeled "strongly
 instructed" prose, not a hook. The hook also only checks that an approval
-*exists*; it never judges or makes the decision. **You remain the sole arbiter.**
+*exists*; it never judges or makes the decision. It also cannot tell **who**
+authored the record or **when** — and one approve record is keyed to its
+`transition` + `target` identity, so it authorizes **every** future command of that
+transition that resolves to the same target (for example, every `git push` to
+`main`): it does not expire and stays valid until you delete it, and is not scoped to
+one unit of work, diff, or point in time (and `risk_tier` is never read). Because the
+hook cannot see whether a
+record reflects a real human authorization, **not fabricating one is a discipline
+you rely on**, not something the hook enforces. **You remain the sole arbiter.**
 On non-Claude tools there is no hook at all — record your decisions by discipline.
 See the [cross-platform contract](cross-platform.md) and the
 [installer reference](../installer/README.md) for the exact boundaries and the

@@ -14,7 +14,9 @@ principle, the four values), read `aidlc-methodology` — don't re-derive them h
 You operate **three phases in order — Inception → Construction → Operations** —
 threaded by one repeating pattern: **the human-arbiter loop**. AI proposes and
 contests; **the single human is the sole arbiter who decides.** At four points,
-work is *blocked* until the human records a decision.
+work is *blocked* until an **authorizing record is present** — recorded by the
+human, or scribed by an agent from the human's standing authorization. Scribing the
+record is not deciding: the human remains the sole **source of authority**.
 
 ## The arbiter loop (the spine of every phase)
 
@@ -41,7 +43,14 @@ deploy/release) the installed hook can intercept; it requires `jq` and **fails
 closed** if `jq` is absent. **Gates 1 and 2 are conceptual** (no command to
 intercept) and rely on the recorded Decision Record and discipline, not the hook.
 Either way, **the human is the sole arbiter** — the hook checks for the human's
-recorded decision; it never makes one. Full contract: `reference/arbiter-gate.md`.
+recorded decision; it never makes one. An agent **may scribe** the record when the
+human genuinely authorized the transition (with `approver` = the human), but
+**scribing is not deciding**: an agent never invents an authorization, and it
+**stops at the scope boundary** — any target, risk tier, or genuine design fork the
+human did not name returns to the human. The hook enforces only existence +
+`target` identity, so that boundary is discipline, not mechanism. Full contract
+(enforced-vs-discipline, scoped upfront authorization, the guard block):
+`reference/arbiter-gate.md`.
 
 **The Decision Record artifact** (what the arbiter produces at each gate):
 
@@ -51,8 +60,8 @@ recorded decision; it never makes one. Full contract: `reference/arbiter-gate.md
 | `transition` | Which of the four gates. |
 | `unit_of_work` | The unit(s) this decision covers. |
 | `chosen_option` | What the human decided (e.g. "approve plan A", "request changes"). A gate opens only on **approve**. |
-| `rationale` | Why — the business/technical reasoning the human owns. |
-| `approver` | The human arbiter (one human, the solo model). |
+| `rationale` | Why — the business/technical reasoning the human owns; for a **standing/upfront** authorization it must **cite the authorizing instruction** and its scope. *(Discipline only — the hook ignores it.)* |
+| `approver` | The **human** arbiter (one human, the solo model) — the human even when an agent **scribed** the file. *(Discipline only — the hook ignores it.)* |
 | `date` | When recorded. |
 | `risk_tier` | trivial / standard / high-risk — makes ceremony depth auditable. |
 

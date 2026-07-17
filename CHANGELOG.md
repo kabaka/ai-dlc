@@ -114,6 +114,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Established `definition-of-done` as the canonical home for the no-deferral rule
   and cross-linked the existing role-specific reinforcements to it (the
   declarations are kept in place by design, not removed).
+- Arbiter-gate documentation reconciled to an honest enforced-vs-discipline model
+  that legitimizes scoped upfront authorization — the hook enforces only a
+  file-exists + machine-field (`transition` / `chosen_option: approve` / `target`
+  identity) match on the command-level Gates 3–4 and fails closed without `jq`,
+  while genuineness of authorization, authorship, and scope boundaries are honored
+  by discipline (mechanism unchanged). See ADR 0016.
 
 ### Fixed
 
