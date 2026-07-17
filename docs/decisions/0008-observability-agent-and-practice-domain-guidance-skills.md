@@ -19,7 +19,7 @@ test-oracle angle), and **UX design** had no home at all. Two forces pull in
 opposite directions. First, observability design is substantial enough that burying
 it in a deploy checklist under-serves it. Second, the methodology is **fixed at three
 phases, two ceremonies, and four blocking gates**
-(`product/docs/extension-methodology-notes.md`) — so new concerns must **not** become
+(`docs/methodology/extension-methodology-notes.md`) — so new concerns must **not** become
 new phases, ceremonies, or gates. We must decide which concerns **earn an agent**,
 which ship as **guidance skills**, and how to keep routing unambiguous (Core
 Principle 2) without inflating the gate model (Core Principle 1).
@@ -131,7 +131,7 @@ blocking; findings are surfaced to the arbiter at an **existing** gate.
 
 ## More Information
 
-- Binding ruling: `product/docs/extension-methodology-notes.md` §2 (observability =
+- Binding ruling: `docs/methodology/extension-methodology-notes.md` §2 (observability =
   Operations, instrumented from Construction, no ceremony) and §3 (recommended checks
   nest in existing checklists; four gates unchanged).
 - Skills: new `observability-practice` (carved from `delivery-operations`);
