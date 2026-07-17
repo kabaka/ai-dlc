@@ -106,3 +106,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   records the validator actually checks.
 - Corrected the stale eval-record schema documentation in `skill-evaluation` to
   match the validator schema (companion to the `kit-validation` fix above).
+- Pre-flight markdownlint now skips the release-please-owned
+  `product/installer/CHANGELOG.md`, whose machine-generated format (asterisk
+  bullets plus a double blank line after each version header, re-emitted every
+  release) cannot be kept lint-clean by hand. This unblocks the `pre-flight`
+  workflow, which failed on the `0.2.0` release commit. Hand-maintained
+  CHANGELOGs remain linted.

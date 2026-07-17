@@ -71,9 +71,13 @@ template's `./XXXX-....md`). Broken links are reported as `file:line -> target`.
 
 ### Markdown lint and shellcheck
 
-Markdown lint uses `markdownlint-cli2` with the repo's `.markdownlint.jsonc`.
-Shellcheck lints every `scripts/*.sh`. Both are optional locally (the orchestrator
-reports `SKIPPED` with an install hint if the tool is absent) and installed in CI.
+Markdown lint uses `markdownlint-cli2` with the repo's `.markdownlint.jsonc`. It
+lints every Markdown file except `node_modules` and the release-please-owned
+`product/installer/CHANGELOG.md` (that file is machine-generated on each release
+in a format that cannot be kept lint-clean by hand; the other, hand-maintained
+CHANGELOGs stay linted). Shellcheck lints every `scripts/*.sh`. Both are optional
+locally (the orchestrator reports `SKIPPED` with an install hint if the tool is
+absent) and installed in CI.
 
 ## CI
 

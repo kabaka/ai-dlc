@@ -39,7 +39,11 @@ if command -v npx >/dev/null 2>&1; then
   # markdownlint-cli2 takes globs; "#node_modules" excludes a TOP-LEVEL
   # node_modules and "#**/node_modules" excludes any NESTED one (e.g. the
   # validation-only product/scripts/node_modules vendored for visual-QA tests).
-  if npx --yes markdownlint-cli2 "**/*.md" "#node_modules" "#**/node_modules"; then
+  # "#product/installer/CHANGELOG.md" excludes the release-please-owned changelog:
+  # its format is machine-generated (asterisk bullets plus a double blank line
+  # after each version header) and re-emitted on every release, so it cannot be
+  # kept lint-clean by hand. The other, hand-maintained CHANGELOGs stay linted.
+  if npx --yes markdownlint-cli2 "**/*.md" "#node_modules" "#**/node_modules" "#product/installer/CHANGELOG.md"; then
     echo "markdownlint: PASS"
     mark_pass markdownlint
   else
