@@ -1,6 +1,6 @@
 {
   "name": "@kabaka/ai-dlc",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Installer for the AI-DLC kit: scaffolds and updates the cross-platform orchestrator, agents, skills, methodology templates, and the arbiter-gate hook into your repository.",
   "type": "module",
   "bin": {
