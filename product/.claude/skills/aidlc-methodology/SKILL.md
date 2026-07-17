@@ -82,18 +82,26 @@ hold the business context, the decision authority, and the accountability. Agent
 propose and contest freely; **they never decide.**
 
 This takes concrete form at **four arbiter decision points**, the only places where
-work is *blocked* until you record a decision:
+work is *blocked* until an authorizing record is present — recorded by you at the
+fork, or scribed from a standing authorization you gave for routine, in-scope
+forward work:
 
 1. **Inception → Construction** — requirements and units of work approved.
 2. **Within Construction (design fork)** — architecture/plan approved before building.
 3. **Construction → integration** — the implemented unit approved to merge.
 4. **→ Operations** — the change authorized to deploy/release.
 
-At each point you produce a **Decision Record** (what you decided, why, which unit,
-your name as approver, the date, the risk tier). Between these points AI works
-freely; at them, it stops and waits for you. Decision points, the Decision Record
-fields, and how ceremony depth scales to a unit's **risk tier** (trivial / standard /
-high-risk) are in `reference/ceremonies-and-arbiter.md`.
+At each point you **authorize** a **Decision Record** (what was decided, why, which
+unit, your name as approver, the date, the risk tier). The *authorization* is
+yours; the record **artifact** may be agent-scribed. Between these points AI works
+freely. At a gate, the rule depends on what kind of crossing it is: within a
+standing authorization you gave — a *routine, low-risk* merge to a target you named —
+AI proceeds and scribes the record; but at a **genuine design fork, a high-risk or
+irreversible unit, a deploy, or any target you did not name**, AI **stops and
+returns to you** to decide. Inferring an approval you never gave is a breach.
+Decision points, the Decision Record fields (and which of them the enforcement hook
+actually reads), and how ceremony depth scales to a unit's **risk tier** (trivial /
+standard / high-risk) are in `reference/ceremonies-and-arbiter.md`.
 
 ## The four values and the sweet spot
 

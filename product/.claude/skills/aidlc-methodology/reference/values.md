@@ -31,11 +31,12 @@ Records — exists to hold the middle row.
 | Mode | Who decides | Why it succeeds or fails |
 | --- | --- | --- |
 | **AI-assisted** | You do the work; AI autocompletes | Underuses AI. You stay the bottleneck on work AI could *lead*; AI never drives, so the cadence stays human-paced. |
-| **AI-driven, human arbiter** ✅ | **AI drives the work; you decide at the forks** | AI does the heavy lifting fast and proposes diverse options; you keep authority and accountability exactly where they matter. This is AI-DLC. |
-| **AI-managed** | AI decides and proceeds on its own | No accountable human at the critical decisions. Business context, judgement, and accountability go missing; mistakes ship unreviewed. |
+| **AI-driven, human arbiter** ✅ | **AI drives the work; you decide the genuine forks** | AI does the heavy lifting fast and proposes diverse options; you keep authority and accountability exactly where they matter. You decide every *genuine* fork — a real choice among real alternatives — *at* the fork. The record **artifact** may be agent-scribed, and *routine, low-risk forward motion* to a target you named may be **pre-authorized** — because you still decided it, just once and upfront. This is AI-DLC. |
+| **AI-managed** | AI decides and proceeds on its own | No accountable human at the critical decisions. Business context, judgement, and accountability go missing; mistakes ship unreviewed. **This is not** upfront authorization of routine work (there, *you* decided the scope in advance). AI-managed is an agent proceeding at a fork it was **not** authorized to cross — resolving a design fork, choosing among real alternatives, or deploying, with no decision of yours behind it. |
 
 The arbiter gate (the four decision points) is what *prevents the bottom row*: AI is
-never allowed to decide and proceed unilaterally at a critical fork. The
+never allowed to decide and proceed unilaterally at a critical fork. Who *scribes*
+the record is not the line that matters — whether a **human decided** is. The
 collective-challenge of the ceremonies is what *prevents the top row from being slow*:
 you get many perspectives at speed instead of doing every option yourself.
 

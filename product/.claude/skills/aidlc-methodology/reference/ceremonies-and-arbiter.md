@@ -67,14 +67,26 @@ The central operating principle, repeated in every phase:
 > AI creates a plan, asks clarifying questions to seek context, and implements a
 > solution **only after receiving your validation.**
 
+Read "receiving your validation" as a constraint on the **timing of genuine
+decisions**, not on who types the record. At a **genuine fork** — a real choice
+among real alternatives — AI does not proceed until you decide, and you decide *at*
+the fork. What it is **not** is a rule that you must personally hand-write every
+record artifact: the record may be **agent-scribed**; the *authorization* is what
+must be yours.
+
 You are the **arbiter**: you hold the business context, the decision authority, and
-the accountability. Agents propose and contest; **they never decide.** AI never
-proceeds past a critical fork without your sign-off. This is the "AI-driven with a
-human arbiter" sweet spot (see `values.md`).
+the accountability. Agents propose and contest; **they never decide.** Your
+sign-off may be granted **in advance** for a *routine, low-risk* forward action to a
+target you have named — an agent may then scribe the record and proceed within that
+scope. But a **genuine design fork, a high-risk or irreversible unit, or a deploy**
+is decided **at** the fork, not pre-granted; there, AI stops and returns to you.
+This is the "AI-driven with a human arbiter" sweet spot (see `values.md`).
 
 ## The four arbiter decision points
 
-These are the only points where work is **blocked** until you record a decision.
+These are the only points where work is **blocked** until an authorizing record is
+present — recorded by you at the fork, or scribed from a standing authorization you
+gave for a routine, in-scope forward action (see the risk-tier table below).
 Between them, AI proposes and contests freely.
 
 1. **Inception → Construction** — requirements and units of work approved.
@@ -96,13 +108,26 @@ Decision Record is how this kit makes it auditable. Fields:
 | Field | Meaning |
 | --- | --- |
 | `decision_id` | Stable identifier. |
-| `transition` | Which gate (one of the four above). |
-| `unit_of_work` | The unit(s) this decision covers. |
-| `chosen_option` | What you decided (e.g. "approve plan A", "request changes"). |
-| `rationale` | Why — the business/technical reasoning you own. |
-| `approver` | You, the human arbiter (the single human in the solo model). |
+| `transition` | Which gate (one of the four above). **Hook reads this** (Gates 3–4). |
+| `unit_of_work` | The unit(s) this decision covers. *Discipline — the hook does not read it.* |
+| `chosen_option` | What you decided (e.g. "approve plan A", "request changes"). **Hook reads this** (must be `approve`, Gates 3–4). |
+| `rationale` | Why — the business/technical reasoning you own; it should cite the authorizing instruction. *Discipline — the hook does not read it.* |
+| `approver` | You, the human arbiter (the single human in the solo model). *Discipline — the hook does not read it.* |
 | `date` | When recorded. |
-| `risk_tier` | The unit's risk tier (below), so depth is auditable. |
+| `risk_tier` | The unit's risk tier (below), so depth is auditable. *Discipline — the hook does not read it.* |
+
+At Gates 3–4 the hook also matches a `target` field (the branch/tag/release
+identity being acted on) by exact value; see `aidlc-workflow`. **What the hook
+reads is a narrow slice**: `transition`, `chosen_option == approve`, and `target`
+**identity** — nothing more. The `approver`, `rationale`, `risk_tier`, and
+`unit_of_work` fields, and any per-unit / per-risk / per-time scoping you intend,
+are **discipline**: they make the decision honest and auditable, but the hook never
+enforces them. Concretely, a single `approve` record is keyed to its `transition` +
+`target` identity, so it authorizes *every* future command of that transition that
+resolves to the same target (for example, every `git push` to `main`), does not
+expire, and stays valid until you delete it — it is not scoped to one unit of work,
+diff, or point in time. Never describe this discipline layer as "deterministic" or
+"fail-closed" — only the `target`-identity check is.
 
 A high-risk decision additionally records the **alternatives considered** and an
 explicit risk note (and may warrant an ADR).
@@ -116,9 +141,9 @@ anti-rigidity guidance, **not** an AWS-named tiering scheme.
 
 | Tier | When | Ceremony depth | Decision Record |
 | --- | --- | --- | --- |
-| **Trivial** | Low-risk, reversible, narrow scope (copy fix, isolated config). | Lightweight: a single proposer, no full mob round; you may approve inline. | Still required for the gate, but may be terse (one-line rationale). |
-| **Standard** | A typical feature unit of work. | Full Solo Mob: a lead proposes, ≥1 challenge agent contests, you decide. | Full Decision Record at each transition. |
-| **High-risk** | Irreversible, security-sensitive, broad blast radius, or high ambiguity. | Deepest: multiple challenge agents incl. security/adversarial review, explicit options surfaced. | Full Decision Record **plus** recorded alternatives and an explicit risk note; consider an ADR. |
+| **Trivial** | Low-risk, reversible, narrow scope (copy fix, isolated config). | Lightweight: a single proposer, no full mob round; you may approve **inline — or in advance**. | Still required for the gate, but may be terse (one-line rationale). **The only tier whose merge you may pre-authorize.** |
+| **Standard** | A typical feature unit of work. | Full Solo Mob: a lead proposes, ≥1 challenge agent contests, you decide. | Full Decision Record at each transition, decided **at** the gate. |
+| **High-risk** | Irreversible, security-sensitive, broad blast radius, or high ambiguity. | Deepest: multiple challenge agents incl. security/adversarial review, explicit options surfaced. | Full Decision Record **plus** recorded alternatives and an explicit risk note; consider an ADR. **Never pre-authorizable** — options must be surfaced and recorded *before* you decide, at the fork. |
 
 Rules:
 
@@ -127,3 +152,13 @@ Rules:
 - Triage **reduces ceremony, never the arbiter gate.** Even a trivial unit crosses a
   human decision point; triage changes *how much challenge*, not *whether you decide*.
   The human-as-arbiter principle holds at every tier.
+- **Pre-authorization is narrow.** You may grant sign-off *in advance* — letting an
+  agent scribe the record and proceed — **only** for a merge (Gate 3) when **all**
+  hold: the `target` is a branch you **named**; the unit is **trivial or low-risk and
+  reversible**; there is **no genuine design fork with real alternatives**; and it
+  **traces to a specific instruction** of yours naming the target and a maximum risk
+  tier. Anything else — a **design fork** (Gate 2) with real alternatives, a
+  **high-risk or irreversible** unit, a **deploy** (Gate 4), or any **unnamed
+  target** — is decided **at** the fork and returns to you. Scribing an approval you
+  never gave (inferring a fork, target, or risk tier you did not name) is a **breach**,
+  not a shortcut.

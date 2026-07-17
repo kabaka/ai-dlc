@@ -40,6 +40,10 @@ monitoring, and rollback.
   `chosen_option = approve` exists** for it. Absence of a record = closed gate =
   do not deploy. Enforcement is the real installed hook — never deploy on the
   honor system.
+- The record **artifact** may be agent-scribed, but the **deploy authorization it
+  captures is per-change and human-given** — decided by the human for *this*
+  release. Unlike a routine low-risk merge, a deploy is **never** pre-authorized by
+  a standing or blanket grant.
 
 ## What you do
 

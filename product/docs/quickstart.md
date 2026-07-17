@@ -77,6 +77,16 @@ Inception → Construction is **Gate 1**. Before any building starts, *you* reco
 the decision. `init` created `.ai-dlc/records/` for exactly this. Copy the template
 and fill it:
 
+> **This hands-on flow is one valid posture, not the only one.** Filling each
+> record yourself keeps you in the loop at every gate. Alternatively, for the
+> **later, routine merge gates (Gate 3, `construction-to-merge`)**, you can grant a
+> **standing, scoped authorization** up front — for routine, low-risk, reversible
+> merges to a target you name — and let the agent scribe the record within that
+> scope. That delegated posture does **not** apply to this Inception gate: **Gate 1
+> is a genuine fork you decide.** Genuine design forks, high-risk or irreversible
+> units, deploys, and unnamed targets always come back to you for a fresh decision.
+> See the [usage guide](usage.md) for the two postures and the exact scope boundary.
+
 ```bash
 cp .ai-dlc/templates/artifacts/decision-record.md .ai-dlc/records/DR-0001.md
 ```

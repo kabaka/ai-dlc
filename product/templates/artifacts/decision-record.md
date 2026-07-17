@@ -36,8 +36,8 @@ free-text reasoning in `rationale:`, never in `chosen_option:` (the hook matches
 | `chosen_option`| <one of: `approve` \| `request-changes` \| `reject` — exact value; a gate opens **only** on `approve`> |
 | `target`       | <the action this authorizes: the branch (e.g. `main`), the tag (e.g. `v1.2.0`), or `release`/`deploy`/`operations` for a deploy/release> |
 | `unit_of_work` | <id(s) of the unit(s) this decision covers> |
-| `rationale`    | <why — your free-text business/technical reasoning as arbiter (NOT in `chosen_option`)> |
-| `approver`     | <the human arbiter (one human, the solo model)> |
+| `rationale`    | <why — your free-text business/technical reasoning as arbiter (NOT in `chosen_option`). For an **upfront/standing** authorization, **cite the authorizing instruction** (quote or reference it) and state its scope (target(s) + maximum risk tier)> |
+| `approver`     | <the **human** arbiter (one human, the solo model) — the human authority **even when an agent scribed this file**> |
 | `date`         | <YYYY-MM-DD when recorded> |
 | `risk_tier`    | <trivial \| standard \| high-risk — makes ceremony depth auditable> |
 
@@ -46,6 +46,28 @@ free-text reasoning in `rationale:`, never in `chosen_option:` (the hook matches
 > enforced by the hook, because only they take the form of a Bash command. The
 > conceptual gates `inception-to-construction` and `design-fork` are
 > discipline-only: record them here for auditability, but no hook can block them.
+
+## Scribing is not deciding (who may write this record)
+
+The **human is the sole source of authority**. An agent **may scribe** this record
+when the human has genuinely authorized the transition — it may **never** invent or
+infer an authorization the human did not give. A scribed record is faithful only
+when `approver` names the **human** and `rationale` **cites the authorizing
+instruction**. For the full ALL-must-hold rule and the **scope-boundary stop** (any
+target, risk tier, or genuine design fork the human did not name returns to the
+human), see the guard block **"Scribing is not deciding"** in the `aidlc-workflow`
+skill's `reference/arbiter-gate.md`.
+
+**Optional — `authorization_source:` (NOT a machine field; the hook ignores it).**
+For a standing/upfront authorization you may add a free-text `authorization_source:`
+line that quotes or references the human instruction being transcribed and its
+scope. It is **documentation only**: the hook reads **only** the machine fields
+(`transition`, `chosen_option`, `target`) — never `authorization_source`,
+`rationale`, `approver`, or `risk_tier` — and it never makes the decision for you.
+Keep it to a **single line** that does **not** begin (or embed a line beginning
+with) `target:`, `transition:`, or `chosen_option:`, so the hook's line-anchored
+`grep` for the machine fields can never graze it — the machine `target:` appears
+first and `head -n1` wins, so this is belt-and-suspenders.
 
 ## High-risk addendum (required when `risk_tier: high-risk`)
 

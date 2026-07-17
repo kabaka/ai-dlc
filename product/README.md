@@ -110,9 +110,11 @@ recorded at each transition.
 A few principles make this honest rather than theatrical:
 
 - **You are the sole arbiter.** Four phase transitions require a recorded
-  **Decision Record** — your chosen option, rationale, and risk tier — before
-  work proceeds. On Claude Code a **real installed hook** blocks phase-transition
-  actions until that record exists; the model cannot talk past a missing decision.
+  **Decision Record** that carries *your* authorization (its chosen option,
+  rationale, and risk tier) — one you wrote yourself, or one an agent scribed from
+  a standing authorization you granted for routine, low-risk merges. On Claude Code
+  a **real installed hook** blocks phase-transition actions until that record
+  exists; the model cannot talk past a missing decision.
 - **Research is a first-class peer to software.** Research *parallelizes* (fan out
   many `researcher` agents), software development is *linear*. Research
   deliverables pass a **citation gate**: every load-bearing claim traces to a

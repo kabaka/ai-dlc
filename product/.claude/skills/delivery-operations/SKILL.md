@@ -24,7 +24,10 @@ authorized for deployment only when a Decision Record with `chosen_option =
 approve` exists for it.** Absence of a record = closed gate = do not deploy. You
 (the AI) prepare, propose, and contest; **the single human is the sole arbiter who
 authorizes the release.** Enforcement is the real installed hook (see `CLAUDE.md`
-and `aidlc-workflow`) — never deploy on the honor system.
+and `aidlc-workflow`) — never deploy on the honor system. The record **artifact**
+may be agent-scribed, but the **authorization it captures is per-change and
+human-given**: a deploy is **never** pre-authorized by a standing or blanket grant
+(unlike a routine low-risk merge). The human decides each release.
 
 The deploy Decision Record carries the standard fields (`decision_id`,
 `transition` = deploy/release, `unit_of_work`, `chosen_option`, `rationale`,

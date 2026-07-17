@@ -159,7 +159,11 @@ see "What tooling enforces" below.
 
 Each is a point where "AI proceeds only after human validation" (the human-as-
 arbiter loop) takes concrete form. Between these points AI proposes and contests
-freely; **at** these points work is **blocked** until the human records a decision.
+freely; **at** these points work is **blocked** until an authorizing record is
+present — recorded by the human at the fork, or scribed from the human's standing
+authorization for a routine, in-scope forward action (see "Scoped upfront
+authorization" below). The *authorization* is always the human's; the record
+*artifact* may be agent-scribed.
 
 **Decision Record — fields (the artifact the arbiter produces):**
 
@@ -193,6 +197,66 @@ them; they rely on the recorded Decision Record and discipline. Authors must not
 claim the hook enforces all four gates, but **may** describe what it does enforce
 (the gate classes, matched commands, record fields, and the jq requirement) — that
 contract is the user's safety guarantee.
+
+### Enforced vs. discipline — what the hook actually reads
+
+The enforcement boundary is narrower than the record schema. Partition it exactly;
+authors must not blur the two halves.
+
+- **ENFORCED (mechanical, the hook).** For **Gate 3 (`construction-to-merge`)** and
+  **Gate 4 (`to-operations`)** only, the hook denies the gated command unless a
+  record exists whose `transition` matches the gate class, `chosen_option` ==
+  `approve`, and `target` == the branch/tag/release identity being acted on. It
+  matches **`target` identity only**, fails **closed** without `jq`, and reaches
+  **only** these two gates. This half is deterministic.
+- **DISCIPLINE (the hook reads NONE of this).** That the record reflects a *genuine
+  human authorization*; that `approver` names a human; that `rationale` cites the
+  authorizing instruction; that the decision is scoped per-unit, per-risk, or
+  per-time; and that the orchestrator stops at the scope boundary. The hook never
+  reads `approver`, `rationale`, `risk_tier`, or `unit_of_work`. **Honest fact:** a
+  single `approve` record is keyed to its `transition` + `target` **identity**, so it
+  authorizes **every** future command of that transition that resolves to the same
+  target (for example, every `git push` to `main`), does **not** expire, and stays
+  valid until deleted — it is not scoped to one unit of work, diff, or point in time;
+  the hook re-checks the same record on every such command. Never present the
+  discipline half as "deterministic" or
+  "fail-closed"; only the enforced half is.
+
+### Scoped upfront authorization (a coarse-grained arbiter decision)
+
+The arbiter's decision may be **coarse-grained**: a human can authorize a class of
+routine, low-risk forward actions *in advance*, and an agent may then scribe the
+record and proceed within that scope. This is **not** a bypass of the human-as-
+arbiter loop — the human still decided; the decision is simply made once, upfront,
+over a named scope rather than re-made at each crossing.
+
+Separate **authorship** from **timing**:
+
+- The record **artifact** may always be agent-scribed.
+- The human still **decides** every *genuine fork* — a real choice among real
+  alternatives — and those decisions are **timing-constrained**: they are made *at*
+  the fork, not pre-granted.
+- Only **routine, low-risk, forward** actions may be **pre-authorized**.
+
+**Scoped upfront authorization is valid only if ALL of the following hold** (if any
+fails, the gate is **closed** → the orchestrator stops and asks the human):
+
+- **(a)** the transition is **`construction-to-merge`** (Gate 3);
+- **(b)** the `target` is **explicitly named by the human**;
+- **(c)** the unit is **trivial, or low-risk and reversible**;
+- **(d)** there is **no genuine design fork with real alternatives** in the unit;
+- **(e)** it **traces to a specific human instruction** naming the target(s) and a
+  maximum risk tier.
+
+The following are **never** pre-authorizable and always return to the human at the
+fork: **Gate 2 design forks with real alternatives**; **high-risk or irreversible
+units** (these require options-considered recorded **first**); **`to-operations` /
+deploy** (Gate 4); and **any unnamed target**.
+
+**Breach.** Fabricating or inferring an authorization the human did not give —
+scribing an approve record for a fork, target, or risk tier the human never named —
+is the breach the discipline exists to prevent. It is a Core-Principle-1 defect, not
+a shortcut.
 
 ---
 
@@ -242,6 +306,17 @@ describe it:
    AWS-named scheme.
 5. **No Operations ceremony (§1, §2)** — *Not a deviation; a fidelity guardrail.*
    Authors must not add one.
+6. **Scoped upfront authorization (§4)** — *Deviation:* the arbiter decision may be
+   made once, upfront, over a named scope (routine low-risk merges to a named
+   target) instead of re-made at each crossing. *Honest framing:* this is a
+   **coarse-grained arbiter decision, not a bypass** — the human still decides, and
+   an agent-scribed record is permitted (authorship ≠ authority). **Fabricating or
+   inferring an authorization the human did not give is the breach.** State the
+   enforcement boundary plainly: the hook enforces **`transition` + `target` identity
+   only** — it does **not** read per-unit, per-risk, or per-time scoping, so a single
+   `approve` record authorizes every future command of that transition that resolves
+   to the same target (for example, every `git push` to `main`), non-expiring, until
+   deleted. That scoping is **discipline**, never "deterministic" or "fail-closed."
 
 All four phases, ceremonies, and vocabulary terms (bolt, unit of work, mob
 elaboration/construction, arbiter) are otherwise used exactly as the canonical skill
